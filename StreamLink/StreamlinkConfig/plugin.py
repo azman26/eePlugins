@@ -193,7 +193,11 @@ class SLK_Menu(Screen):
                     Mlist.append(self.buildListEntry("Konfiguacja cda", "cdapl.png",'menuDRMcda'))
                     Mlist.append(self.buildListEntry("Konfiguacja player.pl", "playerpl.png",'menuDRMplayerpl'))
                     Mlist.append(self.buildListEntry("Konfiguacja posatbox", "polsatboxgo.png",'menuDRMpolsatbox'))
-                    Mlist.append(self.buildListEntry("Konfiguacja sweet.tv (tylko konta opłacone)", "sweettv.png",'menuDRMsweettv'))
+                    Mlist.append(self.buildListEntry("Konfiguacja sweet.tv (CF protection)", "sweettv.png",'menuDRMsweettv'))
+                    Mlist.append(self.buildListEntry("Konfiguacja Canal+ (NP)", "canalplusvod.png",'menuDRMcanalplusvod'))
+                    Mlist.append(self.buildListEntry("Konfiguacja spotify (NP)", "spotify.png",'menuDRMspotify'))
+                    Mlist.append(self.buildListEntry("Konfiguacja Play now (NP)", "playnow.png",'menuDRMplaynow'))
+                    Mlist.append(self.buildListEntry("Konfiguacja UPC (NP)", "upcgo.png",'menuDRMupcgo'))
 
         self["list"].list = Mlist
 
