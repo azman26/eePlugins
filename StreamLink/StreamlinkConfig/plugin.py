@@ -193,11 +193,27 @@ class SLK_Menu(Screen):
                     Mlist.append(self.buildListEntry("Konfiguacja cda", "cdapl.png",'menuDRMcda'))
                     Mlist.append(self.buildListEntry("Konfiguacja player.pl", "playerpl.png",'menuDRMplayerpl'))
                     Mlist.append(self.buildListEntry("Konfiguacja posatbox", "polsatboxgo.png",'menuDRMpolsatbox'))
-                    Mlist.append(self.buildListEntry("Konfiguacja sweet.tv (CF protection)", "sweettv.png",'menuDRMsweettv'))
-                    Mlist.append(self.buildListEntry("Konfiguacja Canal+ (NP)", "canalplusvod.png",'menuDRMcanalplusvod'))
-                    Mlist.append(self.buildListEntry("Konfiguacja spotify (NP)", "spotify.png",'menuDRMspotify'))
-                    Mlist.append(self.buildListEntry("Konfiguacja Play now (NP)", "playnow.png",'menuDRMplaynow'))
-                    Mlist.append(self.buildListEntry("Konfiguacja UPC (NP)", "upcgo.png",'menuDRMupcgo'))
+                    Mlist.append(self.buildListEntry("Konfiguacja sweet.tv (zabezpieczony CF)", "sweettv.png",'menuDRMsweettv'))
+                    
+                    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/menuDRMcanalplusvod.py'):
+                        Mlist.append(self.buildListEntry("Konfiguacja Canal+", "canalplusvod.png",'menuDRMcanalplusvod'))
+                    else:
+                        Mlist.append(self.buildListEntry("Nie masz dostępu do konfiguratora Canal+", "canalplusvod.png",'doNothing'))
+                    
+                    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/menuDRMspotify.py'):
+                        Mlist.append(self.buildListEntry("Konfiguacja spotify", "spotify.png",'menuDRMspotify'))
+                    else:
+                        Mlist.append(self.buildListEntry("Nie masz dostępu do konfiguratora spotify", "spotify.png",'doNothing'))
+                    
+                    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/menuDRMplaynow.py'):
+                        Mlist.append(self.buildListEntry("Konfiguacja Play now", "playnow.png",'menuDRMplaynow'))
+                    else:
+                        Mlist.append(self.buildListEntry("Nie masz dostępu do konfiguratora Play now", "playnow.png",'doNothing'))
+                    
+                    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/menuDRMupcgo.py'):
+                        Mlist.append(self.buildListEntry("Konfiguacja UPC go", "upcgo.png",'menuDRMupcgo'))
+                    else:
+                        Mlist.append(self.buildListEntry("Nie masz dostępu do konfiguratora UPC go", "upcgo.png",'doNothing'))
 
         self["list"].list = Mlist
 
@@ -260,6 +276,26 @@ class SLK_Menu(Screen):
             import Plugins.Extensions.StreamlinkConfig.menuDRMsweettv
             reload(Plugins.Extensions.StreamlinkConfig.menuDRMsweettv)
             self.session.openWithCallback(self.doNothing,Plugins.Extensions.StreamlinkConfig.menuDRMsweettv.StreamlinkConfiguration)
+            return
+        elif selected == 'menuDRMcanalplusvod':
+            import Plugins.Extensions.StreamlinkConfig.menuDRMcanalplusvod
+            reload(Plugins.Extensions.StreamlinkConfig.menuDRMcanalplusvod)
+            self.session.openWithCallback(self.doNothing,Plugins.Extensions.StreamlinkConfig.menuDRMcanalplusvod.StreamlinkConfiguration)
+            return
+        elif selected == 'menuDRMspotify':
+            import Plugins.Extensions.StreamlinkConfig.menuDRMspotify
+            reload(Plugins.Extensions.StreamlinkConfig.menuDRMspotify)
+            self.session.openWithCallback(self.doNothing,Plugins.Extensions.StreamlinkConfig.menuDRMspotify.StreamlinkConfiguration)
+            return
+        elif selected == 'menuDRMplaynow':
+            import Plugins.Extensions.StreamlinkConfig.menuDRMplaynow
+            reload(Plugins.Extensions.StreamlinkConfig.menuDRMplaynow)
+            self.session.openWithCallback(self.doNothing,Plugins.Extensions.StreamlinkConfig.menuDRMplaynow.StreamlinkConfiguration)
+            return
+        elif selected == 'menuDRMupcgo':
+            import Plugins.Extensions.StreamlinkConfig.menuDRMupcgo
+            reload(Plugins.Extensions.StreamlinkConfig.menuDRMupcgo)
+            self.session.openWithCallback(self.doNothing,Plugins.Extensions.StreamlinkConfig.menuDRMupcgo.StreamlinkConfiguration)
             return
 
     def doNothing(self, retVal = None):
