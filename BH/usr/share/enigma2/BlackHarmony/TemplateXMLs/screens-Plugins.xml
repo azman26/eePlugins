@@ -2426,8 +2426,8 @@
     <widget name="picDescr" position="0,0" size="10,10" font="Regular;10" halign="left" valign="center" zPosition="2" noWrap="1" transparent="0"/>
   </screen>
   <!--OSCamInfo-->
-  <screen name="OSCamInfo" position="0,0" size="1950,1080" backgroundColor="transparent" title="OSCam Information" flags="wfNoBorder" >
-    <ePixmap position="0,0" zPosition="-10" size="1950,1080" pixmap="BlackHarmony/bg_design/EPGPig.png"/>
+  <screen name="OSCamInfo" position="0,0" size="1920,1080" backgroundColor="transparent" title="OSCam Information" flags="wfNoBorder" >
+    <ePixmap position="0,0" zPosition="-10" size="1920,1080" pixmap="BlackHarmony/bg_design/EPGPig.png"/>
     <widget source="global.CurrentTime" render="Label" position="81,50" size="80,32" font="Roboto_HD; 27" backgroundColor="black" transparent="1">
       <convert type="ClockToText">Default</convert>
     </widget>
@@ -2533,8 +2533,8 @@
   </screen>
 
   <!--OSCamEntitlements-->
-  <screen name="OSCamEntitlements" position="0,0" size="1950,1080" backgroundColor="transparent" title="OSCam Entitlements" flags="wfNoBorder" >
-    <ePixmap position="0,0" zPosition="-10" size="1950,1080" pixmap="BlackHarmony/bg_design/EPGPig.png"/>
+  <screen name="OSCamEntitlements" position="0,0" size="1920,1080" backgroundColor="transparent" title="OSCam Entitlements" flags="wfNoBorder" >
+    <ePixmap position="0,0" zPosition="-10" size="1920,1080" pixmap="BlackHarmony/bg_design/EPGPig.png"/>
     <widget source="global.CurrentTime" render="Label" position="81,50" size="80,32" font="Roboto_HD; 27" backgroundColor="black" transparent="1">
       <convert type="ClockToText">Default</convert>
     </widget>
@@ -2672,8 +2672,8 @@
   </screen>
  
 <!--OSCamInfoLog--> 
-  <screen name="OSCamInfoLog" position="0,0" size="1950,1080" backgroundColor="transparent" title="OSCamInfo Log" flags="wfNoBorder" >
-    <ePixmap position="0,0" zPosition="-10" size="1950,1080" pixmap="BlackHarmony/bg_design/EPGPig.png"/>
+  <screen name="OSCamInfoLog" position="0,0" size="1920,1080" backgroundColor="transparent" title="OSCamInfo Log" flags="wfNoBorder" >
+    <ePixmap position="0,0" zPosition="-10" size="1920,1080" pixmap="BlackHarmony/bg_design/EPGPig.png"/>
     <widget source="global.CurrentTime" render="Label" position="81,50" size="80,32" font="Roboto_HD; 27" backgroundColor="black" transparent="1">
       <convert type="ClockToText">Default</convert>
     </widget>
