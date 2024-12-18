@@ -190,26 +190,30 @@ class SLK_Menu(Screen):
                     for cfgFile in ['playermb', 'canalplusvod', 'pgobox', 'cdaplMB', 'sweettvpl']:
                         if not os.path.exists('/etc/streamlink/%s' % cfgFile):
                             os.system('mkdir -p /etc/streamlink/%s' % cfgFile)
-                    Mlist.append(self.buildListEntry("Konfiguacja cda", "cdapl.png",'menuDRMcda'))
-                    Mlist.append(self.buildListEntry("Konfiguacja player.pl", "playerpl.png",'menuDRMplayerpl'))
-                    Mlist.append(self.buildListEntry("Konfiguacja posatbox", "polsatboxgo.png",'menuDRMpolsatbox'))
-                    Mlist.append(self.buildListEntry("Konfiguacja sweet.tv (zabezpieczony CF)", "sweettv.png",'menuDRMsweettv'))
                     
+                    #canalplusvod
                     if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/menuDRMcanalplusvod.py'):
                         Mlist.append(self.buildListEntry("Konfiguacja Canal+", "canalplusvod.png",'menuDRMcanalplusvod'))
                     else:
                         Mlist.append(self.buildListEntry("Nie masz dostępu do konfiguratora Canal+", "canalplusvod.png",'doNothing'))
-                    
-                    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/menuDRMspotify.py'):
-                        Mlist.append(self.buildListEntry("Konfiguacja spotify", "spotify.png",'menuDRMspotify'))
-                    else:
-                        Mlist.append(self.buildListEntry("Nie masz dostępu do konfiguratora spotify", "spotify.png",'doNothing'))
-                    
+                    #playerpl
+                    Mlist.append(self.buildListEntry("Konfiguacja cda", "cdapl.png",'menuDRMcda'))
+                    Mlist.append(self.buildListEntry("Konfiguacja player.pl", "playerpl.png",'menuDRMplayerpl'))
+                    #playnow
                     if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/menuDRMplaynow.py'):
                         Mlist.append(self.buildListEntry("Konfiguacja Play now", "playnow.png",'menuDRMplaynow'))
                     else:
                         Mlist.append(self.buildListEntry("Nie masz dostępu do konfiguratora Play now", "playnow.png",'doNothing'))
-                    
+                    #polsatboxgo
+                    Mlist.append(self.buildListEntry("Konfiguacja posatbox", "polsatboxgo.png",'menuDRMpolsatbox'))
+                    #spotify
+                    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/menuDRMspotify.py'):
+                        Mlist.append(self.buildListEntry("Konfiguacja spotify", "spotify.png",'menuDRMspotify'))
+                    else:
+                        Mlist.append(self.buildListEntry("Nie masz dostępu do konfiguratora spotify", "spotify.png",'doNothing'))
+                    #sweettv
+                    Mlist.append(self.buildListEntry("Konfiguacja sweet.tv", "sweettv.png",'menuDRMsweettv'))
+                    #upcgo
                     if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/menuDRMupcgo.py'):
                         Mlist.append(self.buildListEntry("Konfiguacja UPC go", "upcgo.png",'menuDRMupcgo'))
                     else:

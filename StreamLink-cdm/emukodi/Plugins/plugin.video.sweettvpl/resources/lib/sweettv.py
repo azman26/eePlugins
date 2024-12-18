@@ -169,7 +169,8 @@ def getEPG(id):
     jsdata = helper.request_sess(url, 'post', headers=headers, data = json_data, json=True, json_data = True)
     print(jsdata)
     if jsdata.get("code", None) == 16:
-        if jsdata.get("message", None) == 'token is expired':
+        if jsdata.get("message", '') in ('token is expired', 'Bearer realm="auth"'):
+            print('Sweet.tv', 'Odświerzam nieaktualny token logowania')
             helper.set_setting('bearer', '')
             refr = refreshToken()
             if refr:
@@ -208,7 +209,8 @@ def mainpage(id):
     jsdata=channelList()
     
     if jsdata.get("code", None) == 16:
-        if jsdata.get("message", None) == 'token is expired':
+        if jsdata.get("message", '') in ('token is expired', 'Bearer realm="auth"'):
+            print('Sweet.tv', 'Odświerzam nieaktualny token logowania')
             helper.set_setting('bearer', '')
             refr = refreshToken()
             if refr:
@@ -363,7 +365,7 @@ def loginTV():
     dialog = xbmcgui.Dialog()
     # show loading dialog
     pDialog = xbmcgui.DialogProgress()
-    pDialog.create('Sweet.tv', f"Enter code: {auth_code}")
+    pDialog.create('sweet.tv', f"Wpisz kod {auth_code} w Moje konto > Moje urządzenia")
     # wait for user to enter code
     jsdata = {"auth_code": auth_code}
     from json import dumps
@@ -373,6 +375,8 @@ def loginTV():
         **helper.headers,
         'Content-Type': 'application/json',
     }
+
+    time_to_wait=340 
     while not result:
         if pDialog.iscanceled():
             helper.notification('Information', 'Logowanie przerwane')
@@ -384,6 +388,10 @@ def loginTV():
             result = jsdata
         else:
             time.sleep(3)
+            time_to_wait -= 3
+            if time_to_wait < 0:
+                result = {'result': 'Logowanie przerwane'}
+                helper.set_setting('logged', 'false')
 
     if result.get("result") == 'COMPLETED':
         access_token = result.get("access_token")
@@ -405,7 +413,7 @@ def playvid(id):
     else:
         idx,pid = id.split('|')
         json_data = {
-            'without_auth': True,
+            'without_auth': False,
             'channel_id': int(idx),
             #'accept_scheme': ['HTTP_HLS',],
             'multistream': True,
@@ -417,10 +425,10 @@ def playvid(id):
         
         headers = {
                 'Host': 'api.sweet.tv',
-                'user-agent': helper.UA,
+                'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36', #helper.UA,
                 'accept': 'application/json, text/plain, */*',
                 'accept-language': 'pl',
-                'x-device': '1;22;0;2;'+ helper.version,
+                'x-device': '1;22;0;2;4.7.06', #+ helper.version,
                 'origin': 'https://sweet.tv',
                 'dnt': '1',
                 'referer': 'https://sweet.tv/',
@@ -431,7 +439,9 @@ def playvid(id):
         jsdata = helper.request_sess(url, 'post', headers=headers, data = json_data, json=True, json_data = True)
 
         if jsdata.get("code", None) == 16:
-            if jsdata.get("message", None) == 'token is expired':
+            print('playvid() jsdata returned:',jsdata)
+            if jsdata.get("message", '') in ('token is expired', 'Bearer realm="auth"'):
+                print('Sweet.tv', 'Odświerzam nieaktualny token logowania')
                 helper.set_setting('bearer', '')
                 refr = refreshToken()
                 if refr:
@@ -469,7 +479,16 @@ def playvid(id):
                 PROTOCOL = 'hls'
                 subs =None
             
-            if helper.get_setting('playerType')=='ffmpeg' and DRM==None: 
+            if helper.get_setting('playerType')=='ffmpeg' and DRM==None:
+                m3u8data = helper.request_sess(stream_url, headers=headers)
+                #print('playvid() m3u8data:',m3u8data)
+                lines = m3u8data.splitlines()
+                for line in lines:
+                    if line.startswith('http'):
+                        stream_url = line
+                #print('playvid() m3u8data stream_url:',stream_url)
+                stream_url = stream_url.replace('https://api.sweet.tv', host)
+                #print('playvid() final stream_url:',stream_url)
                 helper.ffmpeg_player(stream_url)
             else:
                 helper.PlayVid(stream_url, lic_url, PROTOCOL, DRM, flags=False, subs = subs,vod=vod)
@@ -487,7 +506,7 @@ def listM3U():
         dataE2 = '' #j00zek for E2 bouquets
         channels=channelList()
         if channels.get("code", None) == 16:
-            if channels.get("message", None) == 'token is expired' or channels.get("message", None) == 'Bearer realm="auth"':
+            if jsdata.get("message", '') in ('token is expired', 'Bearer realm="auth"'):
                 xbmcgui.Dialog().notification('Sweet tv', 'Token już wygasł, próbuję odświerzyć', xbmcgui.NOTIFICATION_INFO)
                 helper.set_setting('bearer', '')
                 refr = refreshToken()

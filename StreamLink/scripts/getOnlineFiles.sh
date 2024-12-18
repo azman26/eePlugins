@@ -15,6 +15,7 @@ rm -f ~/streamlink-master/src/streamlink/plugins/vtvgo.* 2 > /dev/null
 #przeniesienie plugins do opcjonalnych
 rm -f $SLoptionalPluginsPath/*
 mv -f ~/streamlink-master/src/streamlink/plugins/* $SLoptionalPluginsPath
+
 #niektóre są potrzebne, więc z powrotem
 mv -f $SLoptionalPluginsPath/__init__.py ~/streamlink-master/src/streamlink/plugins/
 mv -f $SLoptionalPluginsPath/dash.py ~/streamlink-master/src/streamlink/plugins/
@@ -26,6 +27,7 @@ mv -f $SLoptionalPluginsPath/tvtoya.py ~/streamlink-master/src/streamlink/plugin
 mv -f $SLoptionalPluginsPath/vk.py ~/streamlink-master/src/streamlink/plugins/
 mv -f $SLoptionalPluginsPath/youtube.py ~/streamlink-master/src/streamlink/plugins/
 #mv -f $SLoptionalPluginsPath/ ~/streamlink-master/src/streamlink/plugins/
+touch $SLoptionalPluginsPath/*
 $myAbsPath/../../build_ipk.sh "$myAbsPath/../../Streamlink-optionalPlugins" #> /dev/null
 
 mkdir -p $SLpath/bin/site-packages/streamlink/

@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import os, subprocess, sys
 print('PRZYKLAD: streamlink -l debug [ -o /tmp/fileName] "url" best')
+os.nice(-10)
 
 idx = 0
 for argument in sys.argv:
@@ -19,10 +20,10 @@ for argument in sys.argv:
 pid = os.getpid()
 fname = '/var/run/%s.pid' % os.path.basename(__file__).replace('.pyc', '').replace('.pyo', '').replace('.py', '')
 if os.path.exists(fname):
-    print('[%s] found, killing process' % fname )
+    #print('[%s] found, killing process' % fname )
+    os.remove(fname)
     pid2del = open(fname , 'r').read().strip()
     subprocess.Popen('kill %s 2>/dev/null;sleep 0.3;rm -f /tmp/streamlinkpipe-%s-* 2>/dev/null' % (pid2del,pid2del), shell=True)
-    os.remove(fname)
 with open(fname , 'w') as f:
     f.write(str(pid))
     f.close()
