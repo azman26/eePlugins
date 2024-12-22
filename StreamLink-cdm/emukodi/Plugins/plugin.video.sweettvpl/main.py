@@ -27,5 +27,7 @@ if __name__ == '__main__':
         logout()
     elif mode == 'listM3U':
         listM3U()
+    elif mode == 'refreshToken':
+        refreshToken()
     elif mode == 'playtvs':
         playvid(exlink + '|null')

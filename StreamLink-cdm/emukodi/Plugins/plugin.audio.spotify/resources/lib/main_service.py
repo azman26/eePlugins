@@ -12,10 +12,10 @@ from utils import log_msg, ADDON_ID, log_exception, get_token, Spotty, PROXY_POR
 from player_monitor import ConnectPlayer
 from connect_daemon import ConnectDaemon
 from httpproxy import ProxyRunner
-import xbmc
-import xbmcaddon
-import xbmcgui
-import xbmcvfs
+from emukodi import xbmc
+from emukodi import xbmcaddon
+from emukodi import xbmcgui
+from emukodi import xbmcvfs
 import subprocess
 import os
 import sys

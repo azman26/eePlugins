@@ -64,11 +64,11 @@ sess = requests.Session()
 sess.mount("https://", CustomCipherAdapter())
 
 
-import xbmcgui
-import xbmcplugin
-import xbmcaddon
-import xbmc
-import xbmcvfs
+from emukodi import xbmcgui
+from emukodi import xbmcplugin
+from emukodi import xbmcaddon
+from emukodi import xbmc
+from emukodi import xbmcvfs
 
 import json
 import inputstreamhelper

@@ -453,6 +453,7 @@ def playvid(id):
             xbmcgui.Dialog().notification('Sweet.tv', 'Nagranie niedostępne', xbmcgui.NOTIFICATION_INFO)
             xbmcplugin.setResolvedUrl(helper.handle, False, xbmcgui.ListItem())
         if jsdata.get("result", None) == 'OK':
+            print('Sweet.tv', 'Dane z API pobrane poprawnie')
             host = jsdata.get('http_stream', None).get('host', None).get('address', None)
             nt = jsdata.get('http_stream', None).get('url', None)
             stream_url = 'https://'+host+nt
@@ -487,7 +488,7 @@ def playvid(id):
                     if line.startswith('http'):
                         stream_url = line
                 #print('playvid() m3u8data stream_url:',stream_url)
-                stream_url = stream_url.replace('https://api.sweet.tv', host)
+                stream_url = stream_url.replace('api.sweet.tv', host)
                 #print('playvid() final stream_url:',stream_url)
                 helper.ffmpeg_player(stream_url)
             else:
@@ -506,7 +507,7 @@ def listM3U():
         dataE2 = '' #j00zek for E2 bouquets
         channels=channelList()
         if channels.get("code", None) == 16:
-            if jsdata.get("message", '') in ('token is expired', 'Bearer realm="auth"'):
+            if channels.get("message", '') in ('token is expired', 'Bearer realm="auth"'):
                 xbmcgui.Dialog().notification('Sweet tv', 'Token już wygasł, próbuję odświerzyć', xbmcgui.NOTIFICATION_INFO)
                 helper.set_setting('bearer', '')
                 refr = refreshToken()
@@ -520,9 +521,9 @@ def listM3U():
             for c in channels['list']:
                 if c.get('available',None):
                     img=c.get('icon_v2_url',None)
-                    cName=c.get('name',None)
-                    cid=c.get('id',None)
-                    if cid is not None and cid != '':
+                    cName=c.get('name','')
+                    cid=c.get('id','')
+                    if cid.strip() != '' and cName.strip() != '':
                         channelsCount += 1
                         data += '#EXTINF:0 tvg-id="%s" tvg-logo="%s" group-title="Sweet.tv" ,%s\nplugin://plugin.video.sweettvpl/playvid/%s|null\n' %(cName,img,cName,cid)
                         dataE2 += 'plugin.video.sweettvpl/main.py%3fmode=playtvs&url=' + '%s:%s\n' % (cid, cName) #j00zek for E2 bouquets

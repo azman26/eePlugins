@@ -1379,15 +1379,15 @@ if __name__ == '__main__':
         klient = addon.getSetting('klient')
         if klient == 'iCOK' or klient == 'polsatbox':
             pass
-        elif klient.lower().strip() == 'icok':
+        elif 'icok' in klient.lower().strip():
             klient = 'iCOK'
             set_setting('klient', klient)
-        elif klient.lower().strip() == 'polsatbox':
+        elif 'polsatbox' in klient.lower().strip():
             klient = 'polsatbox'
             set_setting('klient', klient)
-        else:
-            klient = 'polsatbox'
-            set_setting('klient', klient)
+        #else:
+        #    klient = 'polsatbox'
+        #    set_setting('klient', klient)
 
         IPLA().logowanie()
             

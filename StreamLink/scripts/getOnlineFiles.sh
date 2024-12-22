@@ -41,11 +41,14 @@ cp -f $SLpath/bin/e2config.py $SLpath/bin/site-packages/streamlink/e2config.py
 
 echo "Dołączanie nieoficjalnych wtyczek j00zka do streamlinka..."
 find $SLpath/plugins/unofficial/ -iname *.py|while read f; do
-    echo "$f"
+    #echo "$f"
     f2=`echo "$f"|sed "s;plugins/unofficial/;bin/site-packages/streamlink/;"`
+    if [ -e "$f2" ];then
+      mv -f "$f2" "$f2.org" #koopia oryginałów
+    fi
     #echo "$f2"
     cp -f "$f" "$f2"
-    echo cp -f "$f" "$f2"
+    #echo cp -f "$f" "$f2"
   done
 
 

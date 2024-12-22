@@ -5,5 +5,4 @@ if ! [ -e /usr/lib/python3.12/site-packages ];then
 else
   rm -f /usr/lib/python3.12/site-packages/pywidevine/cdmdevice/*.pyc
   rm -f /usr/lib/python3.12/site-packages/emukodi/*.pyc
-  rm -f /usr/lib/python3.12/site-packages/emukodi/ExtPlayer/*.pyc
 fi

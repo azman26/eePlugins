@@ -3,11 +3,11 @@ import os
 import sys
 
 import requests
-import xbmc
-import xbmcgui
-import xbmcplugin
-import xbmcaddon
-import xbmcvfs
+from emukodi import xbmc
+from emukodi import xbmcgui
+from emukodi import xbmcplugin
+from emukodi import xbmcaddon
+from emukodi import xbmcvfs
 import re
 import base64
 import json

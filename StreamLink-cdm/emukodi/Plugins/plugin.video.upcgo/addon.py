@@ -3,11 +3,11 @@ import os
 import sys
 
 import requests
-import xbmc
-import xbmcgui
-import xbmcplugin
-import xbmcaddon
-import xbmcvfs
+from emukodi import xbmc
+from emukodi import xbmcgui
+from emukodi import xbmcplugin
+from emukodi import xbmcaddon
+from emukodi import xbmcvfs
 import re
 import base64
 import json
@@ -44,7 +44,7 @@ def addItemList(url, name, setArt, medType=False, infoLab={}, isF=True, isPla='f
     li.setProperty("IsPlayable", isPla)
     if medType:
         kodiVer=xbmc.getInfoLabel('System.BuildVersion')
-        if kodiVer.startswith('19.'):
+        if 1: #j00zek to satisfy emukodi kodiVer.startswith('19.'):
             li.setInfo(type=medType, infoLabels=infoLab)
         else:
             types={'video':'getVideoInfoTag','music':'getMusicInfoTag'}
@@ -386,7 +386,8 @@ def channels_gen():#
     saveJSON(fURL,channels)
 
 def getSchedule(): #EPG
-    d_utc=datetime.datetime.utcnow()
+    #d_utc=datetime.datetime.utcnow() #j00zek deprecated
+    d_utc=datetime.datetime.now(datetime.UTC)
     ymd=d_utc.strftime('%Y%m%d')
     H=int(d_utc.strftime('%H'))
     partDay=6*int(H/6)
@@ -1794,6 +1795,7 @@ def generate_m3u():#
         return
     xbmcgui.Dialog().notification('UPC GO', 'Generuję liste M3U.', xbmcgui.NOTIFICATION_INFO)
     data = '#EXTM3U\n'
+    dataE2 = '' #j00zek for E2 bouquets
     channels_gen()
     fURL=PATH_profile+'channels.json'
     channels=openJSON(fURL)
@@ -1807,11 +1809,17 @@ def generate_m3u():#
             data += '#EXTINF:0 tvg-id="%s" tvg-logo="%s" catchup="default" catchup-source="plugin://plugin.video.upcgo?mode=replaySC&cid=%s&ts={utc:Ymd_H:M:S}&rd=%s" catchup-days="%s",%s\nplugin://plugin.video.upcgo?mode=playChanList&cid=%s\n' % (channelName,channelLogo,channelID,str(rd),str(days),channelName,channelID)
         else:
             data += '#EXTINF:0 tvg-id="%s" tvg-logo="%s",%s\nplugin://plugin.video.upcgo?mode=playChanList&cid=%s\n' % (channelName,channelLogo,channelName,channelID)
+            dataE2 += 'plugin.video.upcgo/addon.py?mode=playChanList&cid=' + '%s:%s\n' % (channelID, channelName) #j00zek for E2 bouquets
 
     f = xbmcvfs.File(path_m3u + file_name, 'w')
     f.write(data)
     f.close()
     xbmcgui.Dialog().notification('UPC GO', 'Wygenerowano listę M3U.', xbmcgui.NOTIFICATION_INFO)
+    
+    f = xbmcvfs.File(os.path.join(path_m3u, 'iptv.e2b'), 'w') #j00zek for E2 bouquets
+    f.write(dataE2)
+    f.close()
+    xbmcgui.Dialog().notification('UPC GO', 'Wygenerowano listę E2B', xbmcgui.NOTIFICATION_INFO)
 
 mode = params.get('mode', None)
 
@@ -1840,6 +1848,10 @@ else:
 
     if mode=='playLiveTV':
         c=params.get('chID')
+        playLiveTV(c)
+
+    if mode=='playvid':
+        c=params.get('url')
         playLiveTV(c)
 
     if mode=='calendar':
