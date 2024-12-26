@@ -1,12 +1,12 @@
 from Components.ActionMap import ActionMap
 from Components.config import *
-from enigma import getDesktop, eDVBDB
+from enigma import eConsoleAppContainer, eDVBDB, eTimer, getDesktop
 from Plugins.Extensions.EmuKodi.plugin import safeSubprocessCMD
 from Plugins.Extensions.EmuKodi.version import Version
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 
-import json, os, sys, subprocess, time
+import json, os, sys, subprocess, time, traceback
 
 import Screens.Standby
 ####MENU
@@ -29,6 +29,7 @@ DBG = True
 ################################################################################################
 config.plugins.EmuKodi = ConfigSubsection()
 config.plugins.EmuKodi.configItem = NoSave(ConfigNothing())
+config.plugins.EmuKodi.selectedMenuIndex = NoSave(ConfigInteger(default = 0, limits = (0, 20)))
 config.plugins.EmuKodi.openSelected = NoSave(ConfigText(default = '', fixed_size = False))
 config.plugins.EmuKodi.username  = NoSave(ConfigText(default = '', fixed_size = False))
 config.plugins.EmuKodi.password  = NoSave(ConfigPassword(default = '', fixed_size = False))
@@ -49,6 +50,11 @@ def saveCFG(cfgName, val = ''):
         fw.write(val.strip())
         fw.close()
 
+def ensure_str(string2decode):
+    if isinstance(string2decode, bytes):
+        return string2decode.decode('utf-8', 'ignore')
+    return string2decode
+
 class EmuKodi_Menu(Screen):
     skin = """
 <screen position="center,center" size="880,500">
@@ -66,6 +72,7 @@ class EmuKodi_Menu(Screen):
 </screen>"""
 
     def __init__(self, session):
+        print('EmuKodi_Menu.__init__() >>>')
         Screen.__init__(self, session)
         self.setup_title = "EmuKodi menu v. %s" % Version
         Screen.setTitle(self, self.setup_title)
@@ -111,12 +118,14 @@ class EmuKodi_Menu(Screen):
             else:
                 Mlist.append(self.buildListEntry(None, r'\c00289496' + "*** Pełne wsparcie KODI>DRM ***", "info.png"))
 
-                if not cdmStatus is None:
-                    addonKeysList = []
-                    for addonKey in sorted(self.addonsDict, key=str.casefold):
-                        Mlist.append(self.buildListEntry(addonKey))
+            if not cdmStatus is None:
+                addonKeysList = []
+                for addonKey in sorted(self.addonsDict, key=str.casefold):
+                    Mlist.append(self.buildListEntry(addonKey))
 
         self["list"].list = Mlist
+        self["list"].setCurrentIndex(config.plugins.EmuKodi.selectedMenuIndex.value)
+        print('setCurrentIndex', config.plugins.EmuKodi.selectedMenuIndex.value)
 
     def buildListEntry(self, addonKey, description = '', image=''):
         if addonKey is not None:
@@ -144,6 +153,8 @@ class EmuKodi_Menu(Screen):
             print('EmuKodi_Menu.configSelected(%s) addon not existing or not enabled, exiting' % SelectedAddonKey)
             return
         else:
+            config.plugins.EmuKodi.selectedMenuIndex.value = self["list"].getCurrentIndex()
+            print('getCurrentIndex', config.plugins.EmuKodi.selectedMenuIndex.value)
             #tworzenie katalogu konfiguracyjnego
             cfgDir = SelectedAddonDef['cfgDir']
             if not os.path.exists('/etc/streamlink/%s' % cfgDir):
@@ -152,7 +163,6 @@ class EmuKodi_Menu(Screen):
             try:
                 self.session.openWithCallback(self.doNothing, EmuKodiConfiguration, SelectedAddonDef)
             except Exception as e:
-                import traceback
                 exc_formatted = traceback.format_exc().strip()
                 print('EmuKodi_Menu.configSelected exception:', exc_formatted)
                 self.session.openWithCallback(self.doNothing,MessageBox, '...' + '\n'.join(exc_formatted.splitlines()[-6:]), MessageBox.TYPE_INFO)
@@ -166,6 +176,8 @@ class EmuKodi_Menu(Screen):
             print('EmuKodi_Menu.playSelected(%s) addon not existing or not enabled, exiting' % SelectedAddonKey)
             return
         else:
+            config.plugins.EmuKodi.selectedMenuIndex.value = self["list"].getCurrentIndex()
+            print('getCurrentIndex', config.plugins.EmuKodi.selectedMenuIndex.value)
             #tworzenie katalogu konfiguracyjnego
             cfgDir = SelectedAddonDef['cfgDir']
             if not os.path.exists('/etc/streamlink/%s' % cfgDir):
@@ -190,16 +202,16 @@ class EmuKodi_Menu(Screen):
 
 class EmuKodiConfiguration(Screen, ConfigListScreen):
     if getDesktop(0).size().width() == 1920: #definicja skin-a musi byc tutaj, zeby vti sie nie wywalalo na labelach, inaczej trzeba uzywasc zrodla statictext
-        skin = """<screen name="EmuKodiConfiguration" position="center,center" size="1000,700" title="EmuKodi configuration">
-                    <widget name="config"     position="20,20"   zPosition="1" size="960,600" scrollbarMode="showOnDemand" />
-                    <widget name="key_red"    position="20,630"  zPosition="2" size="240,30" foregroundColor="red"    valign="center" halign="left" font="Regular;22" transparent="1" />
-                    <widget name="key_green"  position="260,630" zPosition="2" size="240,30" foregroundColor="green"  valign="center" halign="left" font="Regular;22" transparent="1" />
+        skin = """<screen name="EmuKodiConfiguration" position="center,center" size="1000,300" title="EmuKodi configuration">
+                    <widget name="config"     position="20,20"   zPosition="1" size="960,220" scrollbarMode="showOnDemand" />
+                    <widget name="key_red"    position="20,250"  zPosition="2" size="240,30" foregroundColor="red"    valign="center" halign="left" font="Regular;22" transparent="1" />
+                    <widget name="key_green"  position="260,250" zPosition="2" size="240,30" foregroundColor="green"  valign="center" halign="left" font="Regular;22" transparent="1" />
                   </screen>"""
     else:
-        skin = """<screen name="EmuKodiConfiguration" position="center,center" size="700,400" title="EmuKodi configuration">
-                    <widget name="config"     position="20,20" size="640,325" zPosition="1" scrollbarMode="showOnDemand" />
-                    <widget name="key_red"    position="20,350" zPosition="2" size="150,30" foregroundColor="red" valign="center" halign="left" font="Regular;22" transparent="1" />
-                    <widget name="key_green"  position="170,350" zPosition="2" size="150,30" foregroundColor="green" valign="center" halign="left" font="Regular;22" transparent="1" />
+        skin = """<screen name="EmuKodiConfiguration" position="center,center" size="700,300" title="EmuKodi configuration">
+                    <widget name="config"     position="20,20" size="640,225" zPosition="1" scrollbarMode="showOnDemand" />
+                    <widget name="key_red"    position="20,250" zPosition="2" size="150,30" foregroundColor="red" valign="center" halign="left" font="Regular;22" transparent="1" />
+                    <widget name="key_green"  position="170,250" zPosition="2" size="150,30" foregroundColor="green" valign="center" halign="left" font="Regular;22" transparent="1" />
                   </screen>"""
     def buildList(self):
         Mlist = []
@@ -209,8 +221,8 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
                 cfgFile = cfgFile.split('=')[0]
             else:
                 defVal = ""
-            if not os.path.exists('/etc/streamlink/cdaplMB/%s' % cfgFile):
-                open('/etc/streamlink/cdaplMB/%s' % cfgFile, 'w').write(defVal)
+            if not os.path.exists('/etc/streamlink/%s/%s' % (self.addonName,cfgFile)):
+                open('/etc/streamlink/%s/%s' % (self.addonName,cfgFile), 'w').write(defVal)
                             
         #info
         if os.path.exists('/etc/enigma2/userbouquet.%s.tv' % self.addonName):
@@ -360,7 +372,9 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
                         self.emuKodiActionConfirmed(True)
                         return
                     elif self.currAction == 'loginTV':
-                        self.emuKodiActionConfirmed(True)
+                        self.buildemuKodiCmdsFor('loginTV')
+                        MsgInfo = "Zostaniesz poproszony o podanie kodu w przeglądarce.\nBędziesz mieć na to maksimum 340 sekund i nie będziesz mógł przerwać.\n\nJesteś gotowy?"
+                        self.session.openWithCallback(self.emuKodiActionConfirmed, MessageBox, MsgInfo, MessageBox.TYPE_YESNO, default = False, timeout = 15)
                         return
                     elif self.currAction == 'userbouquet':
                         self.emuKodiCmdsList.append("echo 'Pobieranie listy kanałów'")
@@ -438,22 +452,25 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
 
 class EmuKodiPlayer(Screen):
     skin = """
-<screen position="center,center" size="880,500">
-        <widget source="list" render="Listbox" position="0,0" size="880,500" scrollbarMode="showOnDemand">
+<screen position="50,50" size="880,700" flags="wfNoBorder" >
+        <widget name="Title" position="5,5" size="870,30" font="Regular;24" halign="left" noWrap="1" transparent="1" />
+        <widget source="list" render="Listbox" position="0,40" size="880,500" scrollbarMode="showOnDemand" transparent="1" >
                 <convert type="TemplatedMultiContent">
                         {"template": [
                                 MultiContentEntryPixmapAlphaTest(pos = (2, 2), size = (120, 40), png = 0),
                                 MultiContentEntryText(pos = (138, 2), size = (760, 40), font=0, flags = RT_HALIGN_LEFT|RT_VALIGN_CENTER, text = 1),
                                 ],
-                                "fonts": [gFont("Regular", 24)],
+                                "fonts": [gFont("Regular", 26)],
                                 "itemHeight": 45
                         }
                 </convert>
         </widget>
+        <eLabel position="0,550" size="880,2"  backgroundColor="#aaaaaa" />
+        <widget name="KodiNotificationsAndStatus" position="5,560" size="870,100" font="Regular;16" halign="left" noWrap="0" transparent="1" backgroundColor="#aa000000"/>
 </screen>"""
 
     def __init__(self, session, SelectedAddonDef):
-        print('EmuKodiConfiguration.__init__() >>>')
+        print('EmuKodiPlayer.__init__() >>>')
         self.prev_running_service = None
         self.wybranyFramework = '1'
         self.SelectedAddonDef = SelectedAddonDef
@@ -462,103 +479,165 @@ class EmuKodiPlayer(Screen):
         self.pythonRunner = '/usr/bin/python'
         self.addonScript = self.SelectedAddonDef.get('addonScript','')
         self.runAddon = '%s %s' % (self.pythonRunner, os.path.join(addons_path, self.addonScript))
+        self.AddonCmd = ''
+        self.AddonCmdsDict = {}
+        self.InitAddonCmd = "'1' ' '"
+        self.LastAddonCmd = ''
+        self.headerStatus = ''
+        self.deviceCDM = None
+        
+        self.KodiDirectoryItemsPath = os.path.join(working_dir, 'xbmcplugin_DirectoryItems')
 
         Screen.__init__(self, session)
-        self.setup_title = "EmuKodi %s Player v. %s" % (self.addonName,Version)
-        Screen.setTitle(self, self.setup_title)
+        self.setup_title = "%s Player" % self.addonName
+        self["KodiNotificationsAndStatus"] = Label()
+        self["Title"] = Label(self.setup_title)
         self["list"] = List()
         self["setupActions"] = ActionMap(["SetupActions", "MenuActions"],
             {
                     "cancel": self.quit,
-                    "ok": self.openSelected,
+                    "ok": self.openSelectedMenuItem,
                     "menu": self.quit,
             }, -2)
-        self.setTitle(self.setup_title)
         try:
             with open('/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/EmuKodiAddons.json', 'r') as jf:
                 self.addonsDict = json.load(jf)
         except Exception as e:
-            print('EmuKodi', str(e))
-            self.addonsDict = {'Błąd ładowania danych': {}}
+            print('EmuKodiPlayer Exception', str(e))
+            self.addonsDict = {'Błąd ładowania dodatków :(': {}}
         self["list"].list = []
-        self.onLayoutFinish.append(self.layoutFinished)
+        self.infoTimer = eTimer()
+        self.infoTimer.callback.append(self.showKodiNotificationAndStatus)
+        self.timer = eTimer()
+        self.timer.callback.append(self.EmuKodiCmdRun)
+        self.onShown.append(self._onShown)
+        self.EmuKodiCmd = eConsoleAppContainer()
+        self.EmuKodiCmd.appClosed.append(self.EmuKodiCmdClosed)
+        self.EmuKodiCmd.dataAvail.append(self.EmuKodiCmdAvail)
 
-    def layoutFinished(self):
-        self.setTitle(self.setup_title)
+    def _onShown(self):
         self.prev_running_service = self.session.nav.getCurrentlyPlayingServiceReference()
+        self.AddonCmd = self.InitAddonCmd
+        self.headerStatus = ' - inicjalizacja'
+        self.LastAddonCmd = ''
+        self.timer.start(1000,True) # True=singleshot
+        self.infoTimer.start(100)
+
+    def playVideo(self, url):
         self.session.nav.stopService()
-        
-    def createTree(self):
-        Mlist = []
-        if not os.path.exists("/usr/lib/enigma2/python/Plugins/SystemPlugins/ServiceApp/serviceapp.so"):
-            Mlist.append(self.buildListEntry(None, "Brak zainstalowanego serviceapp", "info.png"))
-        elif not os.path.exists('/usr/lib/python3.12/site-packages/emukodi/'):
-            Mlist.append(self.buildListEntry(None, r'\c00981111' + "*** Brak wsparcia DRM, moduł streamlink-cdm nie zainstalowany ***", "remove.png"))
-        elif not os.path.exists('/usr/sbin/streamlinkSRV') or not os.path.islink('/usr/sbin/streamlinkSRV') or not 'StreamlinkConfig/' in os.readlink('/usr/sbin/streamlinkSRV'):
-            Mlist.append(self.buildListEntry(None, r'\c00981111' + "*** BRAK oryginalnego Streamlinka z pakietu SLK ***", "remove.png"))
-        else:
-            cdmStatus = None
+        if self.deviceCDM is None: #tutaj, zeby bez sensu nie ladować jak ktos nie ma/nie uzywa
             try:
-                from  pywidevine.cdmdevice.checkCDMvalidity import testDevice
-                cdmStatus = testDevice()
-                print('cdmStatus = "%s"' % cdmStatus)
-            except Exception as e: 
-                print(str(e))
-                Mlist.append(self.buildListEntry(None, r'\c00981111' + "*** Błąd ładowania modułu urządzenia cdm ***", "info.png"))
-            open('/etc/streamlink/cdmStatus','w').write(str(cdmStatus))
-            if cdmStatus is None:
-                Mlist.append(self.buildListEntry(None, r'\c00981111' + "*** Błąd sprawdzania urządzenia cdm ***", "info.png"))
-            elif not cdmStatus:
-                Mlist.append(self.buildListEntry(None, r'\c00ff9400' + "*** Limitowane wsparcie KODI>DRM ***", "info.png"))
-            else:
-                Mlist.append(self.buildListEntry(None, r'\c00289496' + "*** Pełne wsparcie KODI>DRM ***", "info.png"))
+                import pywidevine.cdmdevice.cdmDevice
+                self.deviceCDM = pywidevine.cdmdevice.cdmDevice.cdmDevice()
+            except ImportError:
+                self.deviceCDM = False
+        if self.deviceCDM != False and self.deviceCDM.tryToDoSomething(url):
+            self.runningPlayer = self.deviceCDM.player
+            self.runningProcessName = 'streamlink'
+    
+    def showKodiNotificationAndStatus(self):
+        self["Title"].setText(self.setup_title + self.headerStatus)
+        
+    def EmuKodiCmdRun(self):
+        self.timer.stop()
+        if self.AddonCmd == '':
+            print('EmuKodiPlayer.EmuKodiCmdRun - nie podano komendy :(')
+        elif 0: #self.AddonCmdsDict.get(self.AddonCmd, None) is not None:
+            self.EmuKodiCmdClosed('Mlist')
+        else:
+            self.headerStatus = ' - ładowanie danych'
+            cleanWorkingDir()
+            cmd2run = '%s %s ' % (self.runAddon, self.AddonCmd)
+            print('EmuKodiPlayer.EmuKodiCmdRun: "%s"' % cmd2run)
+            self.EmuKodiCmd.execute(cmd2run)
 
-                if not cdmStatus is None:
-                    for addonKey in self.addonsDict:
-                        Mlist.append(self.buildListEntry(addonKey))
+    def EmuKodiCmdAvail(self, text = ''):
+        text = ensure_str(text)
+        if text != '':
+            tmpText = self["KodiNotificationsAndStatus"].getText()
+            self["KodiNotificationsAndStatus"].setText(tmpText + text)
+        
+    def EmuKodiCmdClosed(self, retval):
+        print('EmuKodiPlayer.EmuKodiCmdClosed(retval = %s)' % retval)
+        if retval == 'Mlist':
+            self.AddonCmdsDict.get(self.AddonCmd, {})
+        else:
+            self.headerStatus = ' - analiza otrzymanych danych'
+        self.createTree()
+        self.headerStatus = ' - oczekiwanie'
+        self.LastAddonCmd = self.AddonCmd
 
+    def createTree(self):
+        print('EmuKodiPlayer.createTree() >>>')
+        Mlist = []
+        
+        if self.LastAddonCmd != '' or self.LastAddonCmd != self.InitAddonCmd:
+            Mlist.append(self.buildListEntry({'label': '<< Początek', 'thumbnailImage': None, 'url': self.InitAddonCmd, 'isFolder': True}))
+            Mlist.append(self.buildListEntry({'label': '< Cofnij', 'thumbnailImage': None, 'url': self.LastAddonCmd}))
+        
+        if os.path.exists(self.KodiDirectoryItemsPath):
+            with open(self.KodiDirectoryItemsPath, 'r') as inFile:
+                for line in inFile:
+                    try:
+                        lineDict = json.loads(line)
+                        Mlist.append(self.buildListEntry(lineDict))
+                    except Exception as e:
+                        exc_formatted = traceback.format_exc().strip()
+                        print('EmuKodiPlayer.createTree exception:', exc_formatted)
+                        Mlist.append(self.buildListEntry({'label': 'Błąd ładowania linii :(', 'thumbnailImage':'error.png'}))
         self["list"].list = Mlist
+        self.AddonCmdsDict[self.AddonCmd] = Mlist
+        self.setTitle(self.setup_title + ' - oczekiwanie')
 
-    def buildListEntry(self, addonKey, description = '', image=''):
-        if addonKey is not None:
-            addonDef = self.addonsDict[addonKey]
-            image = addonDef.get('icon', 'config.png')
-            #opis
-            if addonDef.get('enabled', None) is None:
-                description = addonKey
-            elif addonDef.get('enabled', None) == True:
-                description = "Konfiguacja %s" % addonKey
+    def buildListEntry(self, lineDict): #&name=...&url=...&thumbnailImage=...&iconlImage=...&url=...
+        title = lineDict.get('label', '')
+        if lineDict.get('label2', None) is not None:
+            if lineDict.get('label2') != lineDict.get('label'):
+                title += '' + lineDict.get('label2')
+        elif lineDict.get('plot', None) is not None:
+            if lineDict.get('plot') != lineDict.get('label'):
+                plot = lineDict.get('plot')
+                plot = plot.split('[CR]')[0]
+                title += ' ' + plot
+        #czyszczenie ze smiecia
+        title = title.replace('[/COLOR]',r'\c00ffffff')
+        title = title.replace('[B]','').replace('[/B]','').replace('[I]','').replace('[/I]','').replace('[CR]','')
+        #https://html-color.codes/
+        title = title.replace('[COLOR khaki]',r'\c00C3B091').replace('[COLOR gold]',r'\c00ffd700').replace('[COLOR lightblue]',r'\c00add8e6')
+        title = title.replace('[COLOR yellowgreen]',r'\c00adff2f')
+        #ladowanie image
+        image = lineDict.get('thumbnailImage', None)
+        if image is not None and len(image) > 4 and image[-4:] in ('.png','.jpg', '.svg'):
+            image = '/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/pic/%s' % image
+            if os.path.exists(image):
+                pixmap = LoadPixmap(image)
             else:
-                description = "Nie masz dostępu do konfiguratora %s" % addonKey
-        #ladowanie loga
-        image = '/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/pic/%s' % image
-        if os.path.exists(image):
-            pixmap = LoadPixmap(image)
+                pixmap = LoadPixmap('/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/pic/config.png')
         else:
             pixmap = LoadPixmap('/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/pic/config.png')
-        return((pixmap, description, addonKey))
+        return((pixmap, title, lineDict))
 
-    def openSelected(self):
-        SelectedAddonKey = str(self["list"].getCurrent()[2])
-        SelectedAddonDef = self.addonsDict.get(SelectedAddonKey, None)
-        if SelectedAddonDef is None or SelectedAddonDef.get('enabled', False) == False:
-            print('EmuKodi_Menu.openSelected(%s) addon not existing or not enabled, exiting' % SelectedAddonKey)
-            return
-        else:
-            #tworzenie katalogu konfiguracyjnego
-            cfgDir = SelectedAddonDef['cfgDir']
-            if not os.path.exists('/etc/streamlink/%s' % cfgDir):
-                os.system('mkdir -p /etc/streamlink/%s' % cfgDir)
-            #uruchamianie ekranu konfiguracyjnego
-            try:
-                self.session.openWithCallback(self.doNothing, EmuKodiConfiguration, SelectedAddonDef)
-            except Exception as e:
-                import traceback
-                exc_formatted = traceback.format_exc().strip()
-                print('EmuKodi_Menu.openSelected exception:', exc_formatted)
-                self.session.openWithCallback(self.doNothing,MessageBox, '...' + '\n'.join(exc_formatted.splitlines()[-6:]), MessageBox.TYPE_INFO)
-            return
-
+    def openSelectedMenuItem(self):
+        lineDict = self["list"].getCurrent()[2]
+        print('EmuKodiPlayer.openSelectedMenuItem',lineDict)
+        self["KodiNotificationsAndStatus"].setText(str(lineDict))
+        
+        if 1: #lineDict.get('isFolder', False):
+            self.AddonCmd = str(lineDict.get('url', "?"))
+            if self.AddonCmd == "?":
+                self["KodiNotificationsAndStatus"].setText("Nie zdefinowana komenda :( ")
+                return
+            elif self.AddonCmd.startswith('/usr/') and "?" in self.AddonCmd:
+                self.AddonCmd = "'1' '?" + self.AddonCmd.split('?')[1] + "' 'resume:false'"
+            
+            self["KodiNotificationsAndStatus"].setText(self.AddonCmd)
+            self.headerStatus = ' - ładowanie %s' % lineDict.get('label', "?")
+            self.EmuKodiCmdRun()
+        elif lineDict.get('IsPlayable', False):
+            url = lineDict.get('IsPlayable', '')
+            if url != '':
+                self.playVideo(url)
+        
     def doNothing(self, retVal = None):
         return
                 

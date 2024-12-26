@@ -522,7 +522,7 @@ def listM3U():
                 if c.get('available',None):
                     img=c.get('icon_v2_url',None)
                     cName=c.get('name','')
-                    cid=c.get('id','')
+                    cid=str(c.get('id',''))
                     if cid.strip() != '' and cName.strip() != '':
                         channelsCount += 1
                         data += '#EXTINF:0 tvg-id="%s" tvg-logo="%s" group-title="Sweet.tv" ,%s\nplugin://plugin.video.sweettvpl/playvid/%s|null\n' %(cName,img,cName,cid)

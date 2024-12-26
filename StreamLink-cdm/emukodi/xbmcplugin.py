@@ -1,5 +1,5 @@
 ##########20170818###################
-import os, sys
+import json, os, sys
 import urllib, re
 from urllib.parse import urlparse
 #from ast import literal_eval
@@ -204,6 +204,29 @@ def librtmpify(url, listitem):
 
 def addDirectoryItem(handle, url, listitem, totalItems=40, isFolder=True):
     xbmcE2.writeState('xbmcplugin', 'addDirectoryItem', 'append', "&" + getdata(listitem) + "&url=" + url + '\n')
+    DirectoryItemsList = listitem.data
+    DirectoryItemsList['isFolder'] = isFolder
+    DirectoryItemsList['url'] = url
+    try:
+        for key in listitem.data:
+            val = listitem.data[key]
+            if isinstance(listitem.data[key], bytes):
+                listitem.data[key] = listitem.data[key].decode('utf-8', 'ignore')
+        json_dump = json.dumps(ensure_str(listitem.data))
+    except Exception:
+        json_dump = "{"
+        #json_dump += '"%s""' % key
+        for key in listitem.data:
+            val = listitem.data[key]
+            json_dump += ' "%s":' % key
+            if isinstance(val, bool):
+                json_dump += ' %s,' % str(val).lower()
+            elif isinstance(val, (int, float)):
+                json_dump += ' %s,' % val
+            else:
+                json_dump += ' "%s",' % str(val)
+        json_dump = json_dump[:-1] + '}'
+    xbmcE2.writeState('xbmcplugin', 'DirectoryItems', 'append', json_dump + '\n')
 
 def getdata(listitem):
     dataA = listitem.data
