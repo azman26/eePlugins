@@ -8,9 +8,9 @@
     Various helper methods
 '''
 
-import xbmc
-import xbmcvfs
-import xbmcgui
+from emukodi import xbmc
+from emukodi import xbmcvfs
+from emukodi import xbmcgui
 import os
 import stat
 import sys
@@ -18,7 +18,7 @@ import urllib
 from traceback import format_exc
 import requests
 import subprocess
-import xbmcaddon
+from emukodi import xbmcaddon
 import struct
 import random
 import io
@@ -422,7 +422,7 @@ class Spotty(object):
                 "-n", "selftest",
                 "--disable-discovery",
                 "-x",
-				"-v"
+                                "-v"
             ]
             startupinfo = None
             if os.name == 'nt':
@@ -452,9 +452,9 @@ class Spotty(object):
                 self.__spotty_binary,
                 "-c", self.__cache_path,
                 "-b", "320",
-				"-v",
-				"--enable-audio-cache",
-				"--ap-port",ap_port
+                                "-v",
+                                "--enable-audio-cache",
+                                "--ap-port",ap_port
             ]
             if use_creds:
                 # use username/password login for spotty

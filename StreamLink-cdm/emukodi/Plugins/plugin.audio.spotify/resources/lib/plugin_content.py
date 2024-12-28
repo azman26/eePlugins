@@ -7,12 +7,13 @@ import threading
 import _thread
 import time
 import spotipy
-import xbmc
+from emukodi import xbmc
 import sys
-import xbmcaddon
-import xbmcplugin
-import xbmcgui
-import xbmcvfs
+from emukodi import xbmcaddon
+from emukodi import xbmcplugin
+from emukodi import xbmcgui
+from emukodi import xbmcvfs
+sys.path.append('/usr/lib/python%s/site-packages/emukodi/Plugins/script.module.simplecache/lib/' % xbmc.pythonVersion) #j00zek for emukodi
 from simplecache import SimpleCache
 
 

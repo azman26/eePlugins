@@ -10,6 +10,7 @@ from emukodi import xbmcaddon, xbmcplugin, xbmcE2
 import sys
 pythonVersion = '%s.%s' % (sys.version_info.major, sys.version_info.minor)
 
+
 # xbmc/PlayListPlayer.h
 PLAYLIST_NONE = -1
 PLAYLIST_MUSIC = 0
@@ -55,7 +56,10 @@ SERVER_ZEROCONF = 7
 
 abortRequested = False
 
-      
+ISO_639_0 = 0 # full language
+ISO_639_1 = 1 # two letter code
+ISO_639_2 = 2 # three letter code
+
 def log(msg, level=None):
     """Write a string to XBMC's log file."""
     xbmcE2.write_log(msg, level)
@@ -124,9 +128,15 @@ def getSkinDir():
     """Returns the active skin directory as a string."""
     return ""
 
-def getLanguage():
+def getLanguage(ISO_639 = 1):
     """Returns the active language as a string."""
-    return _settings['xbmc']['language']
+    if ISO_639 == 0:
+        return 'English'
+    elif ISO_639 == 2:
+        return 'eng'
+    else:
+        return 'en'
+
 
 def getIPAddress():
     """Returns the current ip address as a string."""

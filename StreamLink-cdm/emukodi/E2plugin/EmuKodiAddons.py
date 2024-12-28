@@ -57,7 +57,7 @@ def ensure_str(string2decode):
 
 class EmuKodi_Menu(Screen):
     skin = """
-<screen position="center,center" size="880,500">
+<screen position="center,center" size="880,540">
         <widget source="list" render="Listbox" position="0,0" size="880,500" scrollbarMode="showOnDemand">
                 <convert type="TemplatedMultiContent">
                         {"template": [
@@ -69,6 +69,9 @@ class EmuKodi_Menu(Screen):
                         }
                 </convert>
         </widget>
+        <widget name="key_red"    position="20,510" zPosition="2" size="150,30" foregroundColor="red" valign="center" halign="left" font="Regular;22" transparent="1" />
+        <widget name="key_green"  position="170,510" zPosition="2" size="150,30" foregroundColor="green" valign="center" halign="left" font="Regular;22" transparent="1" />
+        <widget name="key_ok"  position="340,510" zPosition="2" size="350,30" foregroundColor="gray" valign="center" halign="left" font="Regular;22" transparent="1" />
 </screen>"""
 
     def __init__(self, session):
@@ -77,6 +80,11 @@ class EmuKodi_Menu(Screen):
         self.setup_title = "EmuKodi menu v. %s" % Version
         Screen.setTitle(self, self.setup_title)
         self["list"] = List()
+        # Buttons
+        self["key_red"] = Label("Anuluj")
+        self["key_green"] = Label("Uruchom")
+        self["key_ok"] = Label('OK - Konfiguracja')
+
         self["setupActions"] = ActionMap(["EmuKodiMenu"],
             {
                     "cancel": self.quit,
@@ -97,8 +105,8 @@ class EmuKodi_Menu(Screen):
         Mlist = []
         if not os.path.exists("/usr/lib/enigma2/python/Plugins/SystemPlugins/ServiceApp/serviceapp.so"):
             Mlist.append(self.buildListEntry(None, "Brak zainstalowanego serviceapp", "info.png"))
-        elif not os.path.exists('/usr/lib/python3.12/site-packages/emukodi/'):
-            Mlist.append(self.buildListEntry(None, r'\c00981111' + "*** Brak wsparcia DRM, moduł streamlink-cdm nie zainstalowany ***", "remove.png"))
+        #elif not os.path.exists('/usr/lib/python3.12/site-packages/emukodi/'):
+        #    Mlist.append(self.buildListEntry(None, r'\c00981111' + "*** Brak wsparcia DRM, moduł streamlink-cdm nie zainstalowany ***", "remove.png"))
         elif not os.path.exists('/usr/sbin/streamlinkSRV') or not os.path.islink('/usr/sbin/streamlinkSRV') or not 'StreamlinkConfig/' in os.readlink('/usr/sbin/streamlinkSRV'):
             Mlist.append(self.buildListEntry(None, r'\c00981111' + "*** BRAK oryginalnego Streamlinka z pakietu SLK ***", "remove.png"))
         else:
@@ -113,10 +121,10 @@ class EmuKodi_Menu(Screen):
             open('/etc/streamlink/cdmStatus','w').write(str(cdmStatus))
             if cdmStatus is None:
                 Mlist.append(self.buildListEntry(None, r'\c00981111' + "*** Błąd sprawdzania urządzenia cdm ***", "info.png"))
-            elif not cdmStatus:
-                Mlist.append(self.buildListEntry(None, r'\c00ff9400' + "*** Limitowane wsparcie KODI>DRM ***", "info.png"))
-            else:
-                Mlist.append(self.buildListEntry(None, r'\c00289496' + "*** Pełne wsparcie KODI>DRM ***", "info.png"))
+            #elif not cdmStatus:
+            #    Mlist.append(self.buildListEntry(None, r'\c00ff9400' + "*** Limitowane wsparcie KODI>DRM ***", "info.png"))
+            #else:
+            #    Mlist.append(self.buildListEntry(None, r'\c00289496' + "*** Pełne wsparcie KODI>DRM ***", "info.png"))
 
             if not cdmStatus is None:
                 addonKeysList = []
@@ -272,9 +280,9 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
     
     def __init__(self, session, SelectedAddonDef):
         print('EmuKodiConfiguration.__init__() >>>')
-        self.wybranyFramework = '4097'
         self.SelectedAddonDef = SelectedAddonDef
         self.addonName = self.SelectedAddonDef.get('cfgDir','')
+        self.plikBukietu = '/etc/enigma2/userbouquet.%s.tv' % self.addonName
         self.cfgValues2Configs = []
         self.pythonRunner = '/usr/bin/python'
         self.addonScript = self.SelectedAddonDef.get('addonScript','')
@@ -351,10 +359,10 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
             self.emuKodiCmdsList.append(cmdLine)
     
     def Okbutton(self):
-        print('%s' % 'Okbutton')
         try:
             curIndex = self["config"].getCurrentIndex()
             selectedItem = self["config"].list[curIndex]
+            print('EmuKodiConfiguration.Okbutton() selectedItem:' , str(selectedItem))
             if len(selectedItem) >= 2:
                 currItem = selectedItem[1]
                 currInfo = selectedItem[0]
@@ -366,7 +374,6 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
                     self.autoClose = False
                     self.emuKodiCmdsList = []
                     
-                    print('currItem == config.plugins.EmuKodi.configItem, currAction=', self.currAction)
                     if self.currAction == 'login':
                         self.buildemuKodiCmdsFor('login')
                         self.emuKodiActionConfirmed(True)
@@ -377,14 +384,10 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
                         self.session.openWithCallback(self.emuKodiActionConfirmed, MessageBox, MsgInfo, MessageBox.TYPE_YESNO, default = False, timeout = 15)
                         return
                     elif self.currAction == 'userbouquet':
-                        self.emuKodiCmdsList.append("echo 'Pobieranie listy kanałów'")
-                        self.buildemuKodiCmdsFor('userbouquet')
-                        plikBukietu = '/etc/enigma2/userbouquet.%s.tv' % self.addonName
-                        self.emuKodiCmdsList.append('%s %s %s "%s" %s' % (self.pythonRunner, os.path.join(emukodi_path, 'e2Bouquets.py'), plikBukietu, self.addonScript, self.wybranyFramework))
-                        if os.path.exists(plikBukietu):
-                            MsgInfo = "Zaktualizować plik %s ?" % plikBukietu
+                        if os.path.exists(self.plikBukietu):
+                            MsgInfo = "Zaktualizować plik %s ?" % self.plikBukietu
                         else:
-                            MsgInfo = "Utworzyć plik %s ?" % plikBukietu
+                            MsgInfo = "Utworzyć plik %s ?" % self.plikBukietu
                         self.session.openWithCallback(self.userbouquetConfirmed, MessageBox, MsgInfo, MessageBox.TYPE_YESNO, default = False, timeout = 15)
                         return
                     elif self.currAction == 'logout':
@@ -400,7 +403,7 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
                         return
                         
         except Exception as e:
-            print('%s' % str(e))
+            print('EmuKodiConfiguration.Okbutton() Exception: %s' % str(e))
 
     def OkbuttonTextChangedConfirmed(self, ret ):
         if ret is None:
@@ -419,7 +422,11 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
     def SelectedFramework(self, ret):
         if not ret or ret == "None" or isinstance(ret, (int, float)):
             ret = (None,'4097')
-        self.wybranyFramework = ret[1]
+        wybranyFramework = ret[1]
+        self.emuKodiCmdsList.append("echo 'Pobieranie listy kanałów'")
+        self.buildemuKodiCmdsFor('userbouquet')
+        self.emuKodiCmdsList.append("sleep 1") #zeby dac czas na zapis plikow kodi.
+        self.emuKodiCmdsList.append('%s %s %s "%s" %s' % (self.pythonRunner, os.path.join(emukodi_path, 'e2Bouquets.py'), self.plikBukietu, self.addonScript, wybranyFramework))
         self.emuKodiActionConfirmed(True)
 
     def emuKodiActionConfirmed(self, ret = False):
@@ -472,9 +479,9 @@ class EmuKodiPlayer(Screen):
     def __init__(self, session, SelectedAddonDef):
         print('EmuKodiPlayer.__init__() >>>')
         self.prev_running_service = None
-        self.wybranyFramework = '1'
         self.SelectedAddonDef = SelectedAddonDef
         self.addonName = self.SelectedAddonDef.get('cfgDir','')
+        self.plikBukietu = '/etc/enigma2/userbouquet.%s.tv' % self.addonName
         self.cfgValues2Configs = []
         self.pythonRunner = '/usr/bin/python'
         self.addonScript = self.SelectedAddonDef.get('addonScript','')
@@ -525,15 +532,6 @@ class EmuKodiPlayer(Screen):
 
     def playVideo(self, url):
         self.session.nav.stopService()
-        if self.deviceCDM is None: #tutaj, zeby bez sensu nie ladować jak ktos nie ma/nie uzywa
-            try:
-                import pywidevine.cdmdevice.cdmDevice
-                self.deviceCDM = pywidevine.cdmdevice.cdmDevice.cdmDevice()
-            except ImportError:
-                self.deviceCDM = False
-        if self.deviceCDM != False and self.deviceCDM.tryToDoSomething(url):
-            self.runningPlayer = self.deviceCDM.player
-            self.runningProcessName = 'streamlink'
     
     def showKodiNotificationAndStatus(self):
         self["Title"].setText(self.setup_title + self.headerStatus)
@@ -571,11 +569,22 @@ class EmuKodiPlayer(Screen):
         print('EmuKodiPlayer.createTree() >>>')
         Mlist = []
         
-        if self.LastAddonCmd != '' or self.LastAddonCmd != self.InitAddonCmd:
+        if self.AddonCmd != self.InitAddonCmd:
             Mlist.append(self.buildListEntry({'label': '<< Początek', 'thumbnailImage': None, 'url': self.InitAddonCmd, 'isFolder': True}))
             Mlist.append(self.buildListEntry({'label': '< Cofnij', 'thumbnailImage': None, 'url': self.LastAddonCmd}))
+        else:
+            if os.path.exists(self.plikBukietu):
+                Mlist.append(self.buildListEntry({'label': '>>> Wygenerowany bukiet <<<', 'thumbnailImage': None, 'url': 'plikBukietu'}))
+
+        if self.AddonCmd == 'plikBukietu':
+            with open(self.plikBukietu, 'r') as inFile:
+                for line in inFile:
+                    if line.startswith('#SERVICE'):
+                        items = line.split(':')
+                        Mlist.append(self.buildListEntry({'label': items[11], 'thumbnailImage': None, 'url': items[10]}))
+                    
         
-        if os.path.exists(self.KodiDirectoryItemsPath):
+        elif os.path.exists(self.KodiDirectoryItemsPath):
             with open(self.KodiDirectoryItemsPath, 'r') as inFile:
                 for line in inFile:
                     try:
@@ -627,16 +636,29 @@ class EmuKodiPlayer(Screen):
             if self.AddonCmd == "?":
                 self["KodiNotificationsAndStatus"].setText("Nie zdefinowana komenda :( ")
                 return
+            elif self.AddonCmd == "plikBukietu":
+                self["KodiNotificationsAndStatus"].setText("ładuje plik bukietu")
+                self.createTree()
+                return
+            elif self.AddonCmd.startswith('http%3a//cdmplayer/') or self.AddonCmd.startswith('http%3a//127.0.0.1'):
+                self["KodiNotificationsAndStatus"].setText(self.AddonCmd)
+                url = self.AddonCmd.replace('http%3a//cdmplayer/', 'http%3a//127.0.0.1%3a8078/').replace('%3a',':').replace('%3f','?').replace('%26','&')
+                #url = self.AddonCmd.replace('http%3a//127.0.0.1%3a8078/', 'http%3a//cdmplayer/')
+                #safeSubprocessCMD('wget "%s" -O /tmp/EmuKodiPlaytest.mp4' % url)
+                #while not os.path.exists('/tmp/EmuKodiPlaytest.mp4'):
+                #    time.sleep(1)
+                safeSubprocessCMD('/usr/bin/exteplayer3 -f live_start_offset_seconds=60 -f rw_timeout=2000000 -f reconnect=1 -f http_multiple=0 "%s"' % url)
+                return
             elif self.AddonCmd.startswith('/usr/') and "?" in self.AddonCmd:
                 self.AddonCmd = "'1' '?" + self.AddonCmd.split('?')[1] + "' 'resume:false'"
             
             self["KodiNotificationsAndStatus"].setText(self.AddonCmd)
             self.headerStatus = ' - ładowanie %s' % lineDict.get('label', "?")
             self.EmuKodiCmdRun()
-        elif lineDict.get('IsPlayable', False):
-            url = lineDict.get('IsPlayable', '')
-            if url != '':
-                self.playVideo(url)
+        #elif lineDict.get('IsPlayable', False):
+        #    url = lineDict.get('IsPlayable', '')
+        #    if url != '':
+        #        self.playVideo(url)
         
     def doNothing(self, retVal = None):
         return
