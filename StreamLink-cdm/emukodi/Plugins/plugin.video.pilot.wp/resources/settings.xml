@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
   <category label="Konto">
-    <setting label="Login" type="text" id="username" default="getE2config('WPusername')"/>
-    <setting label="Hasło" type="text" id="password" option="hidden" enable="!eq(-1,)" default="getE2config('WPpassword')"/>
+    <setting label="Login" type="text" id="username" default=""/>
+    <setting label="Hasło" type="text" id="password" option="hidden" enable="!eq(-1,)" default=""/>
   </category>
   <category label="Kreator listy m3u">
     <setting label="Lista m3u (Nazwa Pliku oraz Katalog Docelowy)" type="lsep"/>

@@ -185,8 +185,8 @@ def getCookies():
     return c
 
 def home():
-    addon.setSetting('proxy','true')
-    addon.setSetting('proxyReplay','true')
+    addon.setSetting('proxy','false') #było true
+    addon.setSetting('proxyReplay','false') #było true
     status=addon.getSetting('status')
     if status=='loggedIn':
         items=[
@@ -228,7 +228,7 @@ def menu_tv():
 
 def logIn():
     if addon.getSetting('x_go_dev')=='':
-        print('Brak x_go_dev')
+        print('Generuję GUID urządzenia')
         addon.setSetting('x_go_dev',code_gen(8)+'-'+code_gen(4)+'-'+code_gen(4)+'-'+code_gen(4)+'-'+code_gen(12))
         addon.setSetting('x_drm_device_id',code_gen(64)) #spr czy nie jest stały
         addon.setSetting('x_tracking_id',code_gen(64))
@@ -538,8 +538,10 @@ def getStreamToken(cID):#
             strTkn=resp.headers['x-streaming-token']
             addon.setSetting('x_streaming_token',strTkn)
             addon.setSetting('x_str_tkn_start',str(int(time.time())))
+            print('upcgo.addon TKN_STR_ODŚWIERZONY')
             return strTkn, resp.json()['drmContentId']
         else:
+            print('upcgo.addon BŁĄ OWŚWIERZANIA TKN_STR')
             return False#2022-11-25
 
 def killStreamToken():
@@ -557,7 +559,7 @@ def killStreamToken():
     cookies=getCookies()
     resp=requests.delete(url,headers=hea,cookies=cookies)
     addon.setSetting('x_streaming_token','')
-    print('TKN_STR_SKASOWANY')
+    print('upcgo.addon TKN_STR_SKASOWANY')
 
 def playLiveTV(cid):
     addon.setSetting('streamType','livetv')

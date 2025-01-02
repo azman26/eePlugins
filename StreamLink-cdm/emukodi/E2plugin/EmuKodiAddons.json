@@ -94,7 +94,7 @@
         "enabled": true,
         "icon": "wptv.png",
         "cfgDir": "pilot.wp",
-        "cfgFiles": ["username", "password","netviapisessid", "mode=0"],
+        "cfgFiles": ["username", "password","netviapisessid", "netviapisessval", "mode=0"],
         "cfgValues": ["username", "password"],
         "addonScript": "plugin.video.pilot.wp/addon.py",
         "login": ["'1' '' 'resume:false'"],

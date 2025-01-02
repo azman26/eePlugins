@@ -130,10 +130,10 @@ def saveToDB(table_name, value):
     import sqlite3
     import os
     if os.path.exists(cacheFile):
-        #print('Zapisuję do:', cacheFile)
+        #print('Zapisuję nowe ciasteczka do:', cacheFile)
         os.remove(cacheFile)
     else:
-        print('File does not exists')
+        print('Tworzę nowy plik z ciasteczkami')
     conn = sqlite3.connect(cacheFile, detect_types=sqlite3.PARSE_DECLTYPES, cached_statements=20000)
     c = conn.cursor()
     c.execute('CREATE TABLE IF NOT EXISTS Cache(%s TEXT)' % table_name)
@@ -241,44 +241,71 @@ def stream_url(video_id, retry=False):
 
     session = requests.Session()
     session.mount("https://pilot.wp.pl/", WPplAdapter())
-    if 1: #j00zek, ie dziala
-        headers.update({'Cookie': cookies})
-        response = session.get(
+    headers.update({'Cookie': cookies})
+    response = session.get(
             url,
             params=data,
             verify=False,
             headers=headers,
         ).json()
-        #print('response:',response)
-        meta = response.get('_meta', None)
-        if meta is not None:
-            token = meta.get('error', {}).get('info', {}).get('stream_token', None)
-            if token is not None:
-                json = {'channelId': video_id, 't': token}
-                response = requests.post(
-                    close_stream_url,
-                    json=json,
-                    verify=False,
-                    headers=headers
-                ).json()
-                if response.get('data', {}).get('status', '') == 'ok' and not retry:
-                    return stream_url(video_id, True)
-                else:
-                    return
-    if 'hls@live:abr' in response[u'data'][u'stream_channel'][u'streams'][0][u'type']:
-        return response[u'data'][u'stream_channel'][u'streams'][0][u'url'][0]
-    else:
-        return response[u'data'][u'stream_channel'][u'streams'][1][u'url'][0]
+    #print('response:',response)
+    meta = response.get('_meta', None)
+    if meta is not None:
+        token = meta.get('error', {}).get('info', {}).get('stream_token', None)
+        if token is not None:
+            json = {'channelId': video_id, 't': token}
+            response = requests.post(
+                close_stream_url,
+                json=json,
+                verify=False,
+                headers=headers
+            ).json()
+            if response.get('data', {}).get('status', '') == 'ok' and not retry:
+                return stream_url(video_id, True)
+            else:
+                return
 
+    if 0: #j00zek
+        if 'hls@live:abr' in response[u'data'][u'stream_channel'][u'streams'][0][u'type']:
+            return response[u'data'][u'stream_channel'][u'streams'][0][u'url'][0]
+        else:
+            return response[u'data'][u'stream_channel'][u'streams'][1][u'url'][0]
+    else:
+        return response[u'data'][u'stream_channel']
 
 def play(id):
-    manifest = stream_url(id)
+    if 0: #j00zek
+        manifest = stream_url(id)
+        if len(manifest) == 0:
+            return
+    else:
+        channelDict = stream_url(id)
+        print(channelDict)
+        if channelDict is None or len(channelDict) == 0:
+            return
+        if channelDict.get('drms', None) is None:
+            if 'hls@live:abr' in channelDict['streams'][0]['type']:
+                manifest =  channelDict['streams'][0]['url'][0]
+            else:
+                manifest =  channelDict['streams'][1]['url'][0]
+        else:
+            if 'dash@live:abr' in channelDict['streams'][0]['type']:
+                manifest =  channelDict['streams'][0]['url'][0]
+            else:
+                manifest =  channelDict['streams'][1]['url'][0]
     #print('manifest:', manifest)
     #print('headers:', headers)
-    if len(manifest) == 0:
-        return
     manifest = manifest + '|user-agent=' + headers['user-agent']
     play_item = xbmcgui.ListItem(path=manifest)
+    if channelDict.get('drms', None) is not None:
+        play_item.setProperty("IsPlayable", "true")
+        play_item.setMimeType('application/xml+dash')
+        play_item.setProperty('inputstream', 'inputstream.adaptive')
+        play_item.setProperty('inputstream.adaptive.manifest_type', "mpd")
+        play_item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+        play_item.setProperty('inputstream.adaptive.license_key', 'https://pilot.wp.pl' + channelDict['drms']['widevine'] + '|Content-Type=|R{SSM}|')
+        play_item.setProperty('inputstream.adaptive.license_flags', "persistent_storage")
+        play_item.setProperty('inputstream.adaptive.stream_headers', headers['user-agent'])
     xbmcplugin.setResolvedUrl(addon_handle, True, listitem=play_item)
 
 
@@ -298,6 +325,7 @@ def channels():
         response_data = response.read().decode()
         response.close()
         channelsList = json.loads(response_data).get('data', [])
+        #print(channelsList)
         return channelsList
     
 
@@ -334,7 +362,8 @@ def generate_m3u():
             channelid = item.get('id', None)
             title = item.get('name', '')
             data += '#EXTINF:-1,%s\nplugin://plugin.video.pilot.wp?action=PLAY&channel=%s\n' % (title, channelid)
-            dataE2 += 'plugin.video.pilot.wp/addon.py%3faction=PLAY&channel=' + '%s:%s\n' % (channelid, title) #j00zek for E2 bouquets
+            #dataE2 += 'plugin.video.pilot.wp/addon.py%3faction=PLAY&channel=' + '%s:%s\n' % (channelid, title) #j00zek for E2 bouquets
+            dataE2 += 'https%3a//pilot.wp.pl/api/v1/channel/' + '%s:%s\n' % (channelid, title) #j00zek for E2 bouquets https%3a zbacznik uruchomienia streamlinka
 
     f = xbmcvfs.File(os.path.join(addon.getSetting('path_m3u'), addon.getSetting('m3u_filename')), 'w')
     f.write(data)
