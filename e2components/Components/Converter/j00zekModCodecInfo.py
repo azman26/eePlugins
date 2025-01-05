@@ -223,6 +223,8 @@ class j00zekModCodecInfo(Poll, Converter, object):
     def createAudioCodec(self):
         service = self.source.service
         audio = service.audioTracks()
+        ecm = None
+        info = {}
         if audio:
             try:
                 ct = audio.getCurrentTrack()
