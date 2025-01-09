@@ -301,7 +301,7 @@ def initThread(webURL, webFileName, HEADER=[]):
 
 
 def ISO3339toDATETIME(ISO3339time, offset=0):
-    defDBG = True
+    defDBG = False
     try:
         systemTZ = datetime.now().hour - datetime.utcnow().hour
         Y = int(ISO3339time[:4])
@@ -531,7 +531,7 @@ def analyze_ForecaMeteo(webFileName):
                     open(os.path.join(paramsDict['tmpFolder'], 'Fmeteo_10-day-forecast.cutContent'), 'a').write('!!!!!!!!!!!!!!!!!!! LINE:\n' + str(line) + '\n')
 
             for Line in Lines:
-                tmpList = getList([], Line, '.*hourly\?day=([0-9]*).*class="weekday">(.*)<\/div>.*dataContainer.*class="([^"]*).*class="date">([0-9\.]*)<.*class="symb" src="([^"]*).*alt="([^"]*).*class="temp">.*temp_c">([^&]*).*class="temp">.*temp_c">([^&]*).*class="wind".*src="[^"]*/([^"]*).*alt="([^"]*).*wind_kmh"><em>([^<]*).*wind_kmh"><em>')
+                tmpList = getList([], Line, r'.*hourly\?day=([0-9]*).*class="weekday">(.*)<\/div>.*dataContainer.*class="([^"]*).*class="date">([0-9\.]*)<.*class="symb" src="([^"]*).*alt="([^"]*).*class="temp">.*temp_c">([^&]*).*class="temp">.*temp_c">([^&]*).*class="wind".*src="[^"]*/([^"]*).*alt="([^"]*).*wind_kmh"><em>([^<]*).*wind_kmh"><em>')
                 if len(tmpList) > 0:
                     tmpList = tmpList[0]
                 if DBGdaily:
@@ -2129,7 +2129,7 @@ def mainProc():
                 calculateSun()
                 calculateMoon()
                 if paramsDict['msnAPIKEY'] == '':
-                    paramsDict['msnAPIKEY'] = '0QfOX3Vn51YCzitbLaRkTTBadtWpgTN8NZLW0C1SEM'
+                    paramsDict['msnAPIKEY'] = 'j5i4gDqHL6nGYwx5wi5kRhXjtf2c5qgFX9fzfk0TOo' #'0QfOX3Vn51YCzitbLaRkTTBadtWpgTN8NZLW0C1SEM'
                 if paramsDict['geolatitude'] != '' and paramsDict['geolongitude'] != '' and paramsDict['geolatitude'] != 'auto' and paramsDict['geolongitude'] != 'auto':
                     cf = os.path.join(paramsDict['tmpFolder'], 'dictMSNweather_calendar_%s.json' % paramsDict['currEntryID'])
                     if not os.path.exists(cf): print("\tDownoading Monthly data")
@@ -2139,11 +2139,13 @@ def mainProc():
                         cf = ''
                     if cf != '':
                         currDate = datetime.now()
-                        startDate = currDate.strftime('%Y-%m-%d')
+                        #startDate = currDate.strftime('%Y-%m-%d') #do konca 2024
+                        startDate = currDate.strftime('%Y%m%d')
                         endDate = currDate + timedelta(days = 180)
                         endDate = endDate.replace(day=1)
                         endDate = endDate - timedelta(days=1)
-                        endDate = endDate.strftime('%Y-%m-%d')
+                        #endDate = endDate.strftime('%Y-%m-%d') #do konca 2024
+                        endDate = endDate.strftime('%Y%m%d')
                         url = 'https://api.msn.com/weather/calendar?apiKey=%s&locale=%s&region=%s&lon=%s&lat=%s&units=%s&startDate=%s&endDate=%s' % (paramsDict['msnAPIKEY'], 
                                                                                                                                                      paramsDict['language'], 
                                                                                                                                                      paramsDict['language'][-2], 
