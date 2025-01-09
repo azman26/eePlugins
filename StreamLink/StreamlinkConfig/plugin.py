@@ -100,8 +100,8 @@ def Plugins(path, **kwargs):
             wrapperInfo += ', StreamlinkWrapper nie zainstalowany'
     print(wrapperInfo)
     wrapperInfo = None
-    if config.plugins.streamlinkSRV.Recorder.value == True:
-        myList.append(PluginDescriptor(name="StreamlinkRecorder", description="StreamlinkRecorder", where = [PluginDescriptor.WHERE_MENU], fnc=timermenu))
+    #if config.plugins.streamlinkSRV.Recorder.value == True:
+    #    myList.append(PluginDescriptor(name="StreamlinkRecorder", description="StreamlinkRecorder", where = [PluginDescriptor.WHERE_MENU], fnc=timermenu))
     return myList
 
 ####MENU

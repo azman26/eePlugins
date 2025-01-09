@@ -1,6 +1,15 @@
 # -*- coding: UTF-8 -*-
-from __future__ import absolute_import
+import warnings
+warnings.filterwarnings("ignore")
+
+#from __future__ import absolute_import
 import sys, re, os
+
+from emukodi import xbmcgui
+from emukodi import xbmcplugin
+from emukodi import xbmcaddon
+from emukodi import xbmc
+from emukodi import xbmcvfs
 
 try:
     import http.cookiejar
@@ -20,37 +29,32 @@ import requests
 import urllib3
 import base64
 
-'''
-try:
-    from urllib3.util.ssl_ import DEFAULT_CIPHERS
-except ImportError:
-    # Defer to system configuration starting with
-    # urllib3 2.0. This will choose the ciphers provided by
-    # Openssl 1.1.1+ or secure system defaults.
-    DEFAULT_CIPHERS = (
-        'ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+HIGH:'
-        'DH+HIGH:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+HIGH:RSA+3DES:!aNULL:'
-        '!eNULL:!MD5')
-'''
+#try:
+#    from urllib3.util.ssl_ import DEFAULT_CIPHERS
+#except ImportError:
+#    # Defer to system configuration starting with
+#    # urllib3 2.0. This will choose the ciphers provided by
+#    # Openssl 1.1.1+ or secure system defaults.
+#    DEFAULT_CIPHERS = (
+#        'ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+HIGH:'
+#        'DH+HIGH:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+HIGH:RSA+3DES:!aNULL:'
+#        '!eNULL:!MD5')
+
 requests.packages.urllib3.disable_warnings()
 
-'''
-requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
-try:
-    requests.packages.urllib3.contrib.pyopenssl.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
-except AttributeError:
-    # no pyopenssl support used / needed / available
-    pass
-'''
-'''
-import ssl
-try:
-    _create_unverified_https_context = ssl._create_unverified_context
-except AttributeError:
-    pass
-else:
-    ssl._create_default_https_context = _create_unverified_https_context
-'''
+#requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
+#try:
+#    requests.packages.urllib3.contrib.pyopenssl.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
+#except AttributeError:
+#    # no pyopenssl support used / needed / available
+#    pass
+#import ssl
+#try:
+#    _create_unverified_https_context = ssl._create_unverified_context
+#except AttributeError:
+#    pass
+#else:
+#    ssl._create_default_https_context = _create_unverified_https_context
 
 from requests.packages.urllib3.util.ssl_ import create_urllib3_context
 class CustomCipherAdapter(requests.adapters.HTTPAdapter):
@@ -63,12 +67,6 @@ class CustomCipherAdapter(requests.adapters.HTTPAdapter):
 sess = requests.Session()
 sess.mount("https://", CustomCipherAdapter())
 
-
-from emukodi import xbmcgui
-from emukodi import xbmcplugin
-from emukodi import xbmcaddon
-from emukodi import xbmc
-from emukodi import xbmcvfs
 
 import json
 import inputstreamhelper
@@ -307,7 +305,7 @@ def PLAYvodCANAL(urlid):
             return
 
     stream_url = requests.get(str_url, headers=headers2).url
-    stream_url = re.sub('(\?token.+?)$','/manifest',stream_url)
+    stream_url = re.sub(r'(\?token.+?)$','/manifest',stream_url)
     #xbmc.log('@#@requests: %s' % str(url), LOGNOTICE)
     
     data = quote('{"ServiceRequest":{"InData":{"EpgId":'+id_+',"Mode":"MKPL","LiveToken":"'+ CANALvod().LIVEtoken+'","UserKeyId":"'+CANALvod().DEVICE_ID+'","DeviceKeyId":"'+CANALvod().DEVID+'","ChallengeInfo":"b{SSM}"}}}')
@@ -589,7 +587,7 @@ def ListCateg(typ1):
         
         urlk = urlk.replace('/page/','/contentGrid/')
         urlk = urlk.split('?params')[0]
-        urlk = re.sub('(\d+\.json)','%s.json'%(str(contid)),urlk)
+        urlk = re.sub(r'(\d+\.json)','%s.json'%(str(contid)),urlk)
         inflabel = getInfoLabel(itemx)
 
         add_item(urlk, PLchar(itemx['title']), img1, 'listContent', folder=True, IsPlayable=False, infoLabels=inflabel, fanart=FANART)
@@ -989,155 +987,154 @@ class CANALvod(object):
         return result
     
         
-        '''
-        a = self.PASStoken
-        v = self.PASSid
-        
-        c = self.MACROel
-        d = self.MICROel
-        e = self.EPGid
+#        a = self.PASStoken
+#        v = self.PASSid
+#    
+#        c = self.MACROel
+#        d = self.MICROel
+#        e = self.EPGid
 
-        if self.LOGGED == 'true':
-            if self.LOGIN and self.PASSWORD and self.LOGUJ == 'true':
-                import time
-                ts = int(time.time())*100
-                a = str(ts)
-                b = str(czas())
-                if not self.DEVID:
-                    self.DEVID = '%s-%s'%( b, self.gen_hex_code(12))
-                
-                headers = {
-                    #'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0',
-                    'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-                    'Accept-Language': 'pl,en-US;q=0.7,en;q=0.3',
-                    'Accept-Encoding':'gzip, deflate, br',
-                    'Host':'logowanie.pl.canalplus.com',
-                    #'DNT': '1',
-                    'Connection': 'keep-alive',
-                    'Upgrade-Insecure-Requests': '1',
-                    'Sec-Fetch-Dest':'document',
-                    'Sec-Fetch-Mode':'navigate',
-                    'Sec-Fetch-Site':'none',
-                    'Sec-Fetch-User':'?1',
-                    'Referer':''
-                }
-                #cookies={}
-                
-                cookies={
-                    '_abck':addon.getSetting('abck_cookie')
-                }
-                
-                response = sess.get('https://logowanie.pl.canalplus.com/login', headers=headers, cookies=cookies, verify=False)
-                
-                for c in response.cookies:
-                    cookies.update({c.name:c.value})
-                
-                execution = re.findall('execution" value="([^"]+)',response.text)#[0]
-                if execution:
-                    execution = execution[0]
-                    #print(execution)
-                    headers = {
-                        'Host': 'logowanie.pl.canalplus.com',
-                        #'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0',
-                        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
-                        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                        'accept-language': 'pl,en-US;q=0.7,en;q=0.3',
-                        'content-type': 'application/x-www-form-urlencoded',
-                        'origin': 'https://logowanie.pl.canalplus.com',
-                        'referer': response.url,
-                        'upgrade-insecure-requests': '1',
-                        'te': 'trailers',
-                    }
-                    
-                    data = 'username=' + quote(self.LOGIN) + '&password=' + quote(self.PASSWORD) + '&execution=' + quote(execution) + '&_eventId=submit&geolocation='
-                    
-                    response = sess.post(self.mainLOGINurl, headers=headers, cookies=cookies, data=data, verify=False)
-                    for c in response.cookies:
-                        cookies.update({c.name:c.value})#.replace('~-1~','~0~',1)
-                    adres = re.findall('login-url\' href="([^"]+)',response.text,re.DOTALL)
-                    if not adres or adres[0]=='#':
-                        xbmcgui.Dialog().notification('[B]Błąd[/B]', 'Niepoprawne dane logowania',ikona, 8000,False)
-                        add_item('', '[B][COLOR blue]Zaloguj[/COLOR][/B]', ikona, "login", folder=False,fanart=FANART)
-                        return False
-                    adres = adres[0].replace('&amp;','&') if adres else ''
-                    for c in response.cookies:
-                        cookies.update({c.name:c.value})
-                    response = sess.get(adres, headers=self.HEADERS2,cookies=cookies,verify=False)
-                    a1 = response.url
-                    ac = response.cookies
+#        if self.LOGGED == 'true':
+#            if self.LOGIN and self.PASSWORD and self.LOGUJ == 'true':
+#                import time
+#                ts = int(time.time())*100
+#                a = str(ts)
+#                b = str(czas())
+#                if not self.DEVID:
+#                    self.DEVID = '%s-%s'%( b, self.gen_hex_code(12))
+#            
+#                headers = {
+#                    #'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0',
+#                    'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+#                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+#                    'Accept-Language': 'pl,en-US;q=0.7,en;q=0.3',
+#                    'Accept-Encoding':'gzip, deflate, br',
+#                    'Host':'logowanie.pl.canalplus.com',
+#                    #'DNT': '1',
+#                    'Connection': 'keep-alive',
+#                    'Upgrade-Insecure-Requests': '1',
+#                    'Sec-Fetch-Dest':'document',
+#                    'Sec-Fetch-Mode':'navigate',
+#                    'Sec-Fetch-Site':'none',
+#                    'Sec-Fetch-User':'?1',
+#                    'Referer':''
+#                }
+#                #cookies={}
+#            
+#                cookies={
+#                    '_abck':addon.getSetting('abck_cookie')
+#                }
+#            
+#                response = sess.get('https://logowanie.pl.canalplus.com/login', headers=headers, cookies=cookies, verify=False)
+#            
+#                for c in response.cookies:
+#                    cookies.update({c.name:c.value})
+#            
+#                execution = re.findall('execution" value="([^"]+)',response.text)#[0]
+#                if execution:
+#                    execution = execution[0]
+#                    #print(execution)
+#                    headers = {
+#                        'Host': 'logowanie.pl.canalplus.com',
+#                        #'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0',
+#                        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+#                        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+#                        'accept-language': 'pl,en-US;q=0.7,en;q=0.3',
+#                        'content-type': 'application/x-www-form-urlencoded',
+#                        'origin': 'https://logowanie.pl.canalplus.com',
+#                        'referer': response.url,
+#                        'upgrade-insecure-requests': '1',
+#                        'te': 'trailers',
+#                    }
+#                
+#                    data = 'username=' + quote(self.LOGIN) + '&password=' + quote(self.PASSWORD) + '&execution=' + quote(execution) + '&_eventId=submit&geolocation='
+#                
+#                    response = sess.post(self.mainLOGINurl, headers=headers, cookies=cookies, data=data, verify=False)
+#                    for c in response.cookies:
+#                        cookies.update({c.name:c.value})#.replace('~-1~','~0~',1)
+#                    adres = re.findall('login-url\' href="([^"]+)',response.text,re.DOTALL)
+#                    if not adres or adres[0]=='#':
+#                        xbmcgui.Dialog().notification('[B]Błąd[/B]', 'Niepoprawne dane logowania',ikona, 8000,False)
+#                        add_item('', '[B][COLOR blue]Zaloguj[/COLOR][/B]', ikona, "login", folder=False,fanart=FANART)
+#                        return False
+#                    adres = adres[0].replace('&amp;','&') if adres else ''
+#                    for c in response.cookies:
+#                        cookies.update({c.name:c.value})
+#                    response = sess.get(adres, headers=self.HEADERS2,cookies=cookies,verify=False)
+#                    a1 = response.url
+#                    ac = response.cookies
 
-                    try:
-                        self.PASSid = ac.get('passId',None)
-                        self.PASStoken = ac.get('p_pass_token',None)
-                        self.CMStoken = ac.get('tokenCMS',None)
-                    except:
-                        pass
+#                    try:
+#                        self.PASSid = ac.get('passId',None)
+#                        self.PASStoken = ac.get('p_pass_token',None)
+#                        self.CMStoken = ac.get('tokenCMS',None)
+#                    except:
+#                        pass
 
-                    a11 = self.PASSid
-                    a22 = self.PASStoken
-                    a33 = self.CMStoken
-                    
-                    authresponse = re.findall('window\.__data\s*=\s*({.*?});.*?window.REACT_QUERY_STATE',response.text,re.DOTALL)#authresponse = re.findall('window\.__data\s*=\s*({.*?});.*?window.app_config',response.text,re.DOTALL)
-                    
-                    data = json.loads(authresponse[0])
-                    data = data.get('user',None)
+#                    a11 = self.PASSid
+#                    a22 = self.PASStoken
+#                    a33 = self.CMStoken
+#                
+#                    authresponse = re.findall('window\.__data\s*=\s*({.*?});.*?window.REACT_QUERY_STATE',response.text,re.DOTALL)#authresponse = re.findall('window\.__data\s*=\s*({.*?});.*?window.app_config',response.text,re.DOTALL)
+#                
+#                    data = json.loads(authresponse[0])
+#                    data = data.get('user',None)
 
-                    self.MACROel = data.get("macroEligibility",None)
-                    self.MICROel = data.get("microEligibility",None)
-                    self.EPGid = data.get('epgidOTT',None)
-                    set_setting('PASSid', a11)
-                    set_setting('PASStoken', a22)
-                    set_setting('MACROel', self.MACROel)
-                    set_setting('MICROel', self.MICROel)
-                    set_setting('EPGid', self.EPGid)
+#                    self.MACROel = data.get("macroEligibility",None)
+#                    self.MICROel = data.get("microEligibility",None)
+#                    self.EPGid = data.get('epgidOTT',None)
+#                    set_setting('PASSid', a11)
+#                    set_setting('PASStoken', a22)
+#                    set_setting('MACROel', self.MACROel)
+#                    set_setting('MICROel', self.MICROel)
+#                    set_setting('EPGid', self.EPGid)
 
-                    params = (
-                        ('appLocation', 'PL'),
-                        ('offerZone', 'cppol'),
-                        ('isActivated', '1'),
-                        ('collectUserData', '1'),
-                        ('pdsNormal', '['+self.EPGid+']'),
-                        ('macros', self.MACROel),
-                        ('micros', self.MICROel),
-                        ('isAuthenticated', '1'),
-                        ('paired', '0'),
-                    )
+#                    params = (
+#                        ('appLocation', 'PL'),
+#                        ('offerZone', 'cppol'),
+#                        ('isActivated', '1'),
+#                        ('collectUserData', '1'),
+#                        ('pdsNormal', '['+self.EPGid+']'),
+#                        ('macros', self.MACROel),
+#                        ('micros', self.MICROel),
+#                        ('isAuthenticated', '1'),
+#                        ('paired', '0'),
+#                    )
 
-                    response = getRequests('https://hodor.canalplus.pro/api/v2/mycanalint/authenticate.json/android/4.1', headers=self.HODORheaders, params=params)
-                    self.CMStoken = response['token']
-                    set_setting('CMStoken', self.CMStoken)
-                    
-                    URL_DEVICE_ID = 'https://pass.canal-plus.com/service/HelloJSON.php'
-                    
-                    header_device_id = {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0',
-                        'referer':'https://secure-player.canal-plus.com/one/prod/v2/',
-                        'Cookie': 'p_pass_token='+self.PASStoken+'&passId='+self.PASStoken
-                    }
-                    
-                    resp_device_id = sess.get(URL_DEVICE_ID, headers=header_device_id,verify=False )
-        
-                    self.DEVICE_ID = re.compile('').findall(resp_device_id.text)[0]
+#                    response = getRequests('https://hodor.canalplus.pro/api/v2/mycanalint/authenticate.json/android/4.1', headers=self.HODORheaders, params=params)
+#                    self.CMStoken = response['token']
+#                    set_setting('CMStoken', self.CMStoken)
+#                
+#                    URL_DEVICE_ID = 'https://pass.canal-plus.com/service/HelloJSON.php'
+#                
+#                    header_device_id = {
+#                        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0',
+#                        'referer':'https://secure-player.canal-plus.com/one/prod/v2/',
+#                        'Cookie': 'p_pass_token='+self.PASStoken+'&passId='+self.PASStoken
+#                    }
+#                
+#                    resp_device_id = sess.get(URL_DEVICE_ID, headers=header_device_id,verify=False )
+#    
+#                    self.DEVICE_ID = re.compile('').findall(resp_device_id.text)[0]
 
-                    set_setting('device_id', self.DEVICE_ID)
-                    
-                    LOGGED = 'true'
-                    set_setting('logged', LOGGED)
-                    xbmcgui.Dialog().notification('[B]Ok.[/B]', 'Zalogowano poprawnie.',ikona, 8000, False)
+#                    set_setting('device_id', self.DEVICE_ID)
+#                
+#                    LOGGED = 'true'
+#                    set_setting('logged', LOGGED)
+#                    xbmcgui.Dialog().notification('[B]Ok.[/B]', 'Zalogowano poprawnie.',ikona, 8000, False)
 
-                else:
-                    set_setting('PASSid', self.PASSid)
-                    set_setting('PASStoken', self.PASStoken)
-                    xbmcgui.Dialog().notification('[B]Błąd[/B]', 'Niepoprawne dane logowania',ikona, 8000,False)
-                    add_item('', '[B][COLOR blue]Zaloguj[/COLOR][/B]', ikona, "login", folder=False, fanart=FANART)
-            else:
-                xbmcgui.Dialog().notification('[B]Błąd[/B]', 'Brak danych logowania.',ikona, 8000, False)
+#                else:
+#                    set_setting('PASSid', self.PASSid)
+#                    set_setting('PASStoken', self.PASStoken)
+#                    xbmcgui.Dialog().notification('[B]Błąd[/B]', 'Niepoprawne dane logowania',ikona, 8000,False)
+#                    add_item('', '[B][COLOR blue]Zaloguj[/COLOR][/B]', ikona, "login", folder=False, fanart=FANART)
+#            else:
+#                xbmcgui.Dialog().notification('[B]Błąd[/B]', 'Brak danych logowania.',ikona, 8000, False)
 
-        elif self.LOGGED != 'true':
-            add_item('', '[B][COLOR blue]Zaloguj[/COLOR][/B]', ikona, "login", folder=False, fanart=FANART)
-        return True
-        '''
+#        elif self.LOGGED != 'true':
+#            add_item('', '[B][COLOR blue]Zaloguj[/COLOR][/B]', ikona, "login", folder=False, fanart=FANART)
+#        return True
+
     def gen_hex_code(self, myrange=6):
         import random
         return ''.join([random.choice('0123456789abcdef') for x in range(myrange)])
@@ -1586,6 +1583,9 @@ if __name__ == '__main__':
 
     elif mode=='login':
         CANALvod().logowanie()
+        
+    elif mode=='loginTV':
+        xbmcgui.Dialog().notification('NP - sorki', xbmcgui.NOTIFICATION_INFO, 6000, False)
         
     elif mode=='logout':
         yes = xbmcgui.Dialog().yesno("[COLOR orange]Uwaga[/COLOR]", 'Czy na pewno chcesz się wylogować?', yeslabel='TAK', nolabel='NIE')

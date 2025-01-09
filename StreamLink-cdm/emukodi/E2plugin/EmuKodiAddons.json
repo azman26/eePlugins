@@ -1,12 +1,13 @@
 {
     "Canal+": {
-        "enabled": false,
+        "enabled": true,
         "icon": "canalplusvod.png",
         "cfgDir": "canalplusvod",
         "cfgFiles": [],
         "cfgValues": [],
         "addonScript": "plugin.video.canalplusvod/main.py",
         "login": [],
+        "loginTV": ["'1' '?mode=loginTV' 'resume:false'", "'1' ' ' 'resume:false'"],
         "userbouquet": [],
         "logout": [],
         "webServer": "plugin.video.canalplusvod/serverHTTP.py"
