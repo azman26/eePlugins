@@ -2137,15 +2137,13 @@ def mainProc():
                     else:
                         print("\tMonthly data up-2-date(last update %s hours ago)" % int((nowTime - round(os.stat(cf).st_mtime)) /3600))
                         cf = ''
-                    if cf != '':
+                    if 0: #dzialalo do konca 2024 cf != '':
                         currDate = datetime.now()
-                        #startDate = currDate.strftime('%Y-%m-%d') #do konca 2024
-                        startDate = currDate.strftime('%Y%m%d')
+                        startDate = currDate.strftime('%Y-%m-%d')
                         endDate = currDate + timedelta(days = 180)
                         endDate = endDate.replace(day=1)
                         endDate = endDate - timedelta(days=1)
-                        #endDate = endDate.strftime('%Y-%m-%d') #do konca 2024
-                        endDate = endDate.strftime('%Y%m%d')
+                        endDate = endDate.strftime('%Y-%m-%d')
                         url = 'https://api.msn.com/weather/calendar?apiKey=%s&locale=%s&region=%s&lon=%s&lat=%s&units=%s&startDate=%s&endDate=%s' % (paramsDict['msnAPIKEY'], 
                                                                                                                                                      paramsDict['language'], 
                                                                                                                                                      paramsDict['language'][-2], 
@@ -2155,10 +2153,29 @@ def mainProc():
                                                                                                                                                      startDate,
                                                                                                                                                      endDate
                                                                                                                                                     )
+                        print(url)
                         initThread(url, 'msn_api.calendar')
+                    if 1: #cf != '':
+                        currDate = datetime.now()
+                        startDate = currDate.strftime('%Y%m%d')
+                        endDate = currDate + timedelta(days = 180)
+                        endDate = endDate.replace(day=1)
+                        endDate = endDate - timedelta(days=1)
+                        endDate = endDate.strftime('%Y%m%d')
+                        url = 'https://api.msn.com/weather/weathertrends?apiKey=' + paramsDict['msnAPIKEY']
+                        url += '&locale='+ paramsDict['language'] + '&region=' + paramsDict['language'][-2:]
+                        url += '&lon='+ paramsDict['geolongitude'] + '&lat=' + paramsDict['geolatitude']
+                        url += '&units=' + paramsDict['degreetype']
+                        url += '&startDate=' + startDate + '&endDate=' + endDate
+                        #print('URL-weathertrends:', url)
+                        initThread(url, 'msn_api.weathertrends')
                     for dataType in ('current', 'overview','dailyforecast','hourlytrend','dailytrend'):
-                        url = 'https://api.msn.com/weather/%s?apiKey=%s&locale=%s&region=%s&lon=%s&lat=%s&units=%s&days=10' % (dataType, paramsDict['msnAPIKEY'], paramsDict['language'], paramsDict['language'][-2], 
-                                                                                                                                  paramsDict['geolongitude'], paramsDict['geolatitude'], paramsDict['degreetype'])
+                        url = 'https://api.msn.com/weather/' + dataType
+                        url += '?apiKey=' + paramsDict['msnAPIKEY']
+                        url += '&locale='+ paramsDict['language'] + '&region=' + paramsDict['language'][-2:]
+                        url += '&lon='+ paramsDict['geolongitude'] + '&lat=' + paramsDict['geolatitude']
+                        url += '&units=' + paramsDict['degreetype']
+                        url += '&days=10'
                         initThread(url, 'msn_api.%s' % dataType)
                 #else: #stare niedzialajace juz
                 #    url = 'https://www.msn.com/%s/weather?culture=%s&weadegreetype=%s&form=PRWLAS&q=%s' % (language, language, degreetype, urllib_quote(paramsDict['weatherSearchFullName']))
