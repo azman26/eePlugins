@@ -114,16 +114,25 @@
      <convert type="ClockToText">Format: %A, %d.%m.%Y </convert>
   </widget>
 </screen>
-<screen name="SimpleSummary" position="0,0" size="480,320" id="1">
+  <screen name="SimpleSummary" position="0,0" size="480,320" id="1">
     <widget source="parent.Title" render="Label" position="10,15" size="460,200" font="VFD;52" halign="center" valign="center" /> 
-  <widget source="global.CurrentTime" render="Label" position="14,235" size="260,70" font="VFD;70" halign="left">
-    <convert type="ClockToText">Format:%d.%m.%Y</convert>
-  </widget>
-<widget source="global.CurrentTime" render="Label" position="287,235" size="180,70" font="VFD;70" halign="right">
-  <convert type="ClockToText">Format:%H:%M</convert>
-</widget>     
-
+    <widget source="global.CurrentTime" render="Label" position="14,235" size="260,70" font="VFD;70" halign="left">
+      <convert type="ClockToText">Format:%d.%m.%Y</convert>
+    </widget>
+    <widget source="global.CurrentTime" render="Label" position="287,235" size="180,70" font="VFD;70" halign="right">
+      <convert type="ClockToText">Format:%H:%M</convert>
+    </widget>     
   </screen>
+  <screen name="ScreenSummary" position="0,0" size="480,320" id="1">
+    <widget source="parent.Title" render="Label" position="10,15" size="460,200" font="VFD;52" halign="center" valign="center" /> 
+    <widget source="global.CurrentTime" render="Label" position="14,235" size="260,70" font="VFD;70" halign="left">
+      <convert type="ClockToText">Format:%d.%m.%Y</convert>
+    </widget>
+    <widget source="global.CurrentTime" render="Label" position="287,235" size="180,70" font="VFD;70" halign="right">
+      <convert type="ClockToText">Format:%H:%M</convert>
+    </widget>     
+  </screen>
+  
   <screen name="MediaPlayerLCDScreen" position="0,0" size="480,320" id="1">
     <widget name="text1" position="25,20" size="450,130" font="VFD;48" />
     <widget name="text3" position="25,155" size="450,75" font="VFD;36" />
