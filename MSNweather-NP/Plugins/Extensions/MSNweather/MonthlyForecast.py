@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import #zmiana strategii ladowanie modulow w py2 z relative na absolute jak w py3
 from . import _
 from Plugins.Extensions.MSNweather.MSNcomponents.GetAsyncWebDataNP import IMGtoICON
 from Plugins.Extensions.MSNweather.MSNcomponents.mappings import *
@@ -20,7 +19,7 @@ from os import path
 from Screens.Screen import Screen
 from Tools.Directories import resolveFilename, SCOPE_SKIN
 from Tools.LoadPixmap import LoadPixmap
-import datetime, json, os, time, sys
+import datetime, json, os, time, sys, traceback
 
 PyMajorVersion = sys.version_info.major
 
@@ -54,6 +53,7 @@ class MonthlyForecast(Screen):
         self['sunnyDays'] = StaticText()
         self['rainyOrSnowyDays'] = StaticText()
         self['MonthSummary'] = StaticText()
+        self['alertsDescr'] = StaticText()
 
         self.daysData = [('d0_Summary', 'd0_WeatherPixmap'),   ('d1_Summary', 'd1_WeatherPixmap'),
                          ('d2_Summary', 'd2_WeatherPixmap'),   ('d3_Summary', 'd3_WeatherPixmap'),
@@ -85,27 +85,51 @@ class MonthlyForecast(Screen):
         self.onShown.append(self.__onShown)
 
     def DEBUG(self, myFUNC='', myText=''):
-        if DBG or 'EXCEPTION' in myFUNC or 'EXCEPTION' in myText:
+        if 'EXCEPTION' in myFUNC.upper() or 'EXCEPTION' in myText.upper():
+            doTrace = True
+        else:
+            doTrace = False
+        if DBG or doTrace:
             from Plugins.Extensions.MSNweather.debug import printDEBUG
-            printDEBUG(myFUNC, myText, logFileName='MonthlyForecast.log')
+            if doTrace:
+                printDEBUG(myFUNC, '%s\n%s' % (myText, traceback.format_exc()), logFileName='MonthlyForecast.log')
+            else:
+                printDEBUG(myFUNC, myText, logFileName='MonthlyForecast.log')
 
     def __onShown(self):
         self.DEBUG('__onShown', ' >>>')
         self.setTitle(_('Monthly forecast'))
         self.title = _('Monthly forecast')
-        tmpDict = self.getJSONdata('dictMSNweather_calendar')
+        tmpDict = self.getJSONdata('dictMSNweather_weathertrends')
         try:
-            self.CalendarDaysDict = tmpDict["value"][0]["responses"][0]["weather"][0]['days']
-            self.CalendarMonthsDict = tmpDict["value"][0]["responses"][0]["weather"][0]['summaries']
-            self.unitsDict = tmpDict["value"][0]["units"]
-            tmpDict = None
+            self.CalendarDaysDict = tmpDict["value"][0]["responses"][0]["calendar"]["weather"][0]['days']
+            self.DEBUG('\t', 'len(self.CalendarDaysDict): %s' % len(self.CalendarDaysDict))
         except Exception as e:
-            self.DEBUG('__onShown', 'EXCEPTION: %s' % str(e))
+            self.CalendarDaysDict = {}
+            self.DEBUG('\t', 'EXCEPTION: %s' % str(e))
+        try:
+            self.CalendarMonthsDict = tmpDict["value"][0]["responses"][0]["calendar"]["weather"][0]['summaries']
+            self.DEBUG('\t', 'len(self.CalendarMonthsDict): %s' % len(self.CalendarMonthsDict))
+        except Exception as e:
+            self.CalendarMonthsDict = {}
+            self.DEBUG('\t', 'EXCEPTION: %s' % str(e))
+        try:
+            self.unitsDict = tmpDict["value"][0]["units"]
+        except Exception as e:
+            self.unitsDict = { "distance": "km", "height": "cm", "pressure": "mbar", "speed": "km/h", 
+                                "system": "Metric", "temperature": "°C", "time": "s"
+                             }
+            self.DEBUG('\t', 'EXCEPTION: %s' % str(e))
+        tmpDict = None
         tmpDict = self.getJSONdata('dictWeather')
         self.iconsDict = tmpDict.get('iconsData', {})
+        tmpDict = None
         
-        self.months = len(self.CalendarMonthsDict) - 1
-        self.DEBUG('__onShown', 'self.months = %s' % self.months)
+        if len(self.CalendarMonthsDict) == 0:
+            self.months = 0
+        else:
+            self.months = len(self.CalendarMonthsDict) - 1
+        self.DEBUG('\t', 'self.months = %s' % self.months)
         self.startDelay = eTimer()
         self.startDelay.callback.append(self.startRun)
         self.startDelay.start(30, True)
@@ -153,23 +177,30 @@ class MonthlyForecast(Screen):
     def updateInfo(self):
         self.DEBUG('updateInfo()', '>>>')
         self.clearDaysData()
-        try: #CalendarMonthsDict
-            self.DEBUG('\t', 'podsumowanie miesiąca')
-            self['monthStr'].text = self.CalendarMonthsDict[self.monthIDX]['monthStr'] + ' ' + str(self.CalendarMonthsDict[self.monthIDX]['year'])
-            self['MonthSummary'].text = '\n'.join(self.CalendarMonthsDict[self.monthIDX]['summary'])
-            self['averageHigh'].text = str(int(self.CalendarMonthsDict[self.monthIDX]['averageHigh'])) + self.unitsDict['temperature']
-            self['averageLow'].text = str(int(self.CalendarMonthsDict[self.monthIDX]['averageLow'])) + self.unitsDict['temperature']
-            self['sunnyDays'].text = str(int(self.CalendarMonthsDict[self.monthIDX]['sunnyDays'])) + ' ' + _('days')
-            self['rainyOrSnowyDays'].text = str(int(self.CalendarMonthsDict[self.monthIDX]['rainyOrSnowyDays'])) + ' ' + _('days')
-        except Exception as e:
-            self.DEBUG('\t', 'Exception: %s' % str(e))
-            return
+        if self.months > 0:
+            try: #CalendarMonthsDict
+                self.DEBUG('\t', 'tworzę podsumowanie miesiąca')
+                self['monthStr'].text = self.CalendarMonthsDict[self.monthIDX]['monthStr'] + ' ' + str(self.CalendarMonthsDict[self.monthIDX]['year'])
+                self['MonthSummary'].text = '\n'.join(self.CalendarMonthsDict[self.monthIDX]['summary'])
+                self['averageHigh'].text = str(int(self.CalendarMonthsDict[self.monthIDX]['averageHigh'])) + self.unitsDict['temperature']
+                self['averageLow'].text = str(int(self.CalendarMonthsDict[self.monthIDX]['averageLow'])) + self.unitsDict['temperature']
+                self['sunnyDays'].text = str(int(self.CalendarMonthsDict[self.monthIDX]['sunnyDays'])) + ' ' + _('days')
+                self['rainyOrSnowyDays'].text = str(int(self.CalendarMonthsDict[self.monthIDX]['rainyOrSnowyDays'])) + ' ' + _('days')
+            except Exception as e:
+                self.DEBUG('\t', 'Exception: %s' % str(e))
 
         try: #CalendarDaysDict
-            self.DEBUG('\t', 'dane dzienne')
-            monthNR = self.CalendarMonthsDict[self.monthIDX]['month']
+            self.DEBUG('\t', 'tworzę dane dzienne')
+            if self.months > 0:
+                monthNR = self.CalendarMonthsDict[self.monthIDX]['month']
+            else:
+                monthNR = int(str(self.CalendarDaysDict[0]['daily']['valid']).split('-')[1])
+                self['monthStr'].text = str(self.CalendarDaysDict[0]['daily']['valid'])[:7]
             minMonthIDX = -1
             maxMonthIDX = -1
+            sumTempHigh = 0.0
+            sumTempLow = 0.0
+            sumRainyDays = 0
             currIDX = 0
             for day in self.CalendarDaysDict:
                 dayMonth = int(str(self.CalendarDaysDict[currIDX]['daily']['valid']).split('-')[1])
@@ -183,31 +214,64 @@ class MonthlyForecast(Screen):
             
             currIDX = minMonthIDX
             days = [_('Mon'), _('Tue'), _('Wed'), _('Thu'), _('Fri'), _('Sat'), _('Sun')]
+            currItemID = 0
             for currItem in self.daysData:
+                currItemID += 1
                 currItemDict = self.CalendarDaysDict[currIDX]['daily']
+                sumTempHigh += float(currItemDict['tempHi'])
+                sumTempLow += float(currItemDict['tempLo'])
                 dayDateSTR = currItemDict['valid'].split('T')[0].split('-')
                 dayDate = datetime.date(int(dayDateSTR[0]), int(dayDateSTR[1]), int(dayDateSTR[2]))
                 dayNo = str(dayDate.day)
-                tempHi = str(int(currItemDict['tempHi'])) + self.unitsDict['temperature']
-                tempLo = str(int(currItemDict['tempLo'])) + self.unitsDict['temperature']
+                tempHi = str(int(currItemDict['tempHi'])) + self.unitsDict['temperature'][:-1]
+                tempLo = str(int(currItemDict['tempLo'])) + self.unitsDict['temperature'][:-1]
                 rainPrecip = str(int(currItemDict['precip']))
-                self[currItem[0]].text = '%s, %s\n\n\n\n\n%s | %s\n%s' % (dayNo, days[dayDate.weekday()],tempHi,tempLo, rainPrecip) + '%'
-                picona = self.iconsDict.get(str(currItemDict['icon']), '')
-                self.DEBUG('\t', picona)
+                dayInfo = '%s, %s\n\n\n\n\n%s | %s | %s' % (dayNo, days[dayDate.weekday()],tempHi,tempLo, rainPrecip) + '%\n'
+                dayInfo += str(int(currItemDict['windMax'])) + self.unitsDict['speed'] + ' '
+                windDir = int(currItemDict['windMaxDir'])
+                if windDir >= 45-23 and windDir < 45+23: dayInfo += chr(0x2199)
+                elif windDir >= 90-23 and windDir < 90+23: dayInfo += chr(0x2190)
+                elif windDir >= 90+45-23 and windDir < 90+45+23: dayInfo += chr(0x2196)
+                elif windDir >= 180-23 and windDir < 180+23: dayInfo += chr(0x2191)
+                elif windDir >= 180+45-23 and windDir < 180+45+23: dayInfo += chr(0x2197)
+                elif windDir >= 270-23 and windDir < 270+23: dayInfo += chr(0x2192)
+                elif windDir >= 270+45-23 and windDir < 270+45+23: dayInfo += chr(0x2198)
+                else: dayInfo += chr(0x2193)
+                self[currItem[0]].text = dayInfo
+                picona = int(currItemDict['icon'])
+                if picona in [19, 20, 22, 23, 46, 47, 75, 76, 81, 85]: sumRainyDays += 1
+                picona = iconsMap.get(currItemDict['symbol']+'.png', self.iconsDict.get(str(picona), ''))
+                self.DEBUG('\t', 'icon=%s, wicon=%s, micon=%s, picona=%s' % (currItemDict['icon'],self.iconsDict.get(str(picona), '?'), currItemDict['symbol'],picona))
                 self[currItem[1]].text = picona
                 currIDX += 1
                 if currIDX > 32: #maxMonthIDX:
                     break
+            if self.months == 0:
+                self['averageHigh'].text = str(round(sumTempHigh / float(currItemID),1)) + "°C"
+                self['averageLow'].text = str(round(sumTempLow / float(currItemID),1)) + "°C"
+                self['sunnyDays'].text = str(currItemID - sumRainyDays) + ' ' + _('days')
+                self['rainyOrSnowyDays'].text = str(sumRainyDays) + ' ' + _('days')
+            
+            try:
+                alertDict = self.CalendarDaysDict[0]["alerts"][0]
+                alertDescr = alertDict.get("credit")
+                alertDescr += ' alert ' + alertDict.get("severity") + ' ' + alertDict.get("statusText")
+                alertDescr += ' od ' + alertDict.get("start") + ' do ' + alertDict.get("start") + '\n'
+                alertDescr += alertDict.get("desc")
+                self['alertsDescr'].text = alertDescr
+            except Exception:
+                pass
         except Exception as e:
             self.DEBUG('\t EXCEPTION: ', str(e))
 
         return
     
     def clearDaysData(self):
+        self.DEBUG("clearDaysData() >>>")
         for currItem in self.daysData:
             for subItem in currItem:
                 self[subItem].text = ''
-                self.DEBUG("clearFields:StaticTextSources(%s)" % str(subItem))
+                #self.DEBUG("clearFields:StaticTextSources(%s)" % str(subItem))
 
     def keyOk(self):
         self.close()

@@ -428,14 +428,13 @@ class MSNweatherNP(Screen):
 
     def openMonthlyForecast(self):
         self.DEBUG('openMonthlyForecast()', ' >>>')
-        if self.weatherData is not None:
-            self.DEBUG('\t', ' self.weatherData is not None')
-            self.DEBUG('\t', ' /tmp/.MSNdata/dictMSNweather_calendar_%s.json' % config.plugins.MSNweatherNP.currEntry.value)
-            if os.path.exists('/tmp/.MSNdata/dictMSNweather_calendar_%s.json' % config.plugins.MSNweatherNP.currEntry.value):
-                self.DEBUG('\t', 'os.path.exists')
-                import Plugins.Extensions.MSNweather.MonthlyForecast
-                reload(Plugins.Extensions.MSNweather.MonthlyForecast)
-                self.session.open(Plugins.Extensions.MSNweather.MonthlyForecast.MonthlyForecast)
+        if self.weatherData is None:
+            self.DEBUG('\t', ' self.weatherData is None :(')
+        else:
+            self.DEBUG('\t', ' self.weatherData is not None opening MonthlyForecast')
+            import Plugins.Extensions.MSNweather.MonthlyForecast
+            reload(Plugins.Extensions.MSNweather.MonthlyForecast)
+            self.session.open(Plugins.Extensions.MSNweather.MonthlyForecast.MonthlyForecast)
         return
 
     def getWeatherDataCallback(self, result, errortext):
