@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import #zmiana strategii ladowanie modulow w py2 z relative na absolute jak w py3
+from importlib import reload
 from Plugins.Extensions.StreamlinkConfig.__init__ import mygettext as _ , readCFG , DBGlog
 from Plugins.Extensions.StreamlinkConfig.version import Version
-from Plugins.Extensions.StreamlinkConfig.plugins.azmanIPTVsettings import get_azmanIPTVsettings
+import Plugins.Extensions.StreamlinkConfig.plugins.azmanIPTVsettings# import get_azmanIPTVsettings
+reload(Plugins.Extensions.StreamlinkConfig.plugins.azmanIPTVsettings)
 import os, time, sys
 # GUI (Screens)
 from Components.ActionMap import ActionMap
@@ -71,16 +73,21 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         Mlist = []
         # https://github.com/azman26
         Mlist.append(getConfigListEntry(""))
-        Mlist.append(getConfigListEntry('\c00289496' + _("*** azman IPTV lists from github ***")))
-        azman = get_azmanIPTVsettings()['userbouquets']
-        for f in sorted(azman):
-            fUrl = f[0]
-            bname = _('%s (%s)') % (f[1], f[2])
-            if os.path.exists('/etc/enigma2/%s' % f[1]):
-                Mlist.append(getConfigListEntry(_("Press OK to remove: %s") % f[1] , config.plugins.streamlinkSRV.removeBouquet))
-            else:
-                Mlist.append(getConfigListEntry(_("Press OK to download: %s") % bname , config.plugins.streamlinkSRV.downloadBouquet, fUrl))
-        return Mlist
+        azman = Plugins.Extensions.StreamlinkConfig.plugins.azmanIPTVsettings.get_azmanIPTVsettings()
+        if len(azman['userbouquets']) == 0:
+            Mlist.append(getConfigListEntry(r'\c00dd9496' + azman['title']))
+            return Mlist
+        else:
+            Mlist.append(getConfigListEntry(r'\c00289496' + _("*** azman IPTV lists from github ***")))
+            azman = azman['userbouquets']        
+            for f in sorted(azman):
+                fUrl = f[0]
+                fName = f[1]
+                if os.path.exists('/etc/enigma2/%s' % f[1]):
+                    Mlist.append(getConfigListEntry(_("Press OK to remove: ") + r'\c00ff2211' + fName , config.plugins.streamlinkSRV.removeBouquet, fName))
+                else:
+                    Mlist.append(getConfigListEntry(_("Press OK to download: ") + r'\c0011ffff' + fName , config.plugins.streamlinkSRV.downloadBouquet, fUrl, fName))
+            return Mlist
     
     def getAddonsRunPath(self, addonName):
         runAddon = '/usr/bin/python plugin.video.%s/main.py' % os.path.join(addons_path, addonName)
@@ -100,7 +107,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         self.session = session
 
         # Summary
-        self.setup_title = _("Streamlink Configuration" + ' v.' + Version)
+        self.setup_title = "Onsługa lisy kanałów kolegi azman"
         self.onChangedEntry = []
 
         # Buttons
@@ -226,58 +233,19 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
                 if isinstance(currItem, ConfigText):
                     from Screens.VirtualKeyBoard import VirtualKeyBoard
                     self.session.openWithCallback(self.OkbuttonTextChangedConfirmed, VirtualKeyBoard, title=(currInfo), text = currItem.value)
-                elif currItem == config.plugins.streamlinkSRV.WPbouquet:
-                    if config.plugins.streamlinkSRV.WPusername.value == '' or config.plugins.streamlinkSRV.WPpassword.value == '':
-                        self.session.openWithCallback(self.doNothing,MessageBox, _("Username & Password are required!"), MessageBox.TYPE_INFO, timeout = 5)
-                        return
-                    else:
-                        self.doAction = ('wpBouquet.py' , '/etc/enigma2/userbouquet.WPPL.tv', config.plugins.streamlinkSRV.WPusername.value, config.plugins.streamlinkSRV.WPpassword.value)
-                elif currItem == config.plugins.streamlinkSRV.WPlogin:
-                    if config.plugins.streamlinkSRV.WPusername.value == '' or config.plugins.streamlinkSRV.WPpassword.value == '':
-                        self.session.openWithCallback(self.doNothing,MessageBox, _("Username & Password are required!"), MessageBox.TYPE_INFO, timeout = 5)
-                        return
-                    else:
-                        self.saveConfig()
-                        cmd = "/usr/bin/python /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/plugins/wpBouquet.py checkLogin '%s' '%s'" % (config.plugins.streamlinkSRV.WPusername.value, config.plugins.streamlinkSRV.WPpassword.value)
-                        self.session.openWithCallback(self.doNothing ,Console, title = "SL %s %s" % (Version, _('Credentials verification')), cmdlist = [ cmd ])
-                        return
-                elif currItem == config.plugins.streamlinkSRV.generateBouquet:
-                    DBGlog('currItem == config.plugins.streamlinkSRV.generateBouquet')
-                    bouquetFileName = currInfo.split(': ')[1].strip()
-                    self.doAction = ('generate_%s.py' % bouquetFileName, '/etc/enigma2/%s' % bouquetFileName, 'anonymous','nopassword')
                 elif currItem == config.plugins.streamlinkSRV.removeBouquet: #removeBouquet
                     DBGlog('currItem == config.plugins.streamlinkSRV.removeBouquet')
                     #wybrany bukiet
-                    bouquetFileName = currInfo.split(': ')[1].strip()
+                    bouquetFileName = selectedItem[2]
                     self.doAction = ('removeBouquet.py', '/etc/enigma2/%s' % bouquetFileName, _("Bouquet_'%s' _removed_properly") % bouquetFileName)
-                elif currItem == config.plugins.streamlinkSRV.installBouquet: #installBouquet
-                    DBGlog('currItem == config.plugins.streamlinkSRV.installBouquet')
-                    #wybrany bukiet
-                    bouquetFileName = currInfo.split(': ')[1].strip()
-                    self.cleanBouquets_tvradio()
-                    self.doAction = ('installBouquet.py', bouquetFileName)
                 elif currItem == config.plugins.streamlinkSRV.downloadBouquet: #downloadBouquet
                     DBGlog('currItem == config.plugins.streamlinkSRV.installBouquet')
                     #wybrany bukiet
-                    bouquetFileName = currInfo.split(': ',1)[1].split(' ',1)[0].strip()
+                    bouquetFileName = selectedItem[3]
                     self.cleanBouquets_tvradio()
                     url2bouquet = selectedItem[2]
                     #DBGlog('url2bouquet=%s' % url2bouquet)
                     self.doAction = ('downloadBouquet.py', bouquetFileName, url2bouquet, )
-                elif currItem == config.plugins.streamlinkSRV.unmanagedBouquet: #modify local bouquet
-                    DBGlog('currItem == config.plugins.streamlinkSRV.unmanagedBouquet')
-                    #wybrany bukiet
-                    bouquetFileName = currInfo.split(': ',1)[1].split(' ',1)[0].strip()
-                    self.cleanBouquets_tvradio()
-                    self.session.openWithCallback(self.localBouquetSelectedAction, ChoiceBox, title = _("What to do?"), list = [(_("Try to find correct reference to enable EPG"),"e"),
-                                                                                                                                (_("Change framework"),"f"), 
-                                                                                                                                (_("Change Streamlink connection type"),"sl")
-                                                                                                                                ])
-                    return
-                elif currItem == config.plugins.streamlinkSRV.streamlinkEMUKODIconfig: #bouquets based on KODI plugins
-                    DBGlog('currItem == config.plugins.streamlinkSRV.streamlinkEMUKODIconfig')
-                    self.emuKodiActions(selectedItem)
-                    return
                 ####
                 DBGlog('%s' % str(self.doAction))
                 if not self.doAction is None:
