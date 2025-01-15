@@ -407,6 +407,27 @@ options="movetype=running,startpoint=0,direction=left,steptime=20,repeat=0,start
   </widget>
   </screen> 
 
+<!-- LCD screen ExtMoviePlayerSummary -->
+ <screen name="ExtMoviePlayerSummary" position="0,0" size="400,240">
+<ePixmap pixmap="HomarLCDskins/Homar_UNO4KSE/Homar_4.png" position="0,0" size="400,240" zPosition="-1" alphatest="blend" />
+<ePixmap pixmap="HomarLCDskins/Homar_UNO4KSE/iptvlogo.png" position="50,200" size="225,90" zPosition="-1" alphatest="blend" />
+  <widget source="global.CurrentTime" render="Label" position="230,10" size="200,55" font="VFD;48" transparent="1" halign="center" valign="center">
+  <convert type="ClockToText">Format:%H:%M</convert>
+  </widget>
+<widget source="global.CurrentTime" render="Label" position="20,10" size="240,54" font="VFD;48" halign="center" valign="top" foregroundColor="HMRname">
+<convert type="ClockToText">Format:%d.%m.%Y</convert>
+</widget>
+<widget source="parent.Title" render="j00zekModRunningText" 
+options="movetype=running,startpoint=0,direction=left,steptime=20,repeat=0,startdelay=800,always=0,oneshot=0" noWrap="1" position="16,90" size="400,58" font="VFD;52" transparent="1" halign="left" valign="top" foregroundColor="HMRname" >
+  </widget>
+<widget source="session.CurrentService" render="Progress" pixmap="HomarLCDskins/Homar_UNO4KSE/Homar_3.png" position="18,155" size="380,30" borderWidth="6" backgroundColor="#00CFFF"> 
+  <convert type="j00zekE2iPlayerSSS">Progress</convert>
+  </widget>
+  <widget source="session.CurrentService" render="Label" font="VFD;52" position="110,180" size="260,78" halign="right" valign="center" transparent="1" zPosition="1" noWrap="1" >
+  <convert type="j00zekE2iPlayerSSS">RemindedMinutes</convert>
+  </widget>
+  </screen> 
+
 <!-- Abspielen von ISO -->
 <screen name="DVDSummary" position="0,0" size="800,480" id="1">
 <ePixmap pixmap="HomarLCDskins/Homar_UNO4KSE/Homar_4.png" position="0,0" size="400,240" zPosition="-1" alphatest="blend" />
@@ -493,6 +514,11 @@ pixmap="HomarLCDskins/Homar_UNO4KSE/Homar_7.png" position="20,210" size="380,30"
 <widget source="parent.Title" render="j00zekModRunningText" 
 options="movetype=running,startpoint=0,direction=left,steptime=40,repeat=0,startdelay=200,always=0,oneshot=0" noWrap="1" position="10,15" size="390,62" font="RegularLCD;40" halign="center" valign="top" transparent="1" foregroundColor="HMRname" />
 	</screen>
+
+<!-- ScreenSummary -->
+<screen name="ScreenSummary" position="0,0" size="100%,100%" id="1">
+  <panel name="SimpleSummary" />
+</screen>
 
 <!-- Setup -->
 <screen name="SetupSummary" position="0,0" size="400,240" id="1">
