@@ -72,7 +72,7 @@ class RequestHandler(SimpleHTTPServer.BaseHTTPRequestHandler):
 
     def do_GET(self):
         with open("/proc/sys/vm/drop_caches", "w") as f: f.write("1\n") #for safety to not get GS due to lack of memory
-        subprocess.Popen('/usr/bin/killall exteplayer3;/usr/bin/killall -9 exteplayer3', shell=True)
+        subprocess.Popen('/usr/bin/killall -q exteplayer3;/usr/bin/killall -q -9 exteplayer3', shell=True)
         """Respond to a GET request."""
         self.send_response(200)
         self.send_header("Content-type", "video/mp2t")

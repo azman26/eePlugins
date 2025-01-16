@@ -39,16 +39,16 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
     def buildList(self):
         self.DoBuildList.stop()
         Mlist = []
-        if not os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/NoZapWrappers'):
+        if config.plugins.streamlinkSRV.NoZapWrappers.value:
             wrapperInfo = ''
-            if not os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLPWrapper'):
+            if not config.plugins.streamlinkSRV.hasYTDLPWrapper.value:
                 wrapperInfo += ' - brak YTDLPWrapper'
-            if not os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLWrapper'):
+            if not config.plugins.streamlinkSRV.hasYTDLWrapper.value:
                 if wrapperInfo == '':
                     wrapperInfo += ' - brak YTDLWrapper'
                 else:
                     wrapperInfo += ', YTDLWrapper'
-            if not os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkWrapper'):
+            if not config.plugins.streamlinkSRV.hasStreamlinkWrapper.value:
                 if wrapperInfo == '':
                     wrapperInfo += ' - brak StreamlinkWrapper'
                 else:
@@ -60,11 +60,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         Mlist.append(getConfigListEntry("Aktywacja:", config.plugins.streamlinkSRV.enabled, 'streamlinkSRV.enabled'))
         if config.plugins.streamlinkSRV.enabled.value:
             Mlist.append(getConfigListEntry("Tryb pracy streamlinka:", config.plugins.streamlinkSRV.binName, 'streamlinkSRV.binName'))
-            #if config.plugins.streamlinkSRV.binName.value == 'streamlinkSRV':
-            #    Mlist.append(getConfigListEntry("Aktywny odtwarzacz streamlinka:", config.plugins.streamlinkSRV.SRVmode, 'streamlinkSRV.SRVmode'))
-            #Mlist.append(getConfigListEntry("Aktywny odtwarzacz materiałów DRM:", config.plugins.streamlinkSRV.DRMmode, 'streamlinkSRV.DRMmode'))
             Mlist.append(getConfigListEntry(_("stop deamon on standby:"), config.plugins.streamlinkSRV.StandbyMode))
-        #Mlist.append(getConfigListEntry("Zewnętrzny odtwarzacz DRM poprzez:", config.plugins.streamlinkSRV.ActiveExtPlayer, 'ActiveExtPlayer'))
         #KONFIGURACJA SERVICEAPP
         Mlist.append(getConfigListEntry(" "))
         Mlist.append(getConfigListEntry('\c00f83426' + "*** Konfiguracja ServiceApp ***"))
@@ -74,29 +70,17 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         Mlist.append(getConfigListEntry(" "))
         Mlist.append(getConfigListEntry('\c00489426' + "*** Konfiguracja logowania - WŁĄCZ wszystko ***"))
         Mlist.append(getConfigListEntry("Włącz dziennik debugowania", config.crash.enabledebug))
-        try: 
+        try:
             Mlist.append(getConfigListEntry("Włącz gadatliwy dziennik debugowania", config.crash.debugLevel))
         except Exception:
             pass
         Mlist.append(getConfigListEntry("Lokalizacja logów", config.crash.debug_path))
-        try:
-            Mlist.append(getConfigListEntry("Awaria obsługi pythona", config.crash.bsodpython))
-        except Exception:
-            pass
-        try:
-            Mlist.append(getConfigListEntry("Dołącz dane ładowania ekranu", config.crash.debugScreens))
-        except Exception:
-            pass
-        try:
-            Mlist.append(getConfigListEntry("Debuguj główną przyczynę błędu", config.crash.pystackonspinner))
-        except Exception:
-            pass
+        Mlist.append(getConfigListEntry("Awaria obsługi pythona", config.crash.bsodpython))
+        Mlist.append(getConfigListEntry("Dołącz dane ładowania ekranu", config.crash.debugScreens))
+        Mlist.append(getConfigListEntry("Debuguj główną przyczynę błędu", config.crash.pystackonspinner))
         #info o vlc
         Mlist.append(getConfigListEntry(" "))
-        Mlist.append(getConfigListEntry("Support VLC: skopiuj skrypt ..."))
-        Mlist.append(getConfigListEntry("... Extensions/StreamlinkConfig/bin//E-TV polska mod j00zek.lua'"))
-        Mlist.append(getConfigListEntry("... do c:\\Program Files\\VideoLAN\\VLC\\lua\\sd\\"))
-        Mlist.append(getConfigListEntry("... lub c:\\Users\\<username>\\AppData\\Roaming\\vlc\\lua\\sd\\"))
+        Mlist.append(getConfigListEntry("Support VLC: użyj skryptu z folderu wtyczki 'bin/E-TV polska mod j00zek.lua'"))
         self["config"].list = Mlist
         self["config"].l.setList(Mlist)
             

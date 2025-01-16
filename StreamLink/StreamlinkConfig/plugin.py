@@ -100,8 +100,8 @@ def Plugins(path, **kwargs):
             wrapperInfo += ', StreamlinkWrapper nie zainstalowany'
     print(wrapperInfo)
     wrapperInfo = None
-    #if config.plugins.streamlinkSRV.Recorder.value == True:
-    #    myList.append(PluginDescriptor(name="StreamlinkRecorder", description="StreamlinkRecorder", where = [PluginDescriptor.WHERE_MENU], fnc=timermenu))
+    if config.plugins.streamlinkSRV.Recorder.value == True:
+        myList.append(PluginDescriptor(name="StreamlinkRecorder", description="StreamlinkRecorder", where = [PluginDescriptor.WHERE_MENU], fnc=timermenu))
     return myList
 
 ####MENU
@@ -241,9 +241,11 @@ class SLeventsWrapper:
     def __findProcessRunningPID(self, ProcessName):
         PID = 0
         if ProcessName != '':
+            ProcessName += ' '
             for procPID in os.listdir('/proc'):
                 procCMDline = os.path.join('/proc', procPID, 'cmdline')
                 if os.path.exists(procCMDline):
+                    #print('[SLK][SLeventsWrapper]__findProcessRunningPID procCMDline="%s"\n' % open(procCMDline, 'r').read())
                     if ProcessName in open(procCMDline, 'r').read():
                         PID = procPID
                         break
@@ -291,7 +293,7 @@ class SLeventsWrapper:
                 if os.path.exists('/var/run/%s.pid' % self.runningProcessName):
                     os.remove('/var/run/%s.pid' % self.runningProcessName)
                 self.runningProcessName = ''
-
+        
     def __restartServiceTimerCB(self):
         #print("[SLeventsWrapper.__restartServiceTimerCB] >>>")
         self.RestartServiceTimer.stop()
@@ -351,16 +353,25 @@ class SLeventsWrapper:
                             print('[SLK][SLeventsWrapper.__evStart] LastServiceString = CurrentserviceString, nothing to do')
                             return
                         self.LastServiceString = CurrentserviceString
-                        if url.startswith('http%3a//127.0.0.1'):
-                            print('[SLK][SLeventsWrapper.__evStart] local URL (127.0.0.1), nothing to do')
-                            return
                         if self.myCDM != False and url.startswith('http%3a//cdm/') and self.myCDM.doWhatYouMustDo(url):
                                 self.runningPlayer = self.myCDM.player
                                 self.runningProcessName = 'streamlink'
                                 return
                         self.__killRunningPlayer()#zatrzymuje uruchomiony z kontrolą podprocess, czyli de facto powyższe
                         self.__killRunningProcess()
-                        if url.startswith('http%3a//cdmplayer/'):
+                        #jak system nie obsluguje wrapperow zamieniamy na slplayer
+                        if config.plugins.streamlinkSRV.NoZapWrappers.value:
+                            if url.startswith('streamlink://'): url = url.replace('streamlink://','http%3a//127.0.0.1:8088/')
+                            elif url.startswith('yt-dlp://'): url = url.replace('yt-dlp://','http%3a//127.0.0.1:8088/')
+                            elif url.startswith('yt-dl://'): url = url.replace('yt-dl://','http%3a//127.0.0.1:8088/')
+                        elif not config.plugins.streamlinkSRV.hasStreamlinkWrapper.value and url.startswith('streamlink://'): url = url.replace('streamlink://','http%3a//127.0.0.1:8088/')
+                        elif not config.plugins.streamlinkSRV.hasYTDLPWrapper.value and url.startswith('yt-dlp://'): url = url.replace('yt-dlp://','http%3a//127.0.0.1:8088/')
+                        elif not config.plugins.streamlinkSRV.hasYTDLWrapper.value and url.startswith('yt-dl://'): url = url.replace('yt-dl://','http%3a//127.0.0.1:8088/')
+                        #wybor odtwarzacza
+                        if url.startswith('http%3a//127.0.0.1'):
+                            print('[SLK][SLeventsWrapper.__evStart] local URL (127.0.0.1), nothing to do')
+                            return
+                        elif url.startswith('http%3a//cdmplayer/'):
                             print("[SLeventsWrapper.__evStart] url.startswith('http%3a//cdmplayer/')")
                             if self.deviceCDM is None: #tutaj, zeby bez sensu nie ladować jak ktos nie ma/nie uzywa
                                 try:

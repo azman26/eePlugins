@@ -7,7 +7,7 @@
 # License: GPLv2+
 #
 
-__version__ = "1.4"
+__version__ = "1.5"
 import atexit
 import errno
 import logging
@@ -453,7 +453,7 @@ class StreamlinkDaemon(Daemon):
 
 
 if __name__ == "__main__":
-    daemon = StreamlinkDaemon("/var/run/streamlink.pid")
+    daemon = StreamlinkDaemon("/var/run/streamlinkSRV.pid")
     if len(sys.argv) >= 2:
         if "start" == sys.argv[1]:
             daemon.start()
