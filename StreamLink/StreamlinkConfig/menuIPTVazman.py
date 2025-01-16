@@ -107,7 +107,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         self.session = session
 
         # Summary
-        self.setup_title = "Onsługa lisy kanałów kolegi azman"
+        self.setup_title = "Obsługa list kanałów kolegi azman"
         self.onChangedEntry = []
 
         # Buttons
