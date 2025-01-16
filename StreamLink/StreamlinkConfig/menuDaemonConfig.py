@@ -75,11 +75,24 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         except Exception:
             pass
         Mlist.append(getConfigListEntry("Lokalizacja logów", config.crash.debug_path))
-        Mlist.append(getConfigListEntry("Awaria obsługi pythona", config.crash.bsodpython))
-        Mlist.append(getConfigListEntry("Dołącz dane ładowania ekranu", config.crash.debugScreens))
-        Mlist.append(getConfigListEntry("Debuguj główną przyczynę błędu", config.crash.pystackonspinner))
+        try:
+            Mlist.append(getConfigListEntry("Awaria obsługi pythona", config.crash.bsodpython))
+        except Exception:
+            pass
+        try:
+            Mlist.append(getConfigListEntry("Dołącz dane ładowania ekranu", config.crash.debugScreens))
+        except Exception:
+            pass
+        try:
+            Mlist.append(getConfigListEntry("Debuguj główną przyczynę błędu", config.crash.pystackonspinner))
+        except Exception:
+            pass
         #info o vlc
         Mlist.append(getConfigListEntry(" "))
+        Mlist.append(getConfigListEntry("Support VLC: skopiuj skrypt ..."))
+        Mlist.append(getConfigListEntry("... Extensions/StreamlinkConfig/bin//E-TV polska mod j00zek.lua'"))
+        Mlist.append(getConfigListEntry("... do c:\\Program Files\\VideoLAN\\VLC\\lua\\sd\\"))
+        Mlist.append(getConfigListEntry("... lub c:\\Users\\<username>\\AppData\\Roaming\\vlc\\lua\\sd\\"))
         Mlist.append(getConfigListEntry("Support VLC: użyj skryptu z folderu wtyczki 'bin/E-TV polska mod j00zek.lua'"))
         self["config"].list = Mlist
         self["config"].l.setList(Mlist)

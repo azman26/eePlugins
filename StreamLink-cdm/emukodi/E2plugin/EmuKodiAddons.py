@@ -55,6 +55,7 @@ def ensure_str(string2decode):
         return string2decode.decode('utf-8', 'ignore')
     return string2decode
 
+
 class EmuKodi_Menu(Screen):
     skin = """
 <screen position="center,center" size="880,540">
@@ -154,6 +155,13 @@ class EmuKodi_Menu(Screen):
             pixmap = LoadPixmap('/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/pic/config.png')
         return((pixmap, description, addonKey))
 
+    def storeselectedMenuIndex(self):
+        try:
+            config.plugins.EmuKodi.selectedMenuIndex.value = self["list"].getCurrentIndex()
+        except Exception:
+            config.plugins.EmuKodi.selectedMenuIndex.value = self["list"].getSelectedIndex() #np. openvix
+        print('getCurrentIndex', config.plugins.EmuKodi.selectedMenuIndex.value)
+
     def configSelected(self):
         SelectedAddonKey = str(self["list"].getCurrent()[2])
         SelectedAddonDef = self.addonsDict.get(SelectedAddonKey, None)
@@ -161,8 +169,7 @@ class EmuKodi_Menu(Screen):
             print('EmuKodi_Menu.configSelected(%s) addon not existing or not enabled, exiting' % SelectedAddonKey)
             return
         else:
-            config.plugins.EmuKodi.selectedMenuIndex.value = self["list"].getCurrentIndex()
-            print('getCurrentIndex', config.plugins.EmuKodi.selectedMenuIndex.value)
+            self.storeselectedMenuIndex()
             #tworzenie katalogu konfiguracyjnego
             cfgDir = SelectedAddonDef['cfgDir']
             if not os.path.exists('/etc/streamlink/%s' % cfgDir):
@@ -184,8 +191,7 @@ class EmuKodi_Menu(Screen):
             print('EmuKodi_Menu.playSelected(%s) addon not existing or not enabled, exiting' % SelectedAddonKey)
             return
         else:
-            config.plugins.EmuKodi.selectedMenuIndex.value = self["list"].getCurrentIndex()
-            print('getCurrentIndex', config.plugins.EmuKodi.selectedMenuIndex.value)
+            self.storeselectedMenuIndex()
             #tworzenie katalogu konfiguracyjnego
             cfgDir = SelectedAddonDef['cfgDir']
             if not os.path.exists('/etc/streamlink/%s' % cfgDir):
@@ -330,9 +336,9 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
         self.setTitle(self.setup_title)
         
         if os.path.exists("/usr/lib/enigma2/python/Plugins/SystemPlugins/ServiceApp/serviceapp.so"):
-            self.choicesList = [("Odtwarzacz zewnętrzny (1e-zalecany dla hisilicon)","1e"), ("Odtwarzacz zewnętrzny (4097e-zalecany dla Vu+)","4097e"), ("gstreamer (root 4097)","4097"),("ServiceApp gstreamer (root 5001)","5001"), ("ServiceApp ffmpeg (root 5002)","5002")]
+            self.choicesList = [("Odtwarzacz zewnętrzny (zalecany)","1e"), ("Odtwarzacz zewnętrzny (zalecany dla Vu+)","4097e"), ("gstreamer (root 4097)","4097"),("ServiceApp gstreamer (root 5001)","5001"), ("ServiceApp ffmpeg (root 5002)","5002")]
         else:
-            self.choicesList = [("Odtwarzacz zewnętrzny (1e-zalecany dla hisilicon)","1e"),  ("Odtwarzacz zewnętrzny (4097e-zalecany dla Vu+)","4097e"), ("gstreamer (root 4097)","4097"),(_("ServiceApp not installed!"), None)]
+            self.choicesList = [("Odtwarzacz zewnętrzny (zalecany)","1e"),  ("Odtwarzacz zewnętrzny (zalecany dla Vu+)","4097e"), ("gstreamer (root 4097)","4097"),(_("ServiceApp not installed!"), None)]
         
     def changedEntry(self):
         print('%s' % 'changedEntry()')
