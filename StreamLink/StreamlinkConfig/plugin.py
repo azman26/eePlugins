@@ -11,16 +11,16 @@ import Screens.Standby
 DBG = True
 
 def safeSubprocessCMD(myCommand):
-    if DBG: DBGlog('safeSubprocessCMD(%s)' % myCommand)
+    if DBG: DBGlog('[SLK] safeSubprocessCMD(%s)' % myCommand)
     with open("/proc/sys/vm/drop_caches", "w") as f: f.write("1\n") #for safety to not get GS due to lack of memory
     subprocess.Popen(myCommand, shell=True)
 
 def SLconfigLeaveStandbyInitDaemon():
-    DBGlog('LeaveStandbyInitDaemon() >>>')
+    DBGlog('[SLK] LeaveStandbyInitDaemon() >>>')
     safeSubprocessCMD('%s restart' % config.plugins.streamlinkSRV.binName.value)
 
 def SLconfigStandbyCounterChanged(configElement):
-    DBGlog('standbyCounterChanged() >>>')
+    DBGlog('[SLK] standbyCounterChanged() >>>')
     if config.plugins.streamlinkSRV.StandbyMode.value == True:
         safeSubprocessCMD('streamlinkproxySRV stop;streamlinkproxySRV stop;killall -q exteplayer3')
     else:
@@ -35,7 +35,13 @@ def SLconfigStandbyCounterChanged(configElement):
 def sessionstart(reason, session = None):
     if os.path.exists("/tmp/StreamlinkConfig.log"):
         os.remove("/tmp/StreamlinkConfig.log")
-    DBGlog("autostart")
+    DBGlog("[SLK] sessionstart")
+    if not os.path.exists('/usr/bin/exteplayer3'):
+        print("[SLK] błąd brak zainstalowanego exteplayer3")
+    if os.path.exists('/usr/sbin/streamlinksrv'):
+        print("[SLK] UWAGA !!! pakiet streamlinksrv zainstalowany - to oznacza potencjalne problemy !!!")
+    if os.path.exists('/usr/sbin/streamlinksrv'):
+        print("[SLK] UWAGA !!! pakiet streamlinkproxy zainstalowany - to oznacza potencjalne problemy !!!")
     cmds = []
     #cmds.append("[ `grep -c 'WHERE_CHANNEL_ZAP' < /usr/lib/enigma2/python/Plugins/Plugin.pyc` -eq 0 ] && touch /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/NoZapWrappers")
     cmds.append("[ `ps -ef|grep -v grep|grep -c streamlinkproxy` -gt 0 ] && killall streamlinkproxy >/dev/null")
@@ -83,23 +89,15 @@ def Plugins(path, **kwargs):
             PluginDescriptor(name="StreamlinkConfig", where = PluginDescriptor.WHERE_SESSIONSTART, fnc = sessionstart, needsRestart = False, weight = -1)
            ]
     if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/NoZapWrappers'):
-        wrapperInfo = '[SLK] system NIE wspiera wrapperów'
-    else:
-        wrapperInfo = '[SLK] system wspiera wrappery'
-        if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLPWrapper'):
-            wrapperInfo += ', YTDLPWrapper zainstalowany'
-        else:
-            wrapperInfo += ', YTDLPWrapper nie zainstalowany'
-        if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLWrapper'):
-            wrapperInfo += ', YTDLWrapper zainstalowany'
-        else:
-            wrapperInfo += ', YTDLWrapper nie zainstalowany'
-        if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkWrapper'):
-            wrapperInfo += ', StreamlinkWrapper zainstalowany'
-        else:
-            wrapperInfo += ', StreamlinkWrapper nie zainstalowany'
-    print(wrapperInfo)
-    wrapperInfo = None
+        print('[SLK] system NIE wspiera wrapperów ZAP')
+    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/NoPlayServiceWrappers'):
+        print('[SLK] system NIE wspiera wrapperów PLAYSERVICE')
+    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLPWrapper'):
+        print('[SLK] YTDLPWrapper zainstalowany')
+    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLWrapper'):
+        print('[SLK], YTDLWrapper zainstalowany')
+    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkWrapper'):
+        print('[SLK] StreamlinkWrapper zainstalowany')
     if config.plugins.streamlinkSRV.Recorder.value == True:
         myList.append(PluginDescriptor(name="StreamlinkRecorder", description="StreamlinkRecorder", where = [PluginDescriptor.WHERE_MENU], fnc=timermenu))
     return myList
@@ -320,6 +318,10 @@ class SLeventsWrapper:
             elif self.ExtPlayerPID != 0 and self.restartServiceTimerCBCounter < 21:
                 print("[SLK][SLeventsWrapper.__restartServiceTimerCB] %s started, waiting another second to enable E2 player to see EPG data" % self.runningProcessName)
                 self.restartServiceTimerCBCounter += 222
+                self.RestartServiceTimer.start(1000, True)
+            elif self.ExtPlayerPID == 0 and self.restartServiceTimerCBCounter >= 21:
+                print("[SLK][SLeventsWrapper.__restartServiceTimerCB] błąd uruchamiania streamlinka")
+                self.restartServiceTimerCBCounter += 1
                 self.RestartServiceTimer.start(1000, True)
             else:
                 print("[SLeventsWrapper.__restartServiceTimerCB] %s started, enabling E2 player to see EPG data" % self.runningProcessName)

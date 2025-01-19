@@ -53,5 +53,6 @@ mkdir -p /etc/streamlink
 [ ! -f /etc/streamlink/config ] && cp $plugBinDir/bin/etc_streamlink_config.template /etc/streamlink/config
 
 [ `grep -c 'WHERE_CHANNEL_ZAP' < /usr/lib/enigma2/python/Plugins/Plugin.pyc` -eq 0 ] && touch /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/NoZapWrappers
+[ `grep -c 'WHERE_PLAYSERVICE' < /usr/lib/enigma2/python/Plugins/Plugin.pyc` -eq 0 ] && touch /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/NoPlayServiceWrappers
 
 exit 0

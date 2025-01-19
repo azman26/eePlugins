@@ -26,6 +26,7 @@ mv -f $SLoptionalPluginsPath/tvp.py ~/streamlink-master/src/streamlink/plugins/
 mv -f $SLoptionalPluginsPath/tvtoya.py ~/streamlink-master/src/streamlink/plugins/
 mv -f $SLoptionalPluginsPath/vk.py ~/streamlink-master/src/streamlink/plugins/
 mv -f $SLoptionalPluginsPath/youtube.py ~/streamlink-master/src/streamlink/plugins/
+mv -f $SLoptionalPluginsPath/twitch.py ~/streamlink-master/src/streamlink/plugins/
 #mv -f $SLoptionalPluginsPath/ ~/streamlink-master/src/streamlink/plugins/
 touch $SLoptionalPluginsPath/*
 $myAbsPath/../../build_ipk.sh "$myAbsPath/../../Streamlink-optionalPlugins" #> /dev/null
