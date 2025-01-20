@@ -43,19 +43,19 @@ if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/N
     config.plugins.streamlinkSRV.NoZapWrappers      = NoSave(ConfigYesNo(default = True))
 else:
     config.plugins.streamlinkSRV.NoZapWrappers      = NoSave(ConfigYesNo(default = False))
-if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLPWrapper'):
+if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLPWrapper/plugin.py'):
     config.plugins.streamlinkSRV.hasYTDLPWrapper     = NoSave(ConfigYesNo(default = True))
 else:
     config.plugins.streamlinkSRV.hasYTDLPWrapper     = NoSave(ConfigYesNo(default = False))
-if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLWrapper'):
+if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLWrapper/plugin.py'):
     config.plugins.streamlinkSRV.hasYTDLWrapper      = NoSave(ConfigYesNo(default = True))
 else:
     config.plugins.streamlinkSRV.hasYTDLWrapper      = NoSave(ConfigYesNo(default = False))
-if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkWrapper'):
+if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkWrapper/plugin.py'):
     config.plugins.streamlinkSRV.hasStreamlinkWrapper      = NoSave(ConfigYesNo(default = True))
 else:
     config.plugins.streamlinkSRV.hasStreamlinkWrapper      = NoSave(ConfigYesNo(default = False))
-if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/e2iplayerWrapper'):
+if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/e2iplayerWrapper/plugin.py'):
     config.plugins.streamlinkSRV.hase2iplayerWrapper      = NoSave(ConfigYesNo(default = True))
 else:
     config.plugins.streamlinkSRV.hase2iplayerWrapper      = NoSave(ConfigYesNo(default = False))

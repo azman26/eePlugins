@@ -52,7 +52,20 @@ fi
 mkdir -p /etc/streamlink
 [ ! -f /etc/streamlink/config ] && cp $plugBinDir/bin/etc_streamlink_config.template /etc/streamlink/config
 
-[ `grep -c 'WHERE_CHANNEL_ZAP' < /usr/lib/enigma2/python/Plugins/Plugin.pyc` -eq 0 ] && touch /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/NoZapWrappers
-[ `grep -c 'WHERE_PLAYSERVICE' < /usr/lib/enigma2/python/Plugins/Plugin.pyc` -eq 0 ] && touch /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/NoPlayServiceWrappers
+if [ `grep -c 'WHERE_CHANNEL_ZAP' < /usr/lib/enigma2/python/Plugins/Plugin.pyc` -eq 0 ];then
+  touch /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/NoZapWrappers
+else
+  ln -sf /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkWrapper/plugin.CHANNEL_ZAP /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkWrapper/plugin.py
+  ln -sf /usr/lib/enigma2/python/Plugins/Extensions/YTDLPWrapper/plugin.CHANNEL_ZAP /usr/lib/enigma2/python/Plugins/Extensions/YTDLPWrapper/plugin.py
+  ln -sf /usr/lib/enigma2/python/Plugins/Extensions/YTDLWrapper/plugin.CHANNEL_ZAP /usr/lib/enigma2/python/Plugins/Extensions/YTDLWrapper/plugin.py
+fi
+
+if [ `grep -c 'WHERE_PLAYSERVICE' < /usr/lib/enigma2/python/Plugins/Plugin.pyc` -eq 0 ];then
+  touch /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/NoPlayServiceWrappers
+else
+  ln -sf /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkWrapper/plugin.PLAYSERVICE /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkWrapper/plugin.py
+  ln -sf /usr/lib/enigma2/python/Plugins/Extensions/YTDLPWrapper/plugin.PLAYSERVICE /usr/lib/enigma2/python/Plugins/Extensions/YTDLPWrapper/plugin.py
+  ln -sf /usr/lib/enigma2/python/Plugins/Extensions/YTDLWrapper/plugin.PLAYSERVICE /usr/lib/enigma2/python/Plugins/Extensions/YTDLWrapper/plugin.py
+fi
 
 exit 0

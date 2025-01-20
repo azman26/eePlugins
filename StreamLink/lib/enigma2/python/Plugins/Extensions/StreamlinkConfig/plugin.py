@@ -92,11 +92,11 @@ def Plugins(path, **kwargs):
         print('[SLK] system NIE wspiera wrapperów ZAP')
     if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/NoPlayServiceWrappers'):
         print('[SLK] system NIE wspiera wrapperów PLAYSERVICE')
-    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLPWrapper'):
+    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLPWrappe/plugin.py'):
         print('[SLK] YTDLPWrapper zainstalowany')
-    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLWrapper'):
+    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLWrapper/plugin.py'):
         print('[SLK], YTDLWrapper zainstalowany')
-    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkWrapper'):
+    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkWrapper/plugin.py'):
         print('[SLK] StreamlinkWrapper zainstalowany')
     if config.plugins.streamlinkSRV.Recorder.value == True:
         myList.append(PluginDescriptor(name="StreamlinkRecorder", description="StreamlinkRecorder", where = [PluginDescriptor.WHERE_MENU], fnc=timermenu))
@@ -343,7 +343,7 @@ class SLeventsWrapper:
                 CurrentserviceString = service.toString()
                 #print("[SLeventsWrapper]__evStart CurrentserviceString=", CurrentserviceString)
                 serviceList = CurrentserviceString.split(":")
-                print("[SLeventsWrapper.__evStart] serviceList=", serviceList)
+                print("[SLK][SLeventsWrapper.__evStart] serviceList=", serviceList)
                 if len(serviceList) > 10:
                     url = serviceList[10].strip()
                     if url == '':
@@ -362,19 +362,37 @@ class SLeventsWrapper:
                         self.__killRunningPlayer()#zatrzymuje uruchomiony z kontrolą podprocess, czyli de facto powyższe
                         self.__killRunningProcess()
                         #jak system nie obsluguje wrapperow zamieniamy na slplayer
-                        if config.plugins.streamlinkSRV.NoZapWrappers.value:
-                            if url.startswith('streamlink://'): url = url.replace('streamlink://','http%3a//127.0.0.1:8088/')
-                            elif url.startswith('yt-dlp://'): url = url.replace('yt-dlp://','http%3a//127.0.0.1:8088/')
-                            elif url.startswith('yt-dl://'): url = url.replace('yt-dl://','http%3a//127.0.0.1:8088/')
-                        elif not config.plugins.streamlinkSRV.hasStreamlinkWrapper.value and url.startswith('streamlink://'): url = url.replace('streamlink://','http%3a//127.0.0.1:8088/')
-                        elif not config.plugins.streamlinkSRV.hasYTDLPWrapper.value and url.startswith('yt-dlp://'): url = url.replace('yt-dlp://','http%3a//127.0.0.1:8088/')
-                        elif not config.plugins.streamlinkSRV.hasYTDLWrapper.value and url.startswith('yt-dl://'): url = url.replace('yt-dl://','http%3a//127.0.0.1:8088/')
+                        urlSvcType = url.split('%3a',1)[0].lower()
+                        print('[SLK][SLeventsWrapper.__evStart] urlSvcType=', urlSvcType)
+                        if urlSvcType == 'http':
+                            pass
+                        elif urlSvcType == 'streamlink':
+                            if config.plugins.streamlinkSRV.hasStreamlinkWrapper.value:
+                                print('[SLK][SLeventsWrapper.__evStart] streamlink wrapper URL, nothing to do')
+                                return
+                            else:
+                                url = 'http%3a//slplayer' + url[14:]
+                                print('[SLK][SLeventsWrapper.__evStart] Brak wrappera streamlink, translacja adresu na', url)
+                        elif urlSvcType == 'yt-dlp':
+                            if config.plugins.streamlinkSRV.hasYTDLPWrapper.value:
+                                print('[SLK][SLeventsWrapper.__evStart] yt-dlp wrapper URL, nothing to do')
+                                return
+                            else:
+                                url = 'http%3a//slplayer' + url[10:]
+                                print('[SLK][SLeventsWrapper.__evStart] Brak wrappera yt-dlp, translacja adresu na', url)
+                        elif urlSvcType == 'yt-dl':
+                            if config.plugins.streamlinkSRV.hasYTDLWrapper.value:
+                                print('[SLK][SLeventsWrapper.__evStart] yt-dl wrapper URL, nothing to do')
+                                return
+                            else:
+                                url = 'http%3a//slplayer' + url[9:]
+                                print('[SLK][SLeventsWrapper.__evStart] Brak wrappera yt-dl, translacja adresu na', url)
                         #wybor odtwarzacza
                         if url.startswith('http%3a//127.0.0.1'):
                             print('[SLK][SLeventsWrapper.__evStart] local URL (127.0.0.1), nothing to do')
                             return
                         elif url.startswith('http%3a//cdmplayer/'):
-                            print("[SLeventsWrapper.__evStart] url.startswith('http%3a//cdmplayer/')")
+                            print("[SLK][SLeventsWrapper.__evStart] url.startswith('http%3a//cdmplayer/')")
                             if self.deviceCDM is None: #tutaj, zeby bez sensu nie ladować jak ktos nie ma/nie uzywa
                                 try:
                                     import pywidevine.cdmdevice.cdmDevice
@@ -391,7 +409,7 @@ class SLeventsWrapper:
                                 self.RestartServiceTimer.start(100, True)
                             return
                         elif url.startswith('http%3a//slplayer/'):
-                            print("[SLeventsWrapper.__evStart] url.startswith('http%3a//slplayer/')")
+                            print("[SLK][SLeventsWrapper.__evStart] url.startswith('http%3a//slplayer/')")
                             self.runningProcessName = 'streamlink'
                             cmd2run = []
                             slPID = self.__getProcessRunningPID('streamlink')
@@ -415,5 +433,5 @@ class SLeventsWrapper:
                             self.RestartServiceTimer.start(100, True)
                             return
         except Exception as e:
-            print('[SLeventsWrapper.__evStart] exception:', str(e))
+            print('[SLK][SLeventsWrapper.__evStart] exception:', str(e))
             print(traceback.format_exc())

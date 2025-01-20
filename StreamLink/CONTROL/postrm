@@ -6,6 +6,8 @@ elif [ -e /usr/lib/python3.9 ]; then
   pythonType='python3.9'
 elif [ -e /usr/lib/python3.10 ]; then
   pythonType='python3.10'
+elif [ -e /usr/lib/python3.12 ]; then
+  pythonType='python3.12'
 fi
 
 [ -e /etc/init.d/streamlinkSRV ] && [ -e /var/run/streamlink.pid ] && /etc/init.d/streamlinkSRV stop
