@@ -1,7 +1,7 @@
 from Components.config import config
 from importlib import reload
 from Plugins.Plugin import PluginDescriptor
-from . import mygettext as _ , DBGlog
+from . import mygettext as _
 
 import os, sys, subprocess, time
 
@@ -11,16 +11,16 @@ import Screens.Standby
 DBG = True
 
 def safeSubprocessCMD(myCommand):
-    if DBG: DBGlog('[SLK] safeSubprocessCMD(%s)' % myCommand)
+    if DBG: print('[SLK] safeSubprocessCMD(%s)' % myCommand)
     with open("/proc/sys/vm/drop_caches", "w") as f: f.write("1\n") #for safety to not get GS due to lack of memory
     subprocess.Popen(myCommand, shell=True)
 
 def SLconfigLeaveStandbyInitDaemon():
-    DBGlog('[SLK] LeaveStandbyInitDaemon() >>>')
+    print('[SLK] LeaveStandbyInitDaemon() >>>')
     safeSubprocessCMD('%s restart' % config.plugins.streamlinkSRV.binName.value)
 
 def SLconfigStandbyCounterChanged(configElement):
-    DBGlog('[SLK] standbyCounterChanged() >>>')
+    print('[SLK] standbyCounterChanged() >>>')
     if config.plugins.streamlinkSRV.StandbyMode.value == True:
         safeSubprocessCMD('streamlinkproxySRV stop;streamlinkproxySRV stop;killall -q exteplayer3')
     else:
@@ -29,21 +29,19 @@ def SLconfigStandbyCounterChanged(configElement):
         if SLconfigLeaveStandbyInitDaemon not in Screens.Standby.inStandby.onClose:
             Screens.Standby.inStandby.onClose.append(SLconfigLeaveStandbyInitDaemon)
     except Exception as e:
-        DBGlog('standbyCounterChanged EXCEPTION: %s' % str(e))
+        print('standbyCounterChanged EXCEPTION: %s' % str(e))
 
 # sessionstart
 def sessionstart(reason, session = None):
     if os.path.exists("/tmp/StreamlinkConfig.log"):
         os.remove("/tmp/StreamlinkConfig.log")
-    DBGlog("[SLK] sessionstart")
+    print("[SLK] sessionstart")
+    print("[SLK] wsparcie wrapperów:", str(config.plugins.streamlinkSRV.supportsZapWrappers.value) )
     if not os.path.exists('/usr/bin/exteplayer3'):
         print("[SLK] błąd brak zainstalowanego exteplayer3")
-    if os.path.exists('/usr/sbin/streamlinksrv'):
-        print("[SLK] UWAGA !!! pakiet streamlinksrv zainstalowany - to oznacza potencjalne problemy !!!")
-    if os.path.exists('/usr/sbin/streamlinksrv'):
+    if os.path.exists('/usr/sbin/streamlinkproxy'):
         print("[SLK] UWAGA !!! pakiet streamlinkproxy zainstalowany - to oznacza potencjalne problemy !!!")
     cmds = []
-    #cmds.append("[ `grep -c 'WHERE_CHANNEL_ZAP' < /usr/lib/enigma2/python/Plugins/Plugin.pyc` -eq 0 ] && touch /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/NoZapWrappers")
     cmds.append("[ `ps -ef|grep -v grep|grep -c streamlinkproxy` -gt 0 ] && killall streamlinkproxy >/dev/null")
     #cmds.append("/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/bin/re-initiate.sh")
     cmds.append("[ `ps -ef|grep -v grep|grep -c streamlinkproxySRV` -gt 0 ] && streamlinkproxySRV stop")
@@ -59,27 +57,27 @@ def sessionstart(reason, session = None):
     safeSubprocessCMD(';'.join(cmds))
     from Screens.Standby import inStandby
     if reason == 0 and config.plugins.streamlinkSRV.StandbyMode.value == True:
-        DBGlog('reason == 0 and StandbyMode enabled')
+        print('[SLK] reason == 0 and StandbyMode enabled')
         config.misc.standbyCounter.addNotifier(SLconfigStandbyCounterChanged, initial_call=False)
     global SLeventsWrapperInstance
     if SLeventsWrapperInstance is None:
         SLeventsWrapperInstance = SLeventsWrapper(session)
 
 def timermenu(menuid, **kwargs):
-    DBGlog("timermenu(%s)" % str(menuid))
+    print("[SLK] timermenu(%s)" % str(menuid))
     if menuid == "timermenu":
         return [(_("Streamlink Timers"), mainRecorder, "streamlinktimer", None)]
     else:
         return []
 
 def mainRecorder(session, **kwargs):
-    DBGlog("mainRecorder()")
+    print("[SLK] mainRecorder()")
     import Plugins.Extensions.StreamlinkConfig.StreamlinkRecorder
     reload(Plugins.Extensions.StreamlinkConfig.StreamlinkRecorder)
     session.open(Plugins.Extensions.StreamlinkConfig.StreamlinkRecorder.StreamlinkRecorderScreen)
 
 def main(session, **kwargs):
-    DBGlog("main")
+    print("[SLK] main")
     #import Plugins.Extensions.StreamlinkConfig.StreamlinkConfiguration
     #reload(Plugins.Extensions.StreamlinkConfig.StreamlinkConfiguration)
     session.open(SLK_Menu)
@@ -88,16 +86,6 @@ def Plugins(path, **kwargs):
     myList = [PluginDescriptor(name=_("Streamlink Configuration"), where = PluginDescriptor.WHERE_PLUGINMENU, icon="logo.png", fnc = main, needsRestart = False),
             PluginDescriptor(name="StreamlinkConfig", where = PluginDescriptor.WHERE_SESSIONSTART, fnc = sessionstart, needsRestart = False, weight = -1)
            ]
-    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/NoZapWrappers'):
-        print('[SLK] system NIE wspiera wrapperów ZAP')
-    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/NoPlayServiceWrappers'):
-        print('[SLK] system NIE wspiera wrapperów PLAYSERVICE')
-    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLPWrappe/plugin.py'):
-        print('[SLK] YTDLPWrapper zainstalowany')
-    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLWrapper/plugin.py'):
-        print('[SLK], YTDLWrapper zainstalowany')
-    if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkWrapper/plugin.py'):
-        print('[SLK] StreamlinkWrapper zainstalowany')
     if config.plugins.streamlinkSRV.Recorder.value == True:
         myList.append(PluginDescriptor(name="StreamlinkRecorder", description="StreamlinkRecorder", where = [PluginDescriptor.WHERE_MENU], fnc=timermenu))
     return myList
@@ -220,7 +208,7 @@ import traceback
 
 class SLeventsWrapper:
     def __init__(self, session):
-        #print("[SLK][SLeventsWrapper.__init__] >>>")
+        #print("[SLK.SLeventsWrapper.__init__] >>>")
         self.session = session
         self.service = None
         self.onClose = []
@@ -243,7 +231,7 @@ class SLeventsWrapper:
             for procPID in os.listdir('/proc'):
                 procCMDline = os.path.join('/proc', procPID, 'cmdline')
                 if os.path.exists(procCMDline):
-                    #print('[SLK][SLeventsWrapper]__findProcessRunningPID procCMDline="%s"\n' % open(procCMDline, 'r').read())
+                    #print('[SLK.SLeventsWrapper]__findProcessRunningPID procCMDline="%s"\n' % open(procCMDline, 'r').read())
                     if ProcessName in open(procCMDline, 'r').read():
                         PID = procPID
                         break
@@ -261,22 +249,22 @@ class SLeventsWrapper:
     def __killRunningPlayer(self):
         # poniższe wyłącza playera i czyści bufor dvb, bez tego  mamy 5s opóźnienia
         if not self.runningPlayer is None:
-            print('[SLeventsWrapper.__killRunningPlayer] self.runningPlayer is not None')
+            print('[SLK.SLeventsWrapper.__killRunningPlayer] self.runningPlayer is not None')
             if self.runningPlayer.poll() is None: 
-                print('[SLeventsWrapper.__killRunningPlayer] sending play_stop to player')
+                print('[SLK.SLeventsWrapper.__killRunningPlayer] sending play_stop to player')
                 self.runningPlayer.communicate(input="q\n")[0]
                 time.sleep(0.2)
             if self.runningPlayer.poll() is None: 
-                print('[SLeventsWrapper.__killRunningPlayer] terminating player')
+                print('[SLK.SLeventsWrapper.__killRunningPlayer] terminating player')
                 self.runningPlayer.terminate()
                 time.sleep(0.2)
             if self.runningPlayer.poll() is None:
-                print('[SLeventsWrapper.__killRunningPlayer] player still running')
+                print('[SLK.SLeventsWrapper.__killRunningPlayer] player still running')
             else:
                 self.runningPlayer = None
 
     def __killRunningProcess(self):
-        #print('[SLK][SLeventsWrapper]__killRunningProcess self.runningProcessName="%s"' % self.runningProcessName)
+        #print('[SLK.SLeventsWrapper]__killRunningProcess self.runningProcessName="%s"' % self.runningProcessName)
         self.__killRunningPlayer()
         cmd2run = []
         if self.runningProcessName != '':
@@ -293,43 +281,43 @@ class SLeventsWrapper:
                 self.runningProcessName = ''
         
     def __restartServiceTimerCB(self):
-        #print("[SLeventsWrapper.__restartServiceTimerCB] >>>")
+        #print("[SLK.SLeventsWrapper.__restartServiceTimerCB] >>>")
         self.RestartServiceTimer.stop()
         if self.LastPlayedService is None:
-            print("[SLeventsWrapper.__restartServiceTimerCB] self.LastPlayedService is None, stopping currently playing service")
+            print("[SLK.SLeventsWrapper.__restartServiceTimerCB] self.LastPlayedService is None, stopping currently playing service")
             self.LastPlayedService = self.session.nav.getCurrentlyPlayingServiceReference()
             self.session.nav.stopService()
             self.restartServiceTimerCBCounter = 0
             self.ExtPlayerPID = 0
             self.RestartServiceTimer.start(2000, True)
         else:
-            #print("[SLeventsWrapper.__restartServiceTimerCB] self.LastPlayedService is NOT None")
+            #print("[SLK.SLeventsWrapper.__restartServiceTimerCB] self.LastPlayedService is NOT None")
             #waiting for exteplayer3 to start
             ExtPlayerPID = self.__findProcessRunningPID('exteplayer3')
             if self.ExtPlayerPID == 0 and ExtPlayerPID > 0:
                 self.ExtPlayerPID = ExtPlayerPID
             elif self.ExtPlayerPID > 0 and ExtPlayerPID == 0:
-                print("[SLK][SLeventsWrapper.__restartServiceTimerCB] running exteplayer3 exited unexpectly, end of waiting :(" )
+                print("[SLK.SLeventsWrapper.__restartServiceTimerCB] running exteplayer3 exited unexpectly, end of waiting :(" )
                 return
             if self.ExtPlayerPID == 0 and self.restartServiceTimerCBCounter < 21:
-                print("[SLK][SLeventsWrapper.__restartServiceTimerCB] waiting %s seconds for %s to start" % (self.restartServiceTimerCBCounter, self.runningProcessName))
+                print("[SLK.SLeventsWrapper.__restartServiceTimerCB] waiting %s seconds for %s to start" % (self.restartServiceTimerCBCounter, self.runningProcessName))
                 self.restartServiceTimerCBCounter += 1
                 self.RestartServiceTimer.start(1000, True)
             elif self.ExtPlayerPID != 0 and self.restartServiceTimerCBCounter < 21:
-                print("[SLK][SLeventsWrapper.__restartServiceTimerCB] %s started, waiting another second to enable E2 player to see EPG data" % self.runningProcessName)
+                print("[SLK.SLeventsWrapper.__restartServiceTimerCB] %s started, waiting another second to enable E2 player to see EPG data" % self.runningProcessName)
                 self.restartServiceTimerCBCounter += 222
                 self.RestartServiceTimer.start(1000, True)
             elif self.ExtPlayerPID == 0 and self.restartServiceTimerCBCounter >= 21:
-                print("[SLK][SLeventsWrapper.__restartServiceTimerCB] błąd uruchamiania streamlinka")
+                print("[SLK.SLeventsWrapper.__restartServiceTimerCB] błąd uruchamiania streamlinka")
                 self.restartServiceTimerCBCounter += 1
                 self.RestartServiceTimer.start(1000, True)
             else:
-                print("[SLeventsWrapper.__restartServiceTimerCB] %s started, enabling E2 player to see EPG data" % self.runningProcessName)
+                print("[SLK.SLeventsWrapper.__restartServiceTimerCB] %s started, enabling E2 player to see EPG data" % self.runningProcessName)
                 self.session.nav.playService(self.LastPlayedService)
                 self.LastPlayedService = None
     
     def __evStart(self):
-        #print("[SLK][SLeventsWrapper.__evStart] >>>")
+        #print("[SLK.SLeventsWrapper.__evStart] >>>")
         if self.myCDM is None:
             try:
                 import pywidevine.cdmdevice.privatecdm
@@ -341,18 +329,18 @@ class SLeventsWrapper:
             service = self.session.nav.getCurrentlyPlayingServiceReference()
             if not service is None:
                 CurrentserviceString = service.toString()
-                #print("[SLeventsWrapper]__evStart CurrentserviceString=", CurrentserviceString)
+                #print("[SLK.SLeventsWrapper]__evStart CurrentserviceString=", CurrentserviceString)
                 serviceList = CurrentserviceString.split(":")
-                print("[SLK][SLeventsWrapper.__evStart] serviceList=", serviceList)
+                print("[SLK.SLeventsWrapper.__evStart] serviceList=", serviceList)
                 if len(serviceList) > 10:
                     url = serviceList[10].strip()
                     if url == '':
-                        #print('[SLeventsWrapper.__evStart] url == ""')
+                        #print('[SLK.SLeventsWrapper.__evStart] url == ""')
                         self.__killRunningProcess()
                         self.LastServiceString = ''
                     else:
                         if self.LastServiceString == CurrentserviceString:
-                            print('[SLK][SLeventsWrapper.__evStart] LastServiceString = CurrentserviceString, nothing to do')
+                            print('[SLK.SLeventsWrapper.__evStart] LastServiceString = CurrentserviceString, nothing to do')
                             return
                         self.LastServiceString = CurrentserviceString
                         if self.myCDM != False and url.startswith('http%3a//cdm/') and self.myCDM.doWhatYouMustDo(url):
@@ -362,37 +350,26 @@ class SLeventsWrapper:
                         self.__killRunningPlayer()#zatrzymuje uruchomiony z kontrolą podprocess, czyli de facto powyższe
                         self.__killRunningProcess()
                         #jak system nie obsluguje wrapperow zamieniamy na slplayer
-                        urlSvcType = url.split('%3a',1)[0].lower()
-                        print('[SLK][SLeventsWrapper.__evStart] urlSvcType=', urlSvcType)
-                        if urlSvcType == 'http':
-                            pass
-                        elif urlSvcType == 'streamlink':
-                            if config.plugins.streamlinkSRV.hasStreamlinkWrapper.value:
-                                print('[SLK][SLeventsWrapper.__evStart] streamlink wrapper URL, nothing to do')
-                                return
-                            else:
+                        if not config.plugins.streamlinkSRV.supportsZapWrappers.value:
+                            urlSvcType = url.split('%3a',1)[0].lower()
+                            print('[SLK.SLeventsWrapper.__evStart] urlSvcType=', urlSvcType)
+                            if urlSvcType == 'http':
+                                pass
+                            elif urlSvcType == 'streamlink':
                                 url = 'http%3a//slplayer' + url[14:]
-                                print('[SLK][SLeventsWrapper.__evStart] Brak wrappera streamlink, translacja adresu na', url)
-                        elif urlSvcType == 'yt-dlp':
-                            if config.plugins.streamlinkSRV.hasYTDLPWrapper.value:
-                                print('[SLK][SLeventsWrapper.__evStart] yt-dlp wrapper URL, nothing to do')
-                                return
-                            else:
+                                print('[SLK.SLeventsWrapper.__evStart] Brak wsparcia wrappera streamlink, translacja adresu na', url)
+                            elif urlSvcType == 'yt-dlp':
                                 url = 'http%3a//slplayer' + url[10:]
-                                print('[SLK][SLeventsWrapper.__evStart] Brak wrappera yt-dlp, translacja adresu na', url)
-                        elif urlSvcType == 'yt-dl':
-                            if config.plugins.streamlinkSRV.hasYTDLWrapper.value:
-                                print('[SLK][SLeventsWrapper.__evStart] yt-dl wrapper URL, nothing to do')
-                                return
-                            else:
+                                print('[SLK.SLeventsWrapper.__evStart] Brak wsparcia wrappera yt-dlp, translacja adresu na', url)
+                            elif urlSvcType == 'yt-dl':
                                 url = 'http%3a//slplayer' + url[9:]
-                                print('[SLK][SLeventsWrapper.__evStart] Brak wrappera yt-dl, translacja adresu na', url)
+                                print('[SLK.SLeventsWrapper.__evStart] Brak wsparcia wrappera yt-dl, translacja adresu na', url)
                         #wybor odtwarzacza
                         if url.startswith('http%3a//127.0.0.1'):
-                            print('[SLK][SLeventsWrapper.__evStart] local URL (127.0.0.1), nothing to do')
+                            print('[SLK.SLeventsWrapper.__evStart] local URL (127.0.0.1), nothing to do')
                             return
                         elif url.startswith('http%3a//cdmplayer/'):
-                            print("[SLK][SLeventsWrapper.__evStart] url.startswith('http%3a//cdmplayer/')")
+                            print("[SLK.SLeventsWrapper.__evStart] url.startswith('http%3a//cdmplayer/')")
                             if self.deviceCDM is None: #tutaj, zeby bez sensu nie ladować jak ktos nie ma/nie uzywa
                                 try:
                                     import pywidevine.cdmdevice.cdmDevice
@@ -409,7 +386,7 @@ class SLeventsWrapper:
                                 self.RestartServiceTimer.start(100, True)
                             return
                         elif url.startswith('http%3a//slplayer/'):
-                            print("[SLK][SLeventsWrapper.__evStart] url.startswith('http%3a//slplayer/')")
+                            print("[SLK.SLeventsWrapper.__evStart] url.startswith('http%3a//slplayer/')")
                             self.runningProcessName = 'streamlink'
                             cmd2run = []
                             slPID = self.__getProcessRunningPID('streamlink')
@@ -433,5 +410,5 @@ class SLeventsWrapper:
                             self.RestartServiceTimer.start(100, True)
                             return
         except Exception as e:
-            print('[SLK][SLeventsWrapper.__evStart] exception:', str(e))
+            print('[SLK.SLeventsWrapper.__evStart] exception:', str(e))
             print(traceback.format_exc())

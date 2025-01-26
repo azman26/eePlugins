@@ -39,10 +39,10 @@ config.plugins.streamlinkSRV.downloadBouquet  = NoSave(ConfigNothing())
 config.plugins.streamlinkSRV.unmanagedBouquet = NoSave(ConfigNothing())
 config.plugins.streamlinkSRV.VLCusingLUA      = NoSave(ConfigNothing())
 
-if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/NoZapWrappers'):
-    config.plugins.streamlinkSRV.NoZapWrappers      = NoSave(ConfigYesNo(default = True))
+if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/supportsZapWrappers'):
+    config.plugins.streamlinkSRV.supportsZapWrappers      = NoSave(ConfigYesNo(default = True))
 else:
-    config.plugins.streamlinkSRV.NoZapWrappers      = NoSave(ConfigYesNo(default = False))
+    config.plugins.streamlinkSRV.supportsZapWrappers      = NoSave(ConfigYesNo(default = False))
 if os.path.exists('/usr/lib/enigma2/python/Plugins/Extensions/YTDLPWrapper/plugin.py'):
     config.plugins.streamlinkSRV.hasYTDLPWrapper     = NoSave(ConfigYesNo(default = True))
 else:
@@ -105,5 +105,5 @@ config.plugins.streamlinkSRV.WPvideoDelay = ConfigSelection(default = "0", choic
                                                                                       ("1.0", _("by %s s." % '1.0')), ("5.0", _("by %s s." % '5.0'))])
 
 def DBGlog(text):
-    print('[SLK]', str(text))
+    print(str(text))
     #open("/tmp/StreamlinkConfig.log", "a").write('%s\n' % str(text))

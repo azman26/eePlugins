@@ -7,7 +7,7 @@ except ImportError:
 	Streamlink = False
 
 SCHEMA = "streamlink%3a//"
-WRAPPER = "StreamlinkWrapper"
+WRAPPER = "SLK:StreamlinkWrapper"
 
 
 def playService(service, **kwargs):

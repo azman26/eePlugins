@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import #zmiana strategii ladowanie modulow w py2 z relative na absolute jak w py3
-from Plugins.Extensions.StreamlinkConfig.__init__ import mygettext as _ , readCFG , DBGlog
+from Plugins.Extensions.StreamlinkConfig.__init__ import mygettext as _ , readCFG
 from Plugins.Extensions.StreamlinkConfig.version import Version
 import os, time, sys
 # GUI (Screens)
@@ -39,21 +39,8 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
     def buildList(self):
         self.DoBuildList.stop()
         Mlist = []
-        if config.plugins.streamlinkSRV.NoZapWrappers.value:
-            wrapperInfo = ''
-            if not config.plugins.streamlinkSRV.hasYTDLPWrapper.value:
-                wrapperInfo += ' - brak YTDLPWrapper'
-            if not config.plugins.streamlinkSRV.hasYTDLWrapper.value:
-                if wrapperInfo == '':
-                    wrapperInfo += ' - brak YTDLWrapper'
-                else:
-                    wrapperInfo += ', YTDLWrapper'
-            if not config.plugins.streamlinkSRV.hasStreamlinkWrapper.value:
-                if wrapperInfo == '':
-                    wrapperInfo += ' - brak StreamlinkWrapper'
-                else:
-                    wrapperInfo += ', StreamlinkWrapper'
-            Mlist.append(getConfigListEntry('\c00289496' + "*** Ten system WSPIERA wrappery" + wrapperInfo + " ***"))
+        if config.plugins.streamlinkSRV.supportsZapWrappers.value:
+            Mlist.append(getConfigListEntry('\c00289496' + "*** Ten system WSPIERA wrappery ***"))
         else:
             Mlist.append(getConfigListEntry('\c00981111' + "*** Ten system NIE wspiera wrapperów, korzystaj TYLKO z demona (127.0.0.1 w liście)!!! ***"))
         Mlist.append(getConfigListEntry(" "))
@@ -100,7 +87,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         return Mlist
     
     def __init__(self, session, args=None):
-        DBGlog('%s' % '__init__')
+        print('%s' % '__init__')
         if os.path.exists('/usr/sbin/streamlinkSRV') and os.path.islink('/usr/sbin/streamlinkSRV') and 'StreamlinkConfig/' in os.readlink('/usr/sbin/streamlinkSRV'):
             self.mySL = True
         else:
@@ -196,12 +183,12 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         self.setTitle(self.setup_title)
         
     def changedEntry(self):
-        DBGlog('%s' % 'changedEntry()')
+        print('%s' % 'changedEntry()')
         try:
             for x in self.onChangedEntry:
                 x()
         except Exception as e:
-            DBGlog('%s' % str(e))
+            print('%s' % str(e))
         self.buildList()
 
     #def selectionChanged(self):
@@ -218,7 +205,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         return SetupSummary
 
     def Okbutton(self):
-        DBGlog('%s' % 'Okbutton')
+        print('%s' % 'Okbutton')
         try:
             curIndex = self["config"].getCurrentIndex()
             selectedItem = self["config"].list[curIndex]
@@ -229,14 +216,14 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
                     from Screens.VirtualKeyBoard import VirtualKeyBoard
                     self.session.openWithCallback(self.OkbuttonTextChangedConfirmed, VirtualKeyBoard, title=(currInfo), text = currItem.value)
         except Exception as e:
-            DBGlog('%s' % str(e))
+            print('%s' % str(e))
 
     def OkbuttonTextChangedConfirmed(self, ret ):
         if ret is None:
-            DBGlog("OkbuttonTextChangedConfirmed(ret ='%s')" % str(ret))
+            print("OkbuttonTextChangedConfirmed(ret ='%s')" % str(ret))
         else:
             try:
                 curIndex = self["config"].getCurrentIndex()
                 self["config"].list[curIndex][1].value = ret
             except Exception as e:
-                DBGlog('%s' % str(e))
+                print('%s' % str(e))

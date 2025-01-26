@@ -22,14 +22,14 @@ def zap(session, service, **kwargs):
 					result = ydl.sanitize_info(result)
 					if result and result.get("url"):
 						url = result["url"]
-						print("[ChannelSelection] zap / YoutubeDLP result url %s" % url)
+						print("[SLK:ChannelSelection] zap / YoutubeDLP result url %s" % url)
 						return (url, errormsg)
 					else:
 						errormsg = "No Link found!"
-						print("[ChannelSelection] zap / YoutubeDLP no streams")
+						print("[SLK:ChannelSelection] zap / YoutubeDLP no streams")
 				except Exception as e:
 					errormsg = str(e)
-					print("[ChannelSelection] zap / YoutubeDLP failed %s" % str(e))
+					print("[SLK:ChannelSelection] zap / YoutubeDLP failed %s" % str(e))
 					pass
 	return (None, errormsg)
 

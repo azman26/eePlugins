@@ -130,8 +130,8 @@ mkdir -p $ipkdir$PluginPath/
 cp -a $plugAbsPath/* $ipkdir$PluginPath/
 mv -f $ipkdir$PluginPath/CONTROL $ipkdir/
 
-#echo !!!!!!!!!!!!!!!!!!!!!!!!! $ExcludeFolder
-#echo $ipkdir/$ExcludeFolder
+echo !!!!!!!!!!!!!!!!!!!!!!!!! $ExcludeFolder
+echo $ipkdir/$ExcludeFolder
 if [ ! -z $ExcludeFolder ] && [ -e $ipkdir/$ExcludeFolder ];then
   rm -rf $ipkdir/$ExcludeFolder
 fi

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import #zmiana strategii ladowanie modulow w py2 z relative na absolute jak w py3
-from Plugins.Extensions.StreamlinkConfig.__init__ import mygettext as _ , readCFG , DBGlog
+from Plugins.Extensions.StreamlinkConfig.__init__ import mygettext as _ , readCFG
 from Plugins.Extensions.StreamlinkConfig.version import Version
 from Plugins.Extensions.StreamlinkConfig.plugins.azmanIPTVsettings import get_azmanIPTVsettings
 import os, time, sys
@@ -43,7 +43,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         #budowanie listy
         for fb in sorted(os.listdir("/etc/enigma2"), key=str.lower):
             if fb.startswith('userbouquet.') and fb.endswith('.tv') and not fb in ['userbouquet.LastScanned.tv']:
-                DBGlog(fb)
+                print(fb)
                 with open('/etc/enigma2/%s' % fb, 'r') as fp:
                     try:
                         fpc = fp.read()
@@ -124,7 +124,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
             self.close(None)
         
     def refreshBuildList(self, ret = False):
-        DBGlog('refreshBuildList >>>')
+        print('refreshBuildList >>>')
         self["config"].list = self.buildList()
         self.DoBuildList.start(50, True)
         
@@ -156,12 +156,12 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
             self.choicesList = [(_("Don't change"),"0"),("gstreamer (root 4097)","4097"),("Hardware (root 1) wymagany do PIP","1"),(_("ServiceApp not installed!"), None)]
         
     def changedEntry(self):
-        DBGlog('%s' % 'changedEntry()')
+        print('%s' % 'changedEntry()')
         try:
             for x in self.onChangedEntry:
                 x()
         except Exception as e:
-            DBGlog('%s' % str(e))
+            print('%s' % str(e))
 
     def selectionChanged(self):
         return
@@ -177,7 +177,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         return SetupSummary
 
     def Okbutton(self):
-        DBGlog('%s' % 'Okbutton')
+        print('%s' % 'Okbutton')
         try:
             curIndex = self["config"].getCurrentIndex()
             selectedItem = self["config"].list[curIndex]
@@ -186,16 +186,16 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
             self.session.openWithCallback(self.localBouquetChangeFramework, ChoiceBox, title = _("Select Multiframework"), list = self.choicesList)
             return
         except Exception as e:
-            DBGlog('%s' % str(e))
+            print('%s' % str(e))
 
     def localBouquetChangeFramework(self, ret ):
         if ret is None:
-            DBGlog("localBouquetChangeFramework(ret ='%s')" % str(ret))
+            print("localBouquetChangeFramework(ret ='%s')" % str(ret))
         else:
             if ret[1] != "0":
                 self.doAction = self.doAction + (ret[1],)
                 myCMD = ' '.join(self.doAction)
-                DBGlog(myCMD)
+                print(myCMD)
                 self.session.openWithCallback(self.retFromCMD,
                                               Console, 
                                               title = "SL %s %s" % (Version, 'Zmiana frameworka...'),
@@ -219,7 +219,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         eDVBDB.getInstance().reloadBouquets()
         
     def retFromCMD(self, ret = False):
-        DBGlog('retFromCMD >>>')
+        print('retFromCMD >>>')
         self.cleanBouquets_tvradio()
         self.reloadBouquets()
         msg = _("Bouquets has been reloaded")

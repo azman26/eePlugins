@@ -6,7 +6,7 @@ except ImportError:
 	YoutubeDL = None
 
 SCHEMA = "YT-DL%3a//"
-WRAPPER = "YTDLWrapper"
+WRAPPER = "SLK:YTDLWrapper"
 
 
 def playService(service, **kwargs):

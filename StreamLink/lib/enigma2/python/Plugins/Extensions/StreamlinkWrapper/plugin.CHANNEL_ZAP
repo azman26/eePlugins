@@ -21,14 +21,14 @@ def zap(session, service, **kwargs):
 					streams = streamlink.streams(url)
 					if streams:
 						url = streams["best"].to_url()
-						print("[ChannelSelection] zap / streamlink result url %s" % url)
+						print("[SLK:ChannelSelection] zap / streamlink result url %s" % url)
 						return (url, errormsg)
 					else:
 						errormsg = "No Link found!"
-						print("[ChannelSelection] zap / streamlink no streams")
+						print("[SLK:ChannelSelection] zap / streamlink no streams")
 				except Exception as e:
 					errormsg = str(e)
-					print("[ChannelSelection] zap / streamlink failed %s" % str(e))
+					print("[SLK:ChannelSelection] zap / streamlink failed %s" % str(e))
 					pass
 	return (None, errormsg)
 
