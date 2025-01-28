@@ -1,15 +1,4 @@
 #!/bin/sh
-pythonType='unknown'
-if [ -e /usr/lib/python2.7 ]; then
-  pythonType='python2.7'
-elif [ -e /usr/lib/python3.9 ]; then
-  pythonType='python3.9'
-elif [ -e /usr/lib/python3.10 ]; then
-  pythonType='python3.10'
-elif [ -e /usr/lib/python3.12 ]; then
-  pythonType='python3.12'
-fi
-
 [ -e /etc/init.d/streamlinkSRV ] && [ -e /var/run/streamlink.pid ] && /etc/init.d/streamlinkSRV stop
 [ -e /etc/init.d/streamlinkSRV ] && rm -f /etc/init.d/streamlinkSRV
 [ -e /etc/rc3.d/S50streamlinkSRV ] && rm -f /etc/rc3.d/S50streamlinkSRV
@@ -17,7 +6,9 @@ fi
 
 if [ `ps -ef 2>&1 |grep -v grep|grep opkg|grep -c remove` -ge 1 ] || [ `ps -l 2>&1 |grep -v grep|grep opkg|grep -c remove` -ge 1 ];then
   rm -rf /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig
+  rm -rf /etc/streamlink
   [ -L /usr/sbin/streamlink ] && rm -f /usr/sbin/streamlink
   [ -L /usr/sbin/streamlinkSRV ] && rm -f /usr/sbin/streamlinkSRV
+  [ -L /usr/sbin/streamlinkproxySRV ] && rm -f /usr/sbin/streamlinkproxySRV
 fi
 exit 0
