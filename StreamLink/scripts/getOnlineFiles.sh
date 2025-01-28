@@ -1,7 +1,7 @@
 #/bin/bash
 myPath=$(dirname $0)
 myAbsPath=$(readlink -fn "$myPath")
-SLpath=$myAbsPath/../lib/enigma2/python/Plugins/Extensions/StreamlinkConfig
+SLpath=$myAbsPath/../StreamlinkConfig
 SLoptionalPluginsPath=$myAbsPath/../../Streamlink-optionalPlugins/StreamlinkConfig/bin/site-packages/streamlink/plugins
 #echo $myAbsPath
 
@@ -12,24 +12,6 @@ wget -q https://github.com/streamlink/streamlink/archive/refs/heads/master.zip -
 unzip -q ~/streamlink-master.zip
 #usuniecie gowna
 rm -f ~/streamlink-master/src/streamlink/plugins/vtvgo.* 2 > /dev/null
-#przeniesienie plugins do opcjonalnych
-rm -f $SLoptionalPluginsPath/*
-mv -f ~/streamlink-master/src/streamlink/plugins/* $SLoptionalPluginsPath
-
-#niektóre są potrzebne, więc z powrotem
-mv -f $SLoptionalPluginsPath/__init__.py ~/streamlink-master/src/streamlink/plugins/
-mv -f $SLoptionalPluginsPath/dash.py ~/streamlink-master/src/streamlink/plugins/
-mv -f $SLoptionalPluginsPath/hls.py ~/streamlink-master/src/streamlink/plugins/
-mv -f $SLoptionalPluginsPath/http.py ~/streamlink-master/src/streamlink/plugins/
-mv -f $SLoptionalPluginsPath/okru.py ~/streamlink-master/src/streamlink/plugins/
-mv -f $SLoptionalPluginsPath/tvp.py ~/streamlink-master/src/streamlink/plugins/
-mv -f $SLoptionalPluginsPath/tvtoya.py ~/streamlink-master/src/streamlink/plugins/
-mv -f $SLoptionalPluginsPath/vk.py ~/streamlink-master/src/streamlink/plugins/
-mv -f $SLoptionalPluginsPath/youtube.py ~/streamlink-master/src/streamlink/plugins/
-mv -f $SLoptionalPluginsPath/twitch.py ~/streamlink-master/src/streamlink/plugins/
-#mv -f $SLoptionalPluginsPath/ ~/streamlink-master/src/streamlink/plugins/
-touch $SLoptionalPluginsPath/*
-$myAbsPath/../../build_ipk.sh "$myAbsPath/../../Streamlink-optionalPlugins" #> /dev/null
 
 mkdir -p $SLpath/bin/site-packages/streamlink/
 rm -rf $SLpath/bin/site-packages/streamlink/*
@@ -88,15 +70,15 @@ fi
 rm -rf ~/streamlink-master*
 
 #na chwile dla logowania
-#wget -q https://raw.githubusercontent.com/openatv/enigma2/7.4/lib/python/Plugins/Extensions/StreamlinkWrapper/plugin.py -O $myAbsPath/../lib/enigma2/python/Plugins/Extensions/StreamlinkWrapper/plugin.CHANNEL_ZAP
-#wget -q https://raw.githubusercontent.com/openatv/enigma2/7.4/lib/python/Plugins/Extensions/YTDLPWrapper/plugin.py -O $myAbsPath/../lib/enigma2/python/Plugins/Extensions/YTDLPWrapper/plugin.CHANNEL_ZAP
-#wget -q https://raw.githubusercontent.com/openatv/enigma2/7.4/lib/python/Plugins/Extensions/YTDLWrapper/plugin.py -O $myAbsPath/../lib/enigma2/python/Plugins/Extensions/YTDLWrapper/plugin.CHANNEL_ZAP
+#wget -q https://raw.githubusercontent.com/openatv/enigma2/7.4/lib/python/Plugins/Extensions/StreamlinkWrapper/plugin.py -O $myAbsPath/../StreamlinkWrapper/plugin.CHANNEL_ZAP
+#wget -q https://raw.githubusercontent.com/openatv/enigma2/7.4/lib/python/Plugins/Extensions/YTDLPWrapper/plugin.py -O $myAbsPath/../YTDLPWrapper/plugin.CHANNEL_ZAP
+#wget -q https://raw.githubusercontent.com/openatv/enigma2/7.4/lib/python/Plugins/Extensions/YTDLWrapper/plugin.py -O $myAbsPath/../YTDLWrapper/plugin.CHANNEL_ZAP
 
-#wget -q https://raw.githubusercontent.com/openatv/enigma2/master/lib/python/Plugins/Extensions/StreamlinkWrapper/plugin.py -O $myAbsPath/../lib/enigma2/python/Plugins/Extensions/StreamlinkWrapper/plugin.PLAYSERVICE
-#wget -q https://raw.githubusercontent.com/openatv/enigma2/master/lib/python/Plugins/Extensions/YTDLPWrapper/plugin.py -O $myAbsPath/../lib/enigma2/python/Plugins/Extensions/YTDLPWrapper/plugin.PLAYSERVICE
-#wget -q https://raw.githubusercontent.com/openatv/enigma2/master/lib/python/Plugins/Extensions/YTDLWrapper/plugin.py -O $myAbsPath/../lib/enigma2/python/Plugins/Extensions/YTDLWrapper/plugin.PLAYSERVICE
+#wget -q https://raw.githubusercontent.com/openatv/enigma2/master/lib/python/Plugins/Extensions/StreamlinkWrapper/plugin.py -O $myAbsPath/../StreamlinkWrapper/plugin.PLAYSERVICE
+#wget -q https://raw.githubusercontent.com/openatv/enigma2/master/lib/python/Plugins/Extensions/YTDLPWrapper/plugin.py -O $myAbsPath/../YTDLPWrapper/plugin.PLAYSERVICE
+#wget -q https://raw.githubusercontent.com/openatv/enigma2/master/lib/python/Plugins/Extensions/YTDLWrapper/plugin.py -O $myAbsPath/../YTDLWrapper/plugin.PLAYSERVICE
 
-wget -q https://raw.githubusercontent.com/azman26/EPGazman/main/azman_channels_mappings.py -O $myAbsPath/../lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/plugins/azman_channels_mappings.py
+wget -q https://raw.githubusercontent.com/azman26/EPGazman/main/azman_channels_mappings.py -O $myAbsPath/../StreamlinkConfig/plugins/azman_channels_mappings.py
 
 #drm
 rm -rf ~/streamlink-master* 2 >/dev/null
