@@ -39,14 +39,14 @@ config.plugins.EmuKodi.PBGOklient  = NoSave(ConfigSelection(default = "iCOK", ch
 
 def readCFG(cfgName, defVal = ''):
     retValue = defVal
-    for cfgPath in ['/j00zek/streamlink_defaults/','/hdd/User_Configs', '/etc/streamlink/']:
+    for cfgPath in ['/j00zek/streamlink_defaults/', '/j00zek/EmuKodi_defaults/', '/hdd/User_Configs', '/etc/EmuKodi/']:
         if os.path.exists(os.path.join(cfgPath, cfgName)):
             retValue = open(os.path.join(cfgPath, cfgName), 'r').readline().strip()
             break
     return retValue
 
 def saveCFG(cfgName, val = ''):
-    with open(os.path.join('/etc/streamlink/', cfgName), 'w') as fw:
+    with open(os.path.join('/etc/EmuKodi/', cfgName), 'w') as fw:
         fw.write(val.strip())
         fw.close()
 
@@ -106,10 +106,6 @@ class EmuKodi_Menu(Screen):
         Mlist = []
         if not os.path.exists("/usr/lib/enigma2/python/Plugins/SystemPlugins/ServiceApp/serviceapp.so"):
             Mlist.append(self.buildListEntry(None, "Brak zainstalowanego serviceapp", "info.png"))
-        #elif not os.path.exists('/usr/lib/python3.12/site-packages/emukodi/'):
-        #    Mlist.append(self.buildListEntry(None, r'\c00981111' + "*** Brak wsparcia DRM, moduł streamlink-cdm nie zainstalowany ***", "remove.png"))
-        elif not os.path.exists('/usr/sbin/streamlinkSRV') or not os.path.islink('/usr/sbin/streamlinkSRV') or not 'StreamlinkConfig/' in os.readlink('/usr/sbin/streamlinkSRV'):
-            Mlist.append(self.buildListEntry(None, r'\c00981111' + "*** BRAK oryginalnego Streamlinka z pakietu SLK ***", "remove.png"))
         else:
             cdmStatus = None
             try:
@@ -119,7 +115,7 @@ class EmuKodi_Menu(Screen):
             except Exception as e: 
                 print(str(e))
                 Mlist.append(self.buildListEntry(None, r'\c00981111' + "*** Błąd ładowania modułu urządzenia cdm ***", "info.png"))
-            open('/etc/streamlink/cdmStatus','w').write(str(cdmStatus))
+            open('/etc/EmuKodi/cdmStatus','w').write(str(cdmStatus))
             if cdmStatus is None:
                 Mlist.append(self.buildListEntry(None, r'\c00981111' + "*** Błąd sprawdzania urządzenia cdm ***", "info.png"))
             #elif not cdmStatus:
@@ -172,8 +168,8 @@ class EmuKodi_Menu(Screen):
             self.storeselectedMenuIndex()
             #tworzenie katalogu konfiguracyjnego
             cfgDir = SelectedAddonDef['cfgDir']
-            if not os.path.exists('/etc/streamlink/%s' % cfgDir):
-                os.system('mkdir -p /etc/streamlink/%s' % cfgDir)
+            if not os.path.exists('/etc/EmuKodi/%s' % cfgDir):
+                os.system('mkdir -p /etc/EmuKodi/%s' % cfgDir)
             #uruchamianie ekranu konfiguracyjnego
             try:
                 self.session.openWithCallback(self.doNothing, EmuKodiConfiguration, SelectedAddonDef)
@@ -194,8 +190,8 @@ class EmuKodi_Menu(Screen):
             self.storeselectedMenuIndex()
             #tworzenie katalogu konfiguracyjnego
             cfgDir = SelectedAddonDef['cfgDir']
-            if not os.path.exists('/etc/streamlink/%s' % cfgDir):
-                os.system('mkdir -p /etc/streamlink/%s' % cfgDir)
+            if not os.path.exists('/etc/EmuKodi/%s' % cfgDir):
+                os.system('mkdir -p /etc/EmuKodi/%s' % cfgDir)
             #uruchamianie ekranu konfiguracyjnego
             try:
                 self.session.openWithCallback(self.doNothing, EmuKodiPlayer, SelectedAddonDef)
@@ -235,8 +231,8 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
                 cfgFile = cfgFile.split('=')[0]
             else:
                 defVal = ""
-            if not os.path.exists('/etc/streamlink/%s/%s' % (self.addonName,cfgFile)):
-                open('/etc/streamlink/%s/%s' % (self.addonName,cfgFile), 'w').write(defVal)
+            if not os.path.exists('/etc/EmuKodi/%s/%s' % (self.addonName,cfgFile)):
+                open('/etc/EmuKodi/%s/%s' % (self.addonName,cfgFile), 'w').write(defVal)
                             
         #info
         if os.path.exists('/etc/enigma2/userbouquet.%s.tv' % self.addonName):
@@ -401,7 +397,7 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
                         self.emuKodiActionConfirmed(True)
                         return
                     elif self.currAction == 'clean':
-                        self.emuKodiCmdsList.append("rm -f /etc/streamlink/%s/*" % self.addonName)
+                        self.emuKodiCmdsList.append("rm -f /etc/EmuKodi/%s/*" % self.addonName)
                         self.emuKodiCmdsList.append("echo 'Skasowano wszystkie dane serwisu %s. Wymagany restart!!!'" % self.addonName)
                         self.emuKodiCmdsList.append("sleep 2")
                         self.autoClose = True
