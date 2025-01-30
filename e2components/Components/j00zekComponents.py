@@ -71,6 +71,8 @@ def isImageType(imgName = ''):
                     imageType = 'vti'
                 elif fileContent.find('code.vuplus.com') > -1:
                     imageType = 'vuplus'
+                elif fileContent.find('egami') > -1:
+                    imageType = 'egami'
                 elif fileContent.find('openpli-7') > -1:
                     imageType = 'openpli7'
                 elif fileContent.find('openatv') > -1:

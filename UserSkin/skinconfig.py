@@ -1122,8 +1122,9 @@ class UserSkin_Config(Screen, ConfigListScreen):
                         system('mv -f %s /etc/enigma2/skin_user.xml' % user_skin_file)
                         self.LCDLinuxEnabled == False
                     else: # inne oparte o pli obsluguja skorki spersonalizowane dla kazdej wybranej osobno
-                        printDEBUG("Tryb pliku skin_user(nazwa_skorki>.xml")
+                        printDEBUG("Tryb pliku skin_user<nazwa_skorki>.xml")
                         #system('ln -sf %s %s' % (user_skin_file, resolveFilename(SCOPE_CONFIG, 'skin_user' + self.currentSkin + '.xml')))
+                        printDEBUG('moving %s to %s' % (user_skin_file, resolveFilename(SCOPE_CONFIG, 'skin_user' + self.currentSkin + '.xml')))
                         system('mv -f %s %s' % (user_skin_file, resolveFilename(SCOPE_CONFIG, 'skin_user' + self.currentSkin + '.xml')))
               
             clearCache()
