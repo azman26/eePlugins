@@ -162,10 +162,8 @@ if __name__ == '__main__':
             frameWork = "4097"
         elif str(frameWork) == "4097e":
             frameWork = "4097"
-            #streamlinkURL = 'http%3a//slplayer/'
         elif str(frameWork) == "1e":
             frameWork = "1"
-            #streamlinkURL = 'http%3a//slplayer/'
         #print frameWork
         _generate_E2bouquet()
     elif len(sys.argv) == 4 and sys.argv[1] == 'checkLogin':

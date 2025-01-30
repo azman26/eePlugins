@@ -21,12 +21,12 @@ from Screens.Standby import TryQuitMainloop
 class StreamlinkConfiguration(Screen, ConfigListScreen):
     from enigma import getDesktop
     if getDesktop(0).size().width() == 1920: #definicja skin-a musi byc tutaj, zeby vti sie nie wywalalo na labelach, inaczej trzeba uzywasc zrodla statictext
-        skin = """<screen name="StreamlinkConfiguration" position="center,center" size="1200,700" title="Streamlink configuration">
-                    <widget name="config"     position="20,20"   zPosition="1" size="1160,600" scrollbarMode="showOnDemand" />
-                    <widget name="key_red"    position="20,630"  zPosition="2" size="240,30" foregroundColor="red"    valign="center" halign="left" font="Regular;22" transparent="1" />
-                    <widget name="key_green"  position="260,630" zPosition="2" size="240,30" foregroundColor="green"  valign="center" halign="left" font="Regular;22" transparent="1" />
-                    <widget name="key_yellow" position="500,630" zPosition="2" size="240,30" foregroundColor="yellow" valign="center" halign="left" font="Regular;22" transparent="1" />
-                    <widget name="key_blue"   position="740,630" zPosition="2" size="240,30" foregroundColor="blue"   valign="center" halign="left" font="Regular;22" transparent="1" />
+        skin = """<screen name="StreamlinkConfiguration" position="center,center" size="1200,600" title="Streamlink configuration">
+                    <widget name="config"     position="20,20"   zPosition="1" size="1160,500" scrollbarMode="showOnDemand" />
+                    <widget name="key_red"    position="20,530"  zPosition="2" size="240,30" foregroundColor="red"    valign="center" halign="left" font="Regular;22" transparent="1" />
+                    <widget name="key_green"  position="260,530" zPosition="2" size="240,30" foregroundColor="green"  valign="center" halign="left" font="Regular;22" transparent="1" />
+                    <widget name="key_yellow" position="500,530" zPosition="2" size="240,30" foregroundColor="yellow" valign="center" halign="left" font="Regular;22" transparent="1" />
+                    <widget name="key_blue"   position="740,530" zPosition="2" size="240,30" foregroundColor="blue"   valign="center" halign="left" font="Regular;22" transparent="1" />
                   </screen>"""
     else:
         skin = """<screen name="StreamlinkConfiguration" position="center,center" size="700,400" title="Streamlink configuration">
@@ -43,35 +43,9 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         if config.plugins.streamlinkSRV.enabled.value:
             Mlist.append(getConfigListEntry("Tryb pracy streamlinka:", config.plugins.streamlinkSRV.binName, 'streamlinkSRV.binName'))
             Mlist.append(getConfigListEntry(_("stop deamon on standby:"), config.plugins.streamlinkSRV.StandbyMode))
-        #KONFIGURACJA SERVICEAPP
-        Mlist.append(getConfigListEntry(" "))
-        Mlist.append(getConfigListEntry('\c00f83426' + "*** Konfiguracja ServiceApp ***"))
-        Mlist.append(getConfigListEntry("System odtwarzania wewnętrzny E2/ServiceApp (wył/wł)", config.plugins.serviceapp.servicemp3.replace))
-        Mlist.append(getConfigListEntry("Odtwarzacz systemu ServiceApp", config.plugins.serviceapp.servicemp3.player))
-        #KONFIGURACJA LOGOWANIA
-        Mlist.append(getConfigListEntry(" "))
-        Mlist.append(getConfigListEntry('\c00489426' + "*** Konfiguracja logowania - WŁĄCZ wszystko ***"))
-        Mlist.append(getConfigListEntry("Włącz dziennik debugowania", config.crash.enabledebug))
-        try:
-            Mlist.append(getConfigListEntry("Włącz gadatliwy dziennik debugowania", config.crash.debugLevel))
-        except Exception:
-            pass
-        Mlist.append(getConfigListEntry("Lokalizacja logów", config.crash.debug_path))
-        try:
-            Mlist.append(getConfigListEntry("Awaria obsługi pythona", config.crash.bsodpython))
-        except Exception:
-            pass
-        try:
-            Mlist.append(getConfigListEntry("Dołącz dane ładowania ekranu", config.crash.debugScreens))
-        except Exception:
-            pass
-        try:
-            Mlist.append(getConfigListEntry("Debuguj główną przyczynę błędu", config.crash.pystackonspinner))
-        except Exception:
-            pass
         #info o vlc
         Mlist.append(getConfigListEntry(" "))
-        Mlist.append(getConfigListEntry("Support VLC: skopiuj skrypt ..."))
+        Mlist.append(getConfigListEntry('\c00f83426' + "Support VLC: skopiuj skrypt ..."))
         Mlist.append(getConfigListEntry("... Extensions/StreamlinkConfig/bin//E-TV polska mod j00zek.lua'"))
         Mlist.append(getConfigListEntry("... do c:\\Program Files\\VideoLAN\\VLC\\lua\\sd\\"))
         Mlist.append(getConfigListEntry("... lub c:\\Users\\<username>\\AppData\\Roaming\\vlc\\lua\\sd\\"))

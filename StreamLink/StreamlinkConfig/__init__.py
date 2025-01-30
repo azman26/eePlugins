@@ -55,22 +55,7 @@ config.plugins.streamlinkSRV.PortNumber = ConfigSelection(default = "8088", choi
 config.plugins.streamlinkSRV.bufferPath = ConfigText(default = "/tmp", fixed_size = False)
 #Tryb pracy streamlinka
 config.plugins.streamlinkSRV.binName = ConfigSelection(default = "streamlinkSRV", choices = [("streamlinkSRV", "W 100% zgodny ze streamlinkiem, ale wolniejszy"), ("streamlinkproxySRV", "Korzysta ze streamlinka, szybszy ale niektóre adresy mogą nie działać"),])
-config.plugins.streamlinkSRV.SRVmode = ConfigSelection(default = "serviceapp", choices = [("serviceapp", "Standardowo korzysta z odtwarzacza E2"), ("exteplayer3", "Korzysta z zewnętrznego odtwarzacza exteplayer3"),])
-config.plugins.streamlinkSRV.DRMmode = ConfigSelection(default = "serviceapp", choices = [("serviceapp", "Standardowo korzysta z odtwarzacza E2"), ("exteplayer3", "Korzysta z zewnętrznego odtwarzacza exteplayer3"),])
-
-config.plugins.streamlinkSRV.Recorder = ConfigEnableDisable(default = False)
-config.plugins.streamlinkSRV.RecordMaxTime = ConfigSelection(default = "120", choices = [("120", _("2h")), ("180", _("3h")),])
-
 config.plugins.streamlinkSRV.StandbyMode = ConfigEnableDisable(default = True)
-
-config.plugins.streamlinkSRV.useExtPlayer = ConfigEnableDisable(default = False)
-if os.path.exists('/iptvplayer_rootfs/usr/bin/exteplayer3'):
-    config.plugins.streamlinkSRV.ActiveExtPlayer = ConfigSelection(default = "sl+sss", choices = [("sl+sss", "sl i exteplayer3 od SSS"), ("sl+sys", "sl i exteplayer3 z OPKG"), ("sss", "exteplayer3 od SSS"), ("sys", "exteplayer3 z OPKG")])
-else:
-    config.plugins.streamlinkSRV.ActiveExtPlayer = ConfigSelection(default = "sl+sys", choices = [("sl+sys", "sl i exteplayer3 z OPKG"), ("sys", "exteplayer3 z OPKG"),])
-
-if not os.path.exists('/etc/streamlink/ActiveExtPlayer'):
-    open('/etc/streamlink/ActiveExtPlayer', 'w').write(config.plugins.streamlinkSRV.ActiveExtPlayer.value)
 
 # pilot.wp.pl
 config.plugins.streamlinkSRV.WPusername = ConfigText(readCFG('WPusername'), fixed_size = False)
