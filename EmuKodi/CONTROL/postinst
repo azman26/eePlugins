@@ -7,7 +7,11 @@ if [ -e /usr/lib/python3.12 ]; then
 elif [ -e /usr/lib/python3.9 ]; then
   pythonType='python3.9'
   FileExtension='p39'
+else
+  exit 1
 fi
+
+mkdir -p /etc/EmuKodi
 
 cd /usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/site-packages
 find /usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/site-packages -iname *.$FileExtension|while read f; do
@@ -38,5 +42,4 @@ if [ ! -e /usr/sbin/emukodiSRV ];then
   ln -sf /usr/sbin/emukodiSRV /etc/rc4.d/S50emukodiSRV
 fi
 
-/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/cdmplayerPatcher.sh
 exit 0

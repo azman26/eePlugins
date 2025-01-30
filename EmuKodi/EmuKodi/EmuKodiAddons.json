@@ -81,7 +81,7 @@
         "logout": ["'1' '?mode=logout' 'resume:false'"]
     },
     "UPC Go": {
-        "enabled": true,
+        "enabled": false,
         "icon": "upcgo.png",
         "cfgDir": "upcgo",
         "cfgFiles": ["username", "password"],
@@ -89,6 +89,17 @@
         "addonScript": "plugin.video.upcgo/addon.py",
         "login": ["'1' '?mode=logIn' 'resume:false'"],
         "userbouquet": ["'1' '?mode=liveTV' 'resume:false'"],
+        "logout": []
+    },
+    "TVP VOD": {
+        "enabled": false,
+        "icon": "tvpvod.png",
+        "cfgDir": "TVP_VOD",
+        "cfgFiles": [],
+        "cfgValues": [],
+        "addonScript": "plugin.video.TVP_VOD/addon.py",
+        "login": [],
+        "userbouquet": [],
         "logout": []
     },
     "WP pilot": {

@@ -1,8 +1,11 @@
 from Components.config import config
 from importlib import reload
 from Plugins.Plugin import PluginDescriptor
+from Plugins.Extensions.EmuKodi.version import Version
 import os, subprocess
 import Screens.Standby
+
+print("[EmuKodi.plugin] v:", Version )
 
 def safeSubprocessCMD(myCommand):
     with open("/proc/sys/vm/drop_caches", "w") as f: f.write("1\n") #for safety to not get GS due to lack of memory
@@ -14,19 +17,32 @@ def EmuKodiConfigLeaveStandbyInitDaemon():
 
 def EmuKodiConfigStandbyCounterChanged(configElement):
     print('EmuKodiConfigStandbyCounterChanged() >>>')
+    killCdmDevicePlayer()
     try:
         if EmuKodiConfigLeaveStandbyInitDaemon not in Screens.Standby.inStandby.onClose:
             Screens.Standby.inStandby.onClose.append(EmuKodiConfigLeaveStandbyInitDaemon)
     except Exception as e:
         print('EmuKodiConfigStandbyCounterChanged EXCEPTION: %s' % str(e))
 
+def killCdmDevicePlayer():
+    if os.path.exists('/var/run/cdmDevicePlayer.pid'): 
+        try:
+            pid = open('/var/run/cdmDevicePlayer.pid', 'r').readline().strip()
+            os.kill(pid, signal.SIGTERM) #or signal.SIGKILL
+            os.remove('/var/run/cdmDevicePlayer.pid')
+        except Exception:
+            pass
+
 # sessionstart
 def sessionstart(reason, session = None):
     from Screens.Standby import inStandby
     if reason == 0:
         config.misc.standbyCounter.addNotifier(EmuKodiConfigStandbyCounterChanged, initial_call=False)
-        if os.path.exists('/usr/sbin/emukodiSRV'): safeSubprocessCMD('emukodiSRV restart')
-        safeSubprocessCMD('wget -q https://raw.githubusercontent.com/azman26/EPGazman/main/azman_channels_mappings.py -O /usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/azman_channels_mappings.py')
+        killCdmDevicePlayer()
+        cmds = ''
+        if os.path.exists('/usr/sbin/emukodiSRV'): cmds = 'emukodiSRV restart;\n'
+        cmds += 'wget -q https://raw.githubusercontent.com/azman26/EPGazman/main/azman_channels_mappings.py -O /usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/azman_channels_mappings.py'
+        safeSubprocessCMD(cmds)
     global EmuKodiEventsInstance
     if EmuKodiEventsInstance is None:
         EmuKodiEventsInstance = EmuKodiEvents(session)
@@ -99,27 +115,20 @@ class EmuKodiEvents:
         else:
             #print("[EmuKodiEvents.__restartServiceTimerCB] self.LastPlayedService is NOT None")
             #waiting for exteplayer3 to start
-            ExtPlayerPID = self.__findProcessRunningPID('exteplayer3')
-            if self.ExtPlayerPID == 0 and ExtPlayerPID > 0:
-                self.ExtPlayerPID = ExtPlayerPID
-            elif self.ExtPlayerPID > 0 and ExtPlayerPID == 0:
-                print("[EmuKodiEvents.__restartServiceTimerCB] running exteplayer3 exited unexpectly, end of waiting :(" )
-                return
-            if self.ExtPlayerPID == 0 and self.restartServiceTimerCBCounter < 21:
-                print("[EmuKodiEvents.__restartServiceTimerCB] waiting %s seconds for %s to start" % (self.restartServiceTimerCBCounter, self.runningProcessName))
-                self.restartServiceTimerCBCounter += 1
-                self.RestartServiceTimer.start(1000, True)
-            elif self.ExtPlayerPID != 0 and self.restartServiceTimerCBCounter < 21:
-                print("[EmuKodiEvents.__restartServiceTimerCB] %s started, waiting another second to enable E2 player to see EPG data" % self.runningProcessName)
-                self.restartServiceTimerCBCounter += 222
-                self.RestartServiceTimer.start(1000, True)
-            elif self.ExtPlayerPID == 0 and self.restartServiceTimerCBCounter >= 21:
-                print("[EmuKodiEvents.__restartServiceTimerCB] błąd uruchamiania cdmplayera")
-                self.restartServiceTimerCBCounter += 1
-            else:
-                print("[EmuKodiEvents.__restartServiceTimerCB] %s started, enabling E2 player to see EPG data" % self.runningProcessName)
+            if self.ExtPlayerPID == 0 and os.path.exists('/var/run/cdmDevicePlayer.pid'):
+                self.ExtPlayerPID = int(open('/var/run/cdmDevicePlayer.pid', 'r').readline().strip())
+                self.RestartServiceTimer.start(1000, True) # dajemy czas na załadowanie wszystkiego
+            if os.path.exists(os.path.join('/proc', str(self.ExtPlayerPID))):
+                print("[EmuKodiEvents.__restartServiceTimerCB] cdmDevicePlayer started, enabling E2 player to see EPG data")
                 self.session.nav.playService(self.LastPlayedService)
                 self.LastPlayedService = None
+            else:
+                if self.restartServiceTimerCBCounter < 11:
+                    print("[EmuKodiEvents.__restartServiceTimerCB] waiting %s seconds for cdmDevicePlayer to start" % self.restartServiceTimerCBCounter)
+                    self.restartServiceTimerCBCounter += 1
+                    self.RestartServiceTimer.start(1000, True)
+                else:
+                    print("[EmuKodiEvents.__restartServiceTimerCB] błąd uruchamiania cdmplayera")
     
     def __evStart(self):
         #print("[EmuKodiEvents.__evStart] >>>")

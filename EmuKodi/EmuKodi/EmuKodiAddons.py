@@ -35,11 +35,15 @@ config.plugins.EmuKodi.username  = NoSave(ConfigText(default = '', fixed_size = 
 config.plugins.EmuKodi.password  = NoSave(ConfigPassword(default = '', fixed_size = False))
 config.plugins.EmuKodi.PBGOklient  = NoSave(ConfigSelection(default = "iCOK", choices = [("iCOK", "iCOK (konto w iPolsat Box)"), 
                                                                                   ("polsatbox", "polsatbox (konto w Polsat Box Go)"), ]))
+
+if not os.path.exists('/etc/EmuKodi'):
+    os.mkdir('/etc/EmuKodi')
+
 ################################################################################################
 
 def readCFG(cfgName, defVal = ''):
     retValue = defVal
-    for cfgPath in ['/j00zek/streamlink_defaults/', '/j00zek/EmuKodi_defaults/', '/hdd/User_Configs', '/etc/EmuKodi/']:
+    for cfgPath in ['/j00zek/EmuKodi_defaults/','/hdd/User_Configs', '/etc/EmuKodi/']:
         if os.path.exists(os.path.join(cfgPath, cfgName)):
             retValue = open(os.path.join(cfgPath, cfgName), 'r').readline().strip()
             break
@@ -72,12 +76,13 @@ class EmuKodi_Menu(Screen):
         </widget>
         <widget name="key_red"    position="20,510" zPosition="2" size="150,30" foregroundColor="red" valign="center" halign="left" font="Regular;22" transparent="1" />
         <widget name="key_green"  position="170,510" zPosition="2" size="150,30" foregroundColor="green" valign="center" halign="left" font="Regular;22" transparent="1" />
-        <widget name="key_ok"  position="340,510" zPosition="2" size="350,30" foregroundColor="gray" valign="center" halign="left" font="Regular;22" transparent="1" />
+        <widget name="key_yellow"  position="340,510" zPosition="2" size="150,30" foregroundColor="green" valign="center" halign="left" font="Regular;22" transparent="1" />
+        <widget name="key_ok"  position="490,510" zPosition="2" size="350,30" foregroundColor="gray" valign="center" halign="left" font="Regular;22" transparent="1" />
 </screen>"""
 
     def __init__(self, session):
-        print('EmuKodi_Menu.__init__() >>>')
         Screen.__init__(self, session)
+        print('EmuKodi_Menu.__init__() >>>')
         self.setup_title = "EmuKodi menu v. %s" % Version
         Screen.setTitle(self, self.setup_title)
         self["list"] = List()
@@ -85,12 +90,15 @@ class EmuKodi_Menu(Screen):
         self["key_red"] = Label("Anuluj")
         self["key_green"] = Label("Uruchom")
         self["key_ok"] = Label('OK - Konfiguracja')
+        self.ShowAllServices = False
+        self["key_yellow"] = Label('Tryb')
 
         self["setupActions"] = ActionMap(["EmuKodiMenu"],
             {
                     "cancel": self.quit,
                     "play": self.playSelected,
                     "config": self.configSelected,
+                    "keyYellow": self.keyYellow,
             }, -2)
         self.setTitle(self.setup_title)
         try:
@@ -100,6 +108,13 @@ class EmuKodi_Menu(Screen):
             print('EmuKodi', str(e))
             self.addonsDict = {'Błąd ładowania danych': {}}
         self["list"].list = []
+        self.createsetup()
+
+    def keyYellow(self):
+        if self.ShowAllServices:
+            self.ShowAllServices = False
+        else:
+            self.ShowAllServices = True
         self.createsetup()
 
     def createsetup(self):
@@ -124,26 +139,37 @@ class EmuKodi_Menu(Screen):
             #    Mlist.append(self.buildListEntry(None, r'\c00289496' + "*** Pełne wsparcie KODI>DRM ***", "info.png"))
 
             if not cdmStatus is None:
+                if os.path.exists('/iptvplayer_rootfs/usr/bin/exteplayer3'):
+                    if os.path.exists('/etc/EmuKodi/ActiveServiceappPlayer'):
+                        ActiveExtPlayer = 'serviceapp'
+                    else:
+                        ActiveExtPlayer = 'extexplayer3 od SSS'
+                    Mlist.append(self.buildListEntry(None, "Aktywny odtwarzacz: %s (OK)" % ActiveExtPlayer, "ActiveServiceappPlayer.cfg"))
                 addonKeysList = []
                 for addonKey in sorted(self.addonsDict, key=str.casefold):
-                    Mlist.append(self.buildListEntry(addonKey))
+                    addonDef = self.addonsDict[addonKey]
+                    if addonDef.get('enabled', False) == True or self.ShowAllServices:
+                        Mlist.append(self.buildListEntry(addonKey))
 
         self["list"].list = Mlist
         self["list"].setCurrentIndex(config.plugins.EmuKodi.selectedMenuIndex.value)
         print('setCurrentIndex', config.plugins.EmuKodi.selectedMenuIndex.value)
 
-    def buildListEntry(self, addonKey, description = '', image=''):
+    def buildListEntry(self, addonKey, description = '', image='',):
         if addonKey is not None:
             addonDef = self.addonsDict[addonKey]
             image = addonDef.get('icon', 'config.png')
             #opis
             if addonDef.get('enabled', None) is None:
                 description = addonKey
-            elif addonDef.get('enabled', None) == True:
-                description = "Konfiguacja %s" % addonKey
+            elif addonDef.get('enabled', False) == False:
+                description = "!!! BEZ WSPARCIA %s" % addonKey
             else:
-                description = "Nie masz dostępu do konfiguratora %s" % addonKey
+                description = "Konfiguacja %s" % addonKey
         #ladowanie loga
+        if image.endswith('.cfg'):
+            addonKey = image
+            image = 'config.png'
         image = '/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/pic/%s' % image
         if os.path.exists(image):
             pixmap = LoadPixmap(image)
@@ -161,7 +187,13 @@ class EmuKodi_Menu(Screen):
     def configSelected(self):
         SelectedAddonKey = str(self["list"].getCurrent()[2])
         SelectedAddonDef = self.addonsDict.get(SelectedAddonKey, None)
-        if SelectedAddonDef is None or SelectedAddonDef.get('enabled', False) == False:
+        if SelectedAddonKey == 'ActiveServiceappPlayer.cfg':
+            if os.path.exists('/etc/EmuKodi/ActiveServiceappPlayer'):
+                os.remove('/etc/EmuKodi/ActiveServiceappPlayer')
+            else:
+                open("/etc/EmuKodi/ActiveServiceappPlayer", "w").write('')
+            self.createsetup()
+        elif SelectedAddonDef is None or SelectedAddonDef.get('enabled', False) == False:
             print('EmuKodi_Menu.configSelected(%s) addon not existing or not enabled, exiting' % SelectedAddonKey)
             return
         else:
@@ -238,9 +270,9 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
         if os.path.exists('/etc/enigma2/userbouquet.%s.tv' % self.addonName):
             fc = open('/etc/enigma2/userbouquet.%s.tv' % self.addonName,'r').read()
             if 'http%3a//cdmplayer' in fc:
-                Mlist.append(getConfigListEntry('\c00f2ec73' + "Obecnie kanały bukietu %s korzystają z odtwarzacza zewnętrznego" % self.addonName))
+                Mlist.append(getConfigListEntry(r'\c00f2ec73' + "Obecnie kanały bukietu %s korzystają z odtwarzacza zewnętrznego" % self.addonName))
             else:
-                Mlist.append(getConfigListEntry('\c00f2ec73' + "Obecnie kanały bukietu %s korzystają z serviceapp" % self.addonName))
+                Mlist.append(getConfigListEntry(r'\c00f2ec73' + "Obecnie kanały bukietu %s korzystają z serviceapp" % self.addonName))
 
         #ladowanie konfiguracji
         self.cfgValues2Configs = []
@@ -278,6 +310,8 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
             Mlist.append(getConfigListEntry( "Wylogowanie z serwisu", config.plugins.EmuKodi.configItem, 'logout'))
         #czyszczenie danych
         Mlist.append(getConfigListEntry( "Czyszczenie/kasowanie konfiguracji", config.plugins.EmuKodi.configItem, 'clean'))
+        #wejscie do wtyczki
+        Mlist.append(getConfigListEntry( "Wejdź do wtyczki", config.plugins.EmuKodi.configItem, 'openAddon'))
         return Mlist
     
     def __init__(self, session, SelectedAddonDef):
@@ -403,7 +437,15 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
                         self.autoClose = True
                         self.session.openWithCallback(self.emuKodiActionConfirmed, MessageBox, "Na pewno skasować konfigurację %s?" % self.addonName, MessageBox.TYPE_YESNO, default = False, timeout = 15)
                         return
-                        
+                    elif self.currAction == 'openAddon':
+                        try:
+                            self.session.openWithCallback(self.doNothing, EmuKodiPlayer, SelectedAddonDef)
+                        except Exception as e:
+                            import traceback
+                            exc_formatted = traceback.format_exc().strip()
+                            print('EmuKodi_Menu.playSelected exception:', exc_formatted)
+                            self.session.openWithCallback(self.doNothing,MessageBox, '...' + '\n'.join(exc_formatted.splitlines()[-6:]), MessageBox.TYPE_INFO)
+                        return
         except Exception as e:
             print('EmuKodiConfiguration.Okbutton() Exception: %s' % str(e))
 
