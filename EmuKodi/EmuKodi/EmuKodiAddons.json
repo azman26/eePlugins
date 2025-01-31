@@ -1,5 +1,5 @@
 {
-    "Canal+": {
+    "Canal+ v. 1.7.5.9 by mbebe, mariusz89b, hevet": {
         "enabled": true,
         "icon": "canalplusvod.png",
         "cfgDir": "canalplusvod",
@@ -12,7 +12,7 @@
         "logout": [],
         "webServer": "plugin.video.canalplusvod/serverHTTP.py"
     },
-    "cda": {
+    "cda v. 1.13 by mbebe": {
         "enabled": true,
         "icon": "cdapl.png",
         "cfgDir": "cdaplMB",
@@ -24,7 +24,7 @@
         "logout": [],
         "webServer": "plugin.video.cdaplMB/serverHTTP.py"
     },
-    "Play now": {
+    "Play now v. 1.0.0 by lg": {
         "enabled": false,
         "icon": "playnow.png",
         "cfgDir": "play_now",
@@ -35,7 +35,7 @@
         "userbouquet": ["'1' '?mode=listcategContent&url=%3alive' 'resume:false'"],
         "logout": ["'1' '?mode=logout' 'resume:false'"]
     },
-    "player.pl": {
+    "player.pl v. 1.12.3 by mbebe, m1992, rysson": {
         "enabled": true,
         "icon": "playerpl.png",
         "cfgDir": "playermb",
@@ -46,7 +46,7 @@
         "userbouquet": [" '1' '?mode=listcategContent&url=%3alive' 'resume:false'"],
         "logout": ["'1' '?mode=logout' 'resume:false'"]
     },
-    "Polsat Go Box": {
+    "Polsat Go Box v. 1.102 by mbebe, mariusz89b, mtr81": {
         "enabled": true,
         "icon": "polsatboxgo.png",
         "cfgDir": "pgobox",
@@ -57,7 +57,7 @@
         "userbouquet": ["'1' '?mode=build_m3u' 'resume:false'"],
         "logout": ["'1' '?mode=logout' 'resume:false'"]
     },
-    "spotify": {
+    "spotify v. 1.2.3 by LdSz": {
         "enabled": false,
         "icon": "spotify.png",
         "cfgDir": "spotify",
@@ -69,7 +69,7 @@
         "logout": [],
         "webServer": "plugin.audio.spotify/service.py"
     },
-    "sweet.tv": {
+    "sweet.tv v. 0.7 by mbebe,mtr81": {
         "enabled": true,
         "icon": "sweettv.png",
         "cfgDir": "sweettvpl",
@@ -80,7 +80,7 @@
         "userbouquet": ["'1' '?mode=listM3U' 'resume:false'"],
         "logout": ["'1' '?mode=logout' 'resume:false'"]
     },
-    "UPC Go": {
+    "UPC Go v. 1.0.1 by lg": {
         "enabled": false,
         "icon": "upcgo.png",
         "cfgDir": "upcgo",
@@ -91,18 +91,18 @@
         "userbouquet": ["'1' '?mode=liveTV' 'resume:false'"],
         "logout": []
     },
-    "TVP VOD": {
+    "TVP VOD v. 1.2.11 by lg, mtr81": {
         "enabled": false,
         "icon": "tvpvod.png",
         "cfgDir": "TVP_VOD",
-        "cfgFiles": [],
-        "cfgValues": [],
+        "cfgFiles": ["logged", "LoginCode"],
+        "cfgValues": ["LoginCode"],
         "addonScript": "plugin.video.TVP_VOD/addon.py",
-        "login": [],
+        "login": ["'1' '?mode=logIn' 'resume:false'"],
         "userbouquet": [],
-        "logout": []
+        "logout": ["'1'  '?mode=logout' 'resume:false'"]
     },
-    "WP pilot": {
+    "WP pilot v. 1.0.5 by c0d34fun": {
         "enabled": true,
         "icon": "wptv.png",
         "cfgDir": "pilot.wp",

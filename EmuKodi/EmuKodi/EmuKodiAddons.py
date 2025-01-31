@@ -35,6 +35,7 @@ config.plugins.EmuKodi.username  = NoSave(ConfigText(default = '', fixed_size = 
 config.plugins.EmuKodi.password  = NoSave(ConfigPassword(default = '', fixed_size = False))
 config.plugins.EmuKodi.PBGOklient  = NoSave(ConfigSelection(default = "iCOK", choices = [("iCOK", "iCOK (konto w iPolsat Box)"), 
                                                                                   ("polsatbox", "polsatbox (konto w Polsat Box Go)"), ]))
+config.plugins.EmuKodi.LoginCode  = NoSave(ConfigText(default = '', fixed_size = False))
 
 if not os.path.exists('/etc/EmuKodi'):
     os.mkdir('/etc/EmuKodi')
@@ -106,7 +107,7 @@ class EmuKodi_Menu(Screen):
                 self.addonsDict = json.load(jf)
         except Exception as e:
             print('EmuKodi', str(e))
-            self.addonsDict = {'Błąd ładowania danych': {}}
+            self.addonsDict = {'Błąd ładowania danych :(': {"enabled": None, "error": True}}
         self["list"].list = []
         self.createsetup()
 
@@ -133,10 +134,6 @@ class EmuKodi_Menu(Screen):
             open('/etc/EmuKodi/cdmStatus','w').write(str(cdmStatus))
             if cdmStatus is None:
                 Mlist.append(self.buildListEntry(None, r'\c00981111' + "*** Błąd sprawdzania urządzenia cdm ***", "info.png"))
-            #elif not cdmStatus:
-            #    Mlist.append(self.buildListEntry(None, r'\c00ff9400' + "*** Limitowane wsparcie KODI>DRM ***", "info.png"))
-            #else:
-            #    Mlist.append(self.buildListEntry(None, r'\c00289496' + "*** Pełne wsparcie KODI>DRM ***", "info.png"))
 
             if not cdmStatus is None:
                 if os.path.exists('/iptvplayer_rootfs/usr/bin/exteplayer3'):
@@ -148,7 +145,10 @@ class EmuKodi_Menu(Screen):
                 addonKeysList = []
                 for addonKey in sorted(self.addonsDict, key=str.casefold):
                     addonDef = self.addonsDict[addonKey]
-                    if addonDef.get('enabled', False) == True or self.ShowAllServices:
+                    if addonDef.get('error', False):
+                        Mlist = []
+                        Mlist.append(self.buildListEntry(addonKey))
+                    elif addonDef.get('enabled', False) or self.ShowAllServices:
                         Mlist.append(self.buildListEntry(addonKey))
 
         self["list"].list = Mlist
@@ -160,12 +160,10 @@ class EmuKodi_Menu(Screen):
             addonDef = self.addonsDict[addonKey]
             image = addonDef.get('icon', 'config.png')
             #opis
-            if addonDef.get('enabled', None) is None:
-                description = addonKey
-            elif addonDef.get('enabled', False) == False:
+            if addonDef.get('enabled', False) == False:
                 description = "!!! BEZ WSPARCIA %s" % addonKey
             else:
-                description = "Konfiguacja %s" % addonKey
+                description = addonKey
         #ladowanie loga
         if image.endswith('.cfg'):
             addonKey = image
@@ -290,6 +288,10 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
                 config.plugins.EmuKodi.PBGOklient.value = actVal
                 Mlist.append(getConfigListEntry( 'Klient' , config.plugins.EmuKodi.PBGOklient))
                 self.cfgValues2Configs.append(('klient', config.plugins.EmuKodi.PBGOklient))
+            elif cfgValue == 'LoginCode':
+                config.plugins.EmuKodi.PBGOklient.value = actVal
+                Mlist.append(getConfigListEntry( 'LoginCode' , config.plugins.EmuKodi.LoginCode))
+                self.cfgValues2Configs.append(('LoginCode', config.plugins.EmuKodi.LoginCode))
 
         #Akcje
         login_info = readCFG('%s/login_info' % self.addonName, defVal = '')
