@@ -106,7 +106,7 @@ class EmuKodi_Menu(Screen):
             with open('/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/EmuKodiAddons.json', 'r') as jf:
                 self.addonsDict = json.load(jf)
         except Exception as e:
-            print('EmuKodi', str(e))
+            print('EmuKodi_Menu', str(e))
             self.addonsDict = {'Błąd ładowania danych :(': {"enabled": None, "error": True}}
         self["list"].list = []
         self.createsetup()
@@ -127,9 +127,9 @@ class EmuKodi_Menu(Screen):
             try:
                 from  pywidevine.cdmdevice.checkCDMvalidity import testDevice
                 cdmStatus = testDevice()
-                print('cdmStatus = "%s"' % cdmStatus)
+                print('EmuKodi_Menu cdmStatus = "%s"' % cdmStatus)
             except Exception as e: 
-                print(str(e))
+                print('EmuKodi_Menu',str(e))
                 Mlist.append(self.buildListEntry(None, r'\c00981111' + "*** Błąd ładowania modułu urządzenia cdm ***", "info.png"))
             open('/etc/EmuKodi/cdmStatus','w').write(str(cdmStatus))
             if cdmStatus is None:
@@ -153,7 +153,7 @@ class EmuKodi_Menu(Screen):
 
         self["list"].list = Mlist
         self["list"].setCurrentIndex(config.plugins.EmuKodi.selectedMenuIndex.value)
-        print('setCurrentIndex', config.plugins.EmuKodi.selectedMenuIndex.value)
+        print('EmuKodi_Menu setCurrentIndex', config.plugins.EmuKodi.selectedMenuIndex.value)
 
     def buildListEntry(self, addonKey, description = '', image='',):
         if addonKey is not None:
@@ -367,18 +367,18 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
     def layoutFinished(self):
         self.setTitle(self.setup_title)
         
-        if os.path.exists("/usr/lib/enigma2/python/Plugins/SystemPlugins/ServiceApp/serviceapp.so"):
+        if 0: #os.path.exists("/usr/lib/enigma2/python/Plugins/SystemPlugins/ServiceApp/serviceapp.so"):
             self.choicesList = [("Odtwarzacz zewnętrzny (zalecany)","1e"), ("Odtwarzacz zewnętrzny (zalecany dla Vu+)","4097e"), ("gstreamer (root 4097)","4097"),("ServiceApp gstreamer (root 5001)","5001"), ("ServiceApp ffmpeg (root 5002)","5002")]
         else:
-            self.choicesList = [("Odtwarzacz zewnętrzny (zalecany)","1e"),  ("Odtwarzacz zewnętrzny (zalecany dla Vu+)","4097e"), ("gstreamer (root 4097)","4097"),(_("ServiceApp not installed!"), None)]
+            self.choicesList = [("Odtwarzacz zewnętrzny, framework 1 (zalecany)","1e"), ("Odtwarzacz zewnętrzny, framework 4097 (zalecany dla Vu+)","4097e"), ("Odtwarzacz zewnętrzny, framework 5002","5002e")]
         
     def changedEntry(self):
-        print('%s' % 'changedEntry()')
+        print('EmuKodiConfiguration.changedEntry() >>>')
         try:
             for x in self.onChangedEntry:
                 x()
         except Exception as e:
-            print('%s' % str(e))
+            print('EmuKodiConfiguration.changedEntry()', str(e))
 
     def getCurrentEntry(self):
         return self["config"].getCurrent()[0]
@@ -393,7 +393,7 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
     def buildemuKodiCmdsFor(self, ForVal):
         for cmd in self.SelectedAddonDef.get(ForVal,[]):
             cmdLine = '%s %s' % (self.runAddon, cmd)
-            print('EmuKodi cmd:', cmdLine)
+            print('EmuKodiConfiguration.buildemuKodiCmdsFor() cmdLine:', cmdLine)
             self.emuKodiCmdsList.append(cmdLine)
     
     def Okbutton(self):
@@ -441,11 +441,11 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
                         return
                     elif self.currAction == 'openAddon':
                         try:
-                            self.session.openWithCallback(self.doNothing, EmuKodiPlayer, SelectedAddonDef)
+                            self.session.openWithCallback(self.doNothing, EmuKodiPlayer, self.SelectedAddonDef)
                         except Exception as e:
                             import traceback
                             exc_formatted = traceback.format_exc().strip()
-                            print('EmuKodi_Menu.playSelected exception:', exc_formatted)
+                            print('EmuKodiConfiguration.playSelected exception:', exc_formatted)
                             self.session.openWithCallback(self.doNothing,MessageBox, '...' + '\n'.join(exc_formatted.splitlines()[-6:]), MessageBox.TYPE_INFO)
                         return
         except Exception as e:
@@ -453,13 +453,13 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
 
     def OkbuttonTextChangedConfirmed(self, ret ):
         if ret is None:
-            print("OkbuttonTextChangedConfirmed(ret ='%s')" % str(ret))
+            print("EmuKodiConfiguration.OkbuttonTextChangedConfirmed(ret ='%s')" % str(ret))
         else:
             try:
                 curIndex = self["config"].getCurrentIndex()
                 self["config"].list[curIndex][1].value = ret
             except Exception as e:
-                print('%s' % str(e))
+                print('EmuKodiConfiguration.OkbuttonTextChangedConfirmed()', str(e))
 
     def userbouquetConfirmed(self, ret = False):
         if ret:
@@ -505,20 +505,20 @@ class EmuKodiConfiguration(Screen, ConfigListScreen):
 
 class EmuKodiPlayer(Screen):
     skin = """
-<screen position="50,50" size="880,700" flags="wfNoBorder" >
-        <widget name="Title" position="5,5" size="870,30" font="Regular;24" halign="left" noWrap="1" transparent="1" />
-        <widget source="list" render="Listbox" position="0,40" size="880,500" scrollbarMode="showOnDemand" transparent="1" >
+<screen position="center,center" size="1200,700" flags="wfNoBorder" >
+        <widget name="Title" position="5,5" size="1190,30" font="Regular;24" halign="left" noWrap="1" transparent="1" />
+        <widget source="list" render="Listbox" position="5,40" size="1190,500" scrollbarMode="showOnDemand" transparent="1" >
                 <convert type="TemplatedMultiContent">
                         {"template": [
                                 MultiContentEntryPixmapAlphaTest(pos = (2, 2), size = (120, 40), png = 0),
-                                MultiContentEntryText(pos = (138, 2), size = (760, 40), font=0, flags = RT_HALIGN_LEFT|RT_VALIGN_CENTER, text = 1),
+                                MultiContentEntryText(pos = (138, 2), size = (1050, 40), font=0, flags = RT_HALIGN_LEFT|RT_VALIGN_CENTER, text = 1),
                                 ],
                                 "fonts": [gFont("Regular", 26)],
                                 "itemHeight": 45
                         }
                 </convert>
         </widget>
-        <eLabel position="0,550" size="880,2"  backgroundColor="#aaaaaa" />
+        <eLabel position="0,550" size="1200,2"  backgroundColor="#aaaaaa" />
         <widget name="KodiNotificationsAndStatus" position="5,560" size="870,100" font="Regular;16" halign="left" noWrap="0" transparent="1" backgroundColor="#aa000000"/>
 </screen>"""
 
@@ -556,7 +556,7 @@ class EmuKodiPlayer(Screen):
             with open('/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/EmuKodiAddons.json', 'r') as jf:
                 self.addonsDict = json.load(jf)
         except Exception as e:
-            print('EmuKodiPlayer Exception', str(e))
+            print('EmuKodiPlayer.__init__() Exception', str(e))
             self.addonsDict = {'Błąd ładowania dodatków :(': {}}
         self["list"].list = []
         self.infoTimer = eTimer()
@@ -567,6 +567,9 @@ class EmuKodiPlayer(Screen):
         self.EmuKodiCmd = eConsoleAppContainer()
         self.EmuKodiCmd.appClosed.append(self.EmuKodiCmdClosed)
         self.EmuKodiCmd.dataAvail.append(self.EmuKodiCmdAvail)
+        try: self.LastPlayedService = self.session.nav.getCurrentlyPlayingServiceReference()
+        except Exception: self.LastPlayedService = None
+        
 
     def _onShown(self):
         self.prev_running_service = self.session.nav.getCurrentlyPlayingServiceReference()
@@ -576,23 +579,20 @@ class EmuKodiPlayer(Screen):
         self.timer.start(1000,True) # True=singleshot
         self.infoTimer.start(100)
 
-    def playVideo(self, url):
-        self.session.nav.stopService()
-    
     def showKodiNotificationAndStatus(self):
         self["Title"].setText(self.setup_title + self.headerStatus)
         
     def EmuKodiCmdRun(self):
         self.timer.stop()
         if self.AddonCmd == '':
-            print('EmuKodiPlayer.EmuKodiCmdRun - nie podano komendy :(')
+            print('EmuKodiPlayer.EmuKodiCmdRun() - nie podano komendy :(')
         elif 0: #self.AddonCmdsDict.get(self.AddonCmd, None) is not None:
             self.EmuKodiCmdClosed('Mlist')
         else:
             self.headerStatus = ' - ładowanie danych'
             cleanWorkingDir()
             cmd2run = '%s %s ' % (self.runAddon, self.AddonCmd)
-            print('EmuKodiPlayer.EmuKodiCmdRun: "%s"' % cmd2run)
+            print('EmuKodiPlayer.EmuKodiCmdRun() cmd2run "%s"' % cmd2run)
             self.EmuKodiCmd.execute(cmd2run)
 
     def EmuKodiCmdAvail(self, text = ''):
@@ -672,6 +672,25 @@ class EmuKodiPlayer(Screen):
             pixmap = LoadPixmap('/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/pic/config.png')
         return((pixmap, title, lineDict))
 
+    def stopVideo(self):
+        pass
+
+    def playVideo(self, url):
+        print("[EmuKodiPlayer.playVideo] url=", url)
+        self.session.nav.stopService()
+        
+        if self.deviceCDM is None: #tutaj, zeby bez sensu nie ladować jak ktos nie ma/nie uzywa
+            try:
+                import pywidevine.cdmdevice.cdmDevice
+                self.deviceCDM = pywidevine.cdmdevice.cdmDevice.cdmDevice()
+                print("[EmuKodiPlayer.playVideo] deviceCDM loaded")
+            except ImportError:
+                self.deviceCDM = False
+                print("[EmuKodiPlayer.playVideo] EXCEPTION loading deviceCDM")
+            if self.deviceCDM != False:
+                if not self.deviceCDM.doWhatYouMustDo(url):
+                    self.deviceCDM.tryToDoSomething(url)
+    
     def openSelectedMenuItem(self):
         lineDict = self["list"].getCurrent()[2]
         print('EmuKodiPlayer.openSelectedMenuItem',lineDict)
@@ -686,14 +705,9 @@ class EmuKodiPlayer(Screen):
                 self["KodiNotificationsAndStatus"].setText("ładuje plik bukietu")
                 self.createTree()
                 return
-            elif self.AddonCmd.startswith('http%3a//cdmplayer/') or self.AddonCmd.startswith('http%3a//127.0.0.1'):
+            elif self.AddonCmd.startswith('http%3a//cdmplayer/'):
                 self["KodiNotificationsAndStatus"].setText(self.AddonCmd)
-                url = self.AddonCmd.replace('http%3a//cdmplayer/', 'http%3a//127.0.0.1%3a8078/').replace('%3a',':').replace('%3f','?').replace('%26','&')
-                #url = self.AddonCmd.replace('http%3a//127.0.0.1%3a8078/', 'http%3a//cdmplayer/')
-                #safeSubprocessCMD('wget "%s" -O /tmp/EmuKodiPlaytest.mp4' % url)
-                #while not os.path.exists('/tmp/EmuKodiPlaytest.mp4'):
-                #    time.sleep(1)
-                safeSubprocessCMD('/usr/bin/exteplayer3 -f live_start_offset_seconds=60 -f rw_timeout=2000000 -f reconnect=1 -f http_multiple=0 "%s"' % url)
+                self.playVideo(self.AddonCmd)
                 return
             elif self.AddonCmd.startswith('/usr/') and "?" in self.AddonCmd:
                 self.AddonCmd = "'1' '?" + self.AddonCmd.split('?')[1] + "' 'resume:false'"

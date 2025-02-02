@@ -65,7 +65,7 @@ from Components.ServiceEventTracker import ServiceEventTracker#, InfoBarBase
 from enigma import iPlayableService#, eServiceCenter, iServiceInformation
 #import ServiceReference
 from enigma import eTimer
-import time, traceback
+import time, signal, traceback
 
 class EmuKodiEvents:
     def __init__(self, session):
@@ -98,9 +98,17 @@ class EmuKodiEvents:
         return int(PID)
     
     def __killRunningPlayer(self):
-        if self.deviceCDM is None:
-            return #brak lub nie zainicjowany modul, nothing to do.
-        self.deviceCDM.stopPlaying() #wyłącza playera i czyści bufor dvb, bez tego  mamy 5s opóźnienia
+        print("[EmuKodiEvents.__killRunningPlayer] >>>")
+        self.RestartServiceTimer.stop()
+        self.LastPlayedService = None
+        if not self.deviceCDM is None:
+            self.deviceCDM.stopPlaying() #wyłącza playera i czyści bufor dvb, bez tego  mamy 5s opóźnienia
+        for pidFile in ['/var/run/cdmDevicePlayer.pid', '/var/run/emukodiCLI.pid', '/var/run/exteplayer3.pid']:
+            if os.path.exists(pidFile):
+                pid = open(pidFile, 'r').readline().strip()
+                if os.path.exists('/proc/%s' % pid):
+                    os.kill(int(pid), signal.SIGTERM) #or signal.SIGKILL
+                os.remove(pidFile)
 
     def __restartServiceTimerCB(self):
         #print("[EmuKodiEvents.__restartServiceTimerCB] >>>")
@@ -109,26 +117,35 @@ class EmuKodiEvents:
             print("[EmuKodiEvents.__restartServiceTimerCB] self.LastPlayedService is None, stopping currently playing service")
             self.LastPlayedService = self.session.nav.getCurrentlyPlayingServiceReference()
             self.session.nav.stopService()
-            self.restartServiceTimerCBCounter = 0
+            self.restartServiceTimerCBCounter = 20
             self.ExtPlayerPID = 0
             self.RestartServiceTimer.start(2000, True)
         else:
-            #print("[EmuKodiEvents.__restartServiceTimerCB] self.LastPlayedService is NOT None")
             #waiting for exteplayer3 to start
-            if self.ExtPlayerPID == 0 and os.path.exists('/var/run/cdmDevicePlayer.pid'):
-                self.ExtPlayerPID = int(open('/var/run/cdmDevicePlayer.pid', 'r').readline().strip())
-                self.RestartServiceTimer.start(1000, True) # dajemy czas na załadowanie wszystkiego
-            if os.path.exists(os.path.join('/proc', str(self.ExtPlayerPID))):
-                print("[EmuKodiEvents.__restartServiceTimerCB] cdmDevicePlayer started, enabling E2 player to see EPG data")
-                self.session.nav.playService(self.LastPlayedService)
-                self.LastPlayedService = None
-            else:
-                if self.restartServiceTimerCBCounter < 11:
-                    print("[EmuKodiEvents.__restartServiceTimerCB] waiting %s seconds for cdmDevicePlayer to start" % self.restartServiceTimerCBCounter)
-                    self.restartServiceTimerCBCounter += 1
-                    self.RestartServiceTimer.start(1000, True)
+            if os.path.exists('/var/run/cdmDevicePlayer.pid'):
+                if self.ExtPlayerPID == 0:
+                    self.ExtPlayerPID = int(open('/var/run/cdmDevicePlayer.pid', 'r').readline().strip())
+                    self.RestartServiceTimer.start(1000, True) # dajemy czas na załadowanie wszystkiego
+                elif os.path.exists(os.path.join('/proc', str(self.ExtPlayerPID))):
+                    print("[EmuKodiEvents.__restartServiceTimerCB] cdmDevicePlayer uruchomiony, włączam E2 żeby widzieć dane EPG")
+                    self.session.nav.playService(self.LastPlayedService)
+                    self.LastPlayedService = None
                 else:
-                    print("[EmuKodiEvents.__restartServiceTimerCB] błąd uruchamiania cdmplayera")
+                    print("[EmuKodiEvents.__restartServiceTimerCB] cdmDevicePlayer niespodziewanie wyłączony")
+            elif os.path.exists('/var/run/emukodiCLI.pid'):
+                if not os.path.exists('/var/run/exteplayer3.pid'):
+                    if self.restartServiceTimerCBCounter > 0:
+                        print("[EmuKodiEvents.__restartServiceTimerCB] czekam jeszcze %s sekund na uruchomienie exteplayer3" % self.restartServiceTimerCBCounter)
+                        self.restartServiceTimerCBCounter -= 1
+                        self.RestartServiceTimer.start(1000, True)
+                    else:
+                        print("[EmuKodiEvents.__restartServiceTimerCB] czekam jeszcze %s sekund ma uruchomienie exteplayer3" % self.restartServiceTimerCBCounter)
+                else:
+                    print("[EmuKodiEvents.__restartServiceTimerCB] exteplayer3 uruchomiony, włączam E2 żeby widzieć dane EPG")
+                    self.session.nav.playService(self.LastPlayedService)
+                    self.LastPlayedService = None
+            else:
+                print("[EmuKodiEvents.__restartServiceTimerCB] emukodiCLI niespodziewanie wyłączony")
     
     def __evStart(self):
         #print("[EmuKodiEvents.__evStart] >>>")
@@ -164,8 +181,8 @@ class EmuKodiEvents:
                                 # so we need to ...
                                 #   - mark this to properly manage __evEnd eventmap (if not managed, killed process & black screen)
                                 #   - stop enigma player (if not stopped only back screen)
-                                self.RestartServiceTimer.start(500, True)
                                 self.deviceCDM.tryToDoSomething(url)
+                                self.RestartServiceTimer.start(100, True)
         except Exception as e:
             print('[EmuKodiEvents.__evStart] EXCEPTION:', str(e))
             print(traceback.format_exc())

@@ -35,9 +35,11 @@ for entry in "$plugBinDir/site-packages"/*
   done
 
 chmod 755 /usr/lib/$pythonType/site-packages/emukodi/emukodiSRV.py
+chmod 755 /usr/lib/$pythonType/site-packages/emukodislink_cli/emukodiCLI.py
 if [ ! -e /usr/sbin/emukodiSRV ];then
   ln -sf /usr/bin/python /usr/sbin/cdsrmv
   ln -sf /usr/lib/$pythonType/site-packages/emukodi/emukodiSRV.py /usr/sbin/emukodiSRV
+  ln -sf /usr/lib/$pythonType/site-packages/emukodislink_cli/emukodiCLI.py /usr/sbin/emukodiCLI
   ln -sf /usr/sbin/emukodiSRV /etc/rc3.d/S50emukodiSRV
   ln -sf /usr/sbin/emukodiSRV /etc/rc4.d/S50emukodiSRV
 fi
