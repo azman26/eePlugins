@@ -79,6 +79,9 @@
     <screen name="SimpleSummary" position="0,0" size="1,1">
         <panel name="MyChannelNumberPanel" />
     </screen>
+    <screen name="ScreenSummary" position="0,0" size="1,1">
+        <panel name="MyClockPanel" />
+    </screen>
     <screen name="ChoiceBox_summary" position="0,0" size="1,1">
         <panel name="MyChannelNumberPanel" />
     </screen>

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from Plugins.Extensions.StreamlinkConfig.__init__ import mygettext as _ , DBGlog
+from Plugins.Extensions.StreamlinkConfig.__init__ import mygettext as _
 from Plugins.Extensions.StreamlinkConfig.version import Version
 import os, time, sys
 # GUI (Screens)
@@ -36,27 +36,27 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
                     <widget name="key_blue"   position="500,350" zPosition="2" size="150,30" foregroundColor="blue" valign="center" halign="left" font="Regular;22" transparent="1" />
                   </screen>"""
     def buildList(self):
-        DBGlog('buildList >>> self.VisibleSection = %s' % self.VisibleSection )
+        print('buildList >>> self.VisibleSection = %s' % self.VisibleSection )
         self.DoBuildList.stop()
         Mlist = []
         # pilot.wp.pl
         if os.path.exists('/etc/enigma2/userbouquet.WPPL.tv'):
             fc = open('/etc/enigma2/userbouquet.WPPL.tv','r').read()
-            if 'http%3a//slplayer' in fc:
-                Mlist.append(getConfigListEntry('\c00f2ec73' + "Obecnie kanały bukietu WPPL korzystają z odtwarzacza zewnętrznego"))
-            else:
-                Mlist.append(getConfigListEntry('\c00f2ec73' + "Obecnie kanały bukietu WPPL korzystają z serviceapp"))
+            #if 'http%3a//slplayer' in fc:
+            #    Mlist.append(getConfigListEntry('\c00f2ec73' + "Obecnie kanały bukietu WPPL korzystają z odtwarzacza zewnętrznego"))
+            #else:
+            #    Mlist.append(getConfigListEntry('\c00f2ec73' + "Obecnie kanały bukietu WPPL korzystają z serviceapp"))
         Mlist.append(getConfigListEntry(_("Username:"), config.plugins.streamlinkSRV.WPusername))
         Mlist.append(getConfigListEntry(_("Password:"), config.plugins.streamlinkSRV.WPpassword))
         Mlist.append(getConfigListEntry(_("Check login credentials"), config.plugins.streamlinkSRV.WPlogin))
         #Mlist.append(getConfigListEntry("Przedstaw się jako:", config.plugins.streamlinkSRV.WPdevice))
-        Mlist.append(getConfigListEntry(_("Prefer DASH than HLS:"), config.plugins.streamlinkSRV.WPpreferDASH))
+        #Mlist.append(getConfigListEntry(_("Prefer DASH than HLS:"), config.plugins.streamlinkSRV.WPpreferDASH))
         #Mlist.append(getConfigListEntry(_("Delay video:"), config.plugins.streamlinkSRV.WPvideoDelay))
         Mlist.append(getConfigListEntry(_("Press OK to create %s bouquet") % "userbouquet.WPPL.tv", config.plugins.streamlinkSRV.WPbouquet))
         return Mlist
     
     def __init__(self, session, args=None):
-        DBGlog('%s' % '__init__')
+        print('%s' % '__init__')
         self.doAction = None
         self.VisibleSection = 0
         if os.path.exists('/usr/sbin/streamlinkSRV') and os.path.islink('/usr/sbin/streamlinkSRV') and 'StreamlinkConfig/' in os.readlink('/usr/sbin/streamlinkSRV'):
@@ -71,7 +71,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         self.session = session
 
         # Summary
-        self.setup_title = 'Konfiguracja pilot.wp.pl'
+        self.setup_title = 'Konfiguracja pilot.wp.pl EOL'
         self.onChangedEntry = []
 
         # Buttons
@@ -126,12 +126,12 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
             self.close(None)
         
     def refreshBuildList(self, ret = False):
-        DBGlog('refreshBuildList >>>')
+        print('refreshBuildList >>>')
         self["config"].list = self.buildList()
         self.DoBuildList.start(50, True)
         
     def doNothing(self, ret = False):
-        DBGlog('doNothing >>>')
+        print('doNothing >>>')
         return
       
     def yellow(self):
@@ -150,14 +150,14 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         self.close(None)
         
     def prevConf(self):
-        DBGlog('prevConf >>> VisibleSection = %s' % self.VisibleSection)
+        print('prevConf >>> VisibleSection = %s' % self.VisibleSection)
         self.VisibleSection -= 1
         if self.VisibleSection < 1:
             self.VisibleSection = 5
         self.refreshBuildList()
         
     def nextConf(self):
-        DBGlog('nextConf >>> VisibleSection = %s' % self.VisibleSection)
+        print('nextConf >>> VisibleSection = %s' % self.VisibleSection)
         self.VisibleSection += 1
         if self.VisibleSection > 5:
             self.VisibleSection = 1
@@ -175,16 +175,16 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
             self.choicesList = [("Odtwarzacz zewnętrzny (zalecany)","1e"), ("Odtwarzacz zewnętrzny (zalecany dla Vu+)","4097e"), ("gstreamer (root 4097)","4097"), (_("ServiceApp not installed!"), None)]
         
     def changedEntry(self):
-        DBGlog('%s' % 'changedEntry()')
+        print('%s' % 'changedEntry()')
         try:
             for x in self.onChangedEntry:
                 x()
         except Exception as e:
-            DBGlog('%s' % str(e))
+            print('%s' % str(e))
 
     def selectionChanged(self):
         if 0:
-            DBGlog('%s' % 'selectionChanged(%s)' % self["config"].getCurrent()[0])
+            print('%s' % 'selectionChanged(%s)' % self["config"].getCurrent()[0])
 
     def getCurrentEntry(self):
         return self["config"].getCurrent()[0]
@@ -197,7 +197,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         return SetupSummary
 
     def Okbutton(self):
-        DBGlog('%s' % 'Okbutton')
+        print('%s' % 'Okbutton')
         try:
             self.doAction = None
             curIndex = self["config"].getCurrentIndex()
@@ -224,15 +224,15 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
                         self.session.openWithCallback(self.doNothing ,Console, title = "SL %s %s" % (Version, _('Credentials verification')), cmdlist = [ cmd ])
                         return
                 elif currItem == config.plugins.streamlinkSRV.generateBouquet:
-                    DBGlog('currItem == config.plugins.streamlinkSRV.generateBouquet')
+                    print('currItem == config.plugins.streamlinkSRV.generateBouquet')
                     bouquetFileName = currInfo.split(': ')[1].strip()
                     self.doAction = ('generate_%s.py' % bouquetFileName, '/etc/enigma2/%s' % bouquetFileName, 'anonymous','nopassword')
                 ####
-                DBGlog('%s' % str(self.doAction))
+                print('%s' % str(self.doAction))
                 if not self.doAction is None:
                     cmd = self.doAction[0]
                     bfn = self.doAction[1]
-                    DBGlog('%s' % bfn)
+                    print('%s' % bfn)
                     if cmd == 'removeBouquet.py':
                         cmd = '/usr/bin/python /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/plugins/%s' % ' '.join(self.doAction)
                         self.session.openWithCallback(self.retFromCMD ,Console, title = "SL %s %s" % (Version, _('Removing bouquet...')), cmdlist = [ cmd ])
@@ -246,7 +246,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
                         self.cmdTitle = _('Creating %s...') % bfn
                         self.session.openWithCallback(self.OkbuttonConfirmed, MessageBox, _("Do you want to create '%s' file?") % bfn, MessageBox.TYPE_YESNO, default = True)
         except Exception as e:
-            DBGlog('%s' % str(e))
+            print('%s' % str(e))
 
     def cleanBouquets_tvradio(self): #clean bouquets.tv from non existing files
         for TypBukietu in('/etc/enigma2/bouquets.tv','/etc/enigma2/bouquets.radio'):
@@ -262,13 +262,13 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
             
     def OkbuttonTextChangedConfirmed(self, ret ):
         if ret is None:
-            DBGlog("OkbuttonTextChangedConfirmed(ret ='%s')" % str(ret))
+            print("OkbuttonTextChangedConfirmed(ret ='%s')" % str(ret))
         else:
             try:
                 curIndex = self["config"].getCurrentIndex()
                 self["config"].list[curIndex][1].value = ret
             except Exception as e:
-                DBGlog('%s' % str(e))
+                print('%s' % str(e))
 
     def OkbuttonConfirmed(self, ret = False):
         if ret:
@@ -285,9 +285,9 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
                                                  'y'
                                                 )
         if self.doAction[0] == 'wpBouquet.py':
-            DBGlog('%s WPuser WPpass %s %s' % (self.doAction[0], config.plugins.streamlinkSRV.PortNumber.value, ret[1]))
+            print('%s WPuser WPpass %s %s' % (self.doAction[0], config.plugins.streamlinkSRV.PortNumber.value, ret[1]))
         else:
-            DBGlog('%s' % cmd)
+            print('%s' % cmd)
         self.session.openWithCallback(self.retFromCMD ,Console, title = "SL %s %s" % (Version, self.cmdTitle), cmdlist = [ cmd ])
 
     def reloadBouquets(self):
@@ -295,7 +295,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         eDVBDB.getInstance().reloadBouquets()
         
     def retFromCMD(self, ret = False):
-        DBGlog('retFromCMD >>>')
+        print('retFromCMD >>>')
         self.cleanBouquets_tvradio()
         self.reloadBouquets()
         msg = _("Bouquets has been reloaded")

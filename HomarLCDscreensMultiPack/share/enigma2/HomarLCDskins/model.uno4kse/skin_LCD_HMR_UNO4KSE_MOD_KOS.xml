@@ -349,6 +349,11 @@
         <widget source="parent.Title" render="j00zekModRunningText" options="movetype=running,startpoint=0,direction=left,steptime=40,repeat=0,startdelay=200,always=0,oneshot=0" noWrap="1" position="10,15" size="390,62" font="RegularLCD;40" halign="center" valign="top" transparent="1" foregroundColor="HMRname" />
     </screen>
 
+<!-- ScreenSummary -->
+<screen name="ScreenSummary" position="0,0" size="100%,100%" id="1">
+  <panel name="SimpleSummary" />
+</screen>
+
 <!-- ServiceScan -->			
     <screen name="ServiceScanSummary" position="0,0" size="400,240" id="1">
       <ePixmap pixmap="HomarLCDskins/Homar_UNO4KSE/Homar_1.png" position="0,0" size="400,240" zPosition="-1" alphatest="blend" />
@@ -661,6 +666,29 @@
         </widget>
         <widget source="session.CurrentService" render="Label" font="VFD;48" position="130,190" size="260,55" halign="right" valign="center" zPosition="1" noWrap="1" foregroundColor="light_yellow" backgroundColor="black" transparent="1">
             <convert type="j00zekE2iPlayer">RemindedMinutes</convert>
+        </widget>
+    </screen>
+
+<!-- LCD screen ExtMoviePlayerSummary -->
+    <screen name="ExtMoviePlayerSummary" position="0,0" size="400,240">
+      <ePixmap pixmap="HomarLCDskins/Homar_UNO4KSE/Homar_4.png" position="0,0" size="400,240" zPosition="-1" alphatest="blend" />
+        <widget source="global.CurrentTime" render="Label" position="10,10" size="240,55" font="VFD;48" halign="left" valign="center" foregroundColor="HMRname" backgroundColor="black" transparent="1">
+            <convert type="ClockToText">Format:%d.%m.%Y</convert>
+        </widget>
+        <widget source="global.CurrentTime" render="Label" position="190,10" size="200,55" font="VFD;48" halign="right" valign="center" foregroundColor="white" backgroundColor="black" transparent="1">
+            <convert type="ClockToText">Format:%H:%M</convert>
+        </widget>
+        <widget source="parent.Title" render="j00zekModRunningText" options="movetype=running,startpoint=0,direction=left,steptime=40,repeat=2,startdelay=10000" noWrap="1" position="16,90" size="400,58" font="VFD;52" halign="left" valign="top" foregroundColor="HMRname" backgroundColor="black" transparent="1">
+        </widget>
+        <widget source="session.CurrentService" render="Progress" pixmap="HomarLCDskins/Homar_UNO4KSE/Homar_LCD3.png" position="10,155" size="380,30" zPosition="3" borderWidth="4" borderColor="#7A7D80" foregroundColor="#007FFF" transparent="1"> 
+            <convert type="j00zekE2iPlayerSSS">Progress</convert>
+        </widget>
+      <!--ePixmap pixmap="HomarLCDskins/Homar_UNO4KSE/iptvlogo.png" position="10,200" size="225,90" zPosition="-1" alphatest="blend" /-->
+        <widget source="session.CurrentService" render="Label" font="VFD;48" position="10,190" size="260,55" halign="left" valign="center" zPosition="1" noWrap="1" foregroundColor="light_yellow" backgroundColor="black" transparent="1">
+            <convert type="j00zekE2iPlayerSSS">CurrentTimeHMS</convert>
+        </widget>
+        <widget source="session.CurrentService" render="Label" font="VFD;48" position="130,190" size="260,55" halign="right" valign="center" zPosition="1" noWrap="1" foregroundColor="light_yellow" backgroundColor="black" transparent="1">
+            <convert type="j00zekE2iPlayerSSS">RemindedMinutes</convert>
         </widget>
     </screen>
 

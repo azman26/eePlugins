@@ -301,7 +301,7 @@ def initThread(webURL, webFileName, HEADER=[]):
 
 
 def ISO3339toDATETIME(ISO3339time, offset=0):
-    defDBG = True
+    defDBG = False
     try:
         systemTZ = datetime.now().hour - datetime.utcnow().hour
         Y = int(ISO3339time[:4])
@@ -531,7 +531,7 @@ def analyze_ForecaMeteo(webFileName):
                     open(os.path.join(paramsDict['tmpFolder'], 'Fmeteo_10-day-forecast.cutContent'), 'a').write('!!!!!!!!!!!!!!!!!!! LINE:\n' + str(line) + '\n')
 
             for Line in Lines:
-                tmpList = getList([], Line, '.*hourly\?day=([0-9]*).*class="weekday">(.*)<\/div>.*dataContainer.*class="([^"]*).*class="date">([0-9\.]*)<.*class="symb" src="([^"]*).*alt="([^"]*).*class="temp">.*temp_c">([^&]*).*class="temp">.*temp_c">([^&]*).*class="wind".*src="[^"]*/([^"]*).*alt="([^"]*).*wind_kmh"><em>([^<]*).*wind_kmh"><em>')
+                tmpList = getList([], Line, r'.*hourly\?day=([0-9]*).*class="weekday">(.*)<\/div>.*dataContainer.*class="([^"]*).*class="date">([0-9\.]*)<.*class="symb" src="([^"]*).*alt="([^"]*).*class="temp">.*temp_c">([^&]*).*class="temp">.*temp_c">([^&]*).*class="wind".*src="[^"]*/([^"]*).*alt="([^"]*).*wind_kmh"><em>([^<]*).*wind_kmh"><em>')
                 if len(tmpList) > 0:
                     tmpList = tmpList[0]
                 if DBGdaily:
@@ -2129,7 +2129,7 @@ def mainProc():
                 calculateSun()
                 calculateMoon()
                 if paramsDict['msnAPIKEY'] == '':
-                    paramsDict['msnAPIKEY'] = '0QfOX3Vn51YCzitbLaRkTTBadtWpgTN8NZLW0C1SEM'
+                    paramsDict['msnAPIKEY'] = 'j5i4gDqHL6nGYwx5wi5kRhXjtf2c5qgFX9fzfk0TOo' #'0QfOX3Vn51YCzitbLaRkTTBadtWpgTN8NZLW0C1SEM'
                 if paramsDict['geolatitude'] != '' and paramsDict['geolongitude'] != '' and paramsDict['geolatitude'] != 'auto' and paramsDict['geolongitude'] != 'auto':
                     cf = os.path.join(paramsDict['tmpFolder'], 'dictMSNweather_calendar_%s.json' % paramsDict['currEntryID'])
                     if not os.path.exists(cf): print("\tDownoading Monthly data")
@@ -2137,7 +2137,7 @@ def mainProc():
                     else:
                         print("\tMonthly data up-2-date(last update %s hours ago)" % int((nowTime - round(os.stat(cf).st_mtime)) /3600))
                         cf = ''
-                    if cf != '':
+                    if 0: #dzialalo do konca 2024 cf != '':
                         currDate = datetime.now()
                         startDate = currDate.strftime('%Y-%m-%d')
                         endDate = currDate + timedelta(days = 180)
@@ -2153,10 +2153,29 @@ def mainProc():
                                                                                                                                                      startDate,
                                                                                                                                                      endDate
                                                                                                                                                     )
+                        print(url)
                         initThread(url, 'msn_api.calendar')
+                    if 1: #cf != '':
+                        currDate = datetime.now()
+                        startDate = currDate.strftime('%Y%m%d')
+                        endDate = currDate + timedelta(days = 180)
+                        endDate = endDate.replace(day=1)
+                        endDate = endDate - timedelta(days=1)
+                        endDate = endDate.strftime('%Y%m%d')
+                        url = 'https://api.msn.com/weather/weathertrends?apiKey=' + paramsDict['msnAPIKEY']
+                        url += '&locale='+ paramsDict['language'] + '&region=' + paramsDict['language'][-2:]
+                        url += '&lon='+ paramsDict['geolongitude'] + '&lat=' + paramsDict['geolatitude']
+                        url += '&units=' + paramsDict['degreetype']
+                        url += '&startDate=' + startDate + '&endDate=' + endDate
+                        #print('URL-weathertrends:', url)
+                        initThread(url, 'msn_api.weathertrends')
                     for dataType in ('current', 'overview','dailyforecast','hourlytrend','dailytrend'):
-                        url = 'https://api.msn.com/weather/%s?apiKey=%s&locale=%s&region=%s&lon=%s&lat=%s&units=%s&days=10' % (dataType, paramsDict['msnAPIKEY'], paramsDict['language'], paramsDict['language'][-2], 
-                                                                                                                                  paramsDict['geolongitude'], paramsDict['geolatitude'], paramsDict['degreetype'])
+                        url = 'https://api.msn.com/weather/' + dataType
+                        url += '?apiKey=' + paramsDict['msnAPIKEY']
+                        url += '&locale='+ paramsDict['language'] + '&region=' + paramsDict['language'][-2:]
+                        url += '&lon='+ paramsDict['geolongitude'] + '&lat=' + paramsDict['geolatitude']
+                        url += '&units=' + paramsDict['degreetype']
+                        url += '&days=10'
                         initThread(url, 'msn_api.%s' % dataType)
                 #else: #stare niedzialajace juz
                 #    url = 'https://www.msn.com/%s/weather?culture=%s&weadegreetype=%s&form=PRWLAS&q=%s' % (language, language, degreetype, urllib_quote(paramsDict['weatherSearchFullName']))

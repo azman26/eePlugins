@@ -62,6 +62,9 @@
 	<screen name="SimpleSummary" position="fill">
                 <panel name="SummaryClockPanel" />      
 	</screen>
+        <screen name="ScreenSummary" position="fill">
+                <panel name="SummaryClockPanel" />      
+        </screen>
 	<screen name="WizardSummary" position="fill">
                 <panel name="SummaryClockPanel" />      
 	</screen>

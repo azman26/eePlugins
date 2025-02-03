@@ -194,6 +194,28 @@
 			<convert type="ConditionalShowHide" />
                 </widget>
 	</screen>
+        <screen name="ScreenSummary" position="0,0" size="140,32" id="1">
+                <widget source="parent.Title" render="Label" position="5,10" size="130,20" font="VFD;16" halign="center" valign="top" />
+                <widget source="session.CurrentService" render="Pixmap" pixmap="vfd_icons/teletext.png" position="5,0" size="8,7">
+                        <convert type="ServiceInfo">HasTelext</convert>
+                        <convert type="ConditionalShowHide" />
+                </widget>
+                <widget source="session.CurrentService" render="Pixmap" pixmap="vfd_icons/crypt.png" position="15,0"  size="8,7">
+                        <convert type="ServiceInfo">IsCrypted</convert>
+                        <convert type="ConditionalShowHide" />
+                </widget>
+                <widget source="session.CurrentService" render="Pixmap" pixmap="vfd_icons/dolby.png" position="25,0" size="10,7">
+                        <convert type="ServiceInfo">IsMultichannel</convert>
+                        <convert type="ConditionalShowHide" />
+                </widget>
+                <widget source="session.CurrentService" render="Pixmap" pixmap="vfd_icons/format.png" position="37,0" size="15,7">
+                        <convert type="ServiceInfo">IsWidescreen</convert>
+                        <convert type="ConditionalShowHide" />
+                </widget>
+                <widget source="session.RecordState" render="Pixmap" pixmap="vfd_icons/rec.png" position="54,0"  size="12,7">
+                        <convert type="ConditionalShowHide" />
+                </widget>
+        </screen>
 	<screen name="MediaPlayerLCDScreen" position="0,0" size="140,32" id="1">
 		<widget name="text1" position="6,8" size="134,18" font="VFD;16"/>
 	</screen>

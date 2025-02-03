@@ -67,27 +67,22 @@ def get_azmanIPTVsettings():
             webContent = downloadWebPage(mainURL)
             #open("/tmp/azmanIPTVsettings.txt", "w").write(webContent)
             title = findInContent(webContent, '<title>([^<]*)')
-            webContent = downloadWebPage(mainURL + '/file-list/main')
-            if webContent == 'EXCEPTION':
-                return {'userbouquets': [], 'title':'EXCEPTION downloading list from github'}
-            #open("/tmp/azmanIPTVsettings.txt", "w").write(webContent)
-            webContent = findInContent(webContent, '<div class="js-details-container.*')
-            webContent = re.sub(r"[\n\t\r]", "", webContent)
-            webContent = webContent.replace('<div role="row"','\n<div role="row"') #mamy kazdy rekord w jednej linii
-            #open("/tmp/azmanIPTVsettings.txt", "w").write(webContent)
-            tmpList = getList([], webContent, 'href="([^"]*blob[^"]*\.tv)">([^<]*).*datetime="([0-9\-]+).([0-9:]+)', False)
-            tmpList = getList(tmpList, webContent, 'href="([^"]*blob[^"]*\.radio)">([^<]*).*datetime="([0-9\-]+).([0-9:]+)', False)
+            webContent = findInContent(webContent, 'docsUrl.*<script type="application\/json" data-target="react-partial.embeddedData">([^<]*)<\/script>')
+            #open("/tmp/azmanIPTVsettings_webContent.txt", "w").write(webContent)
+            tmpList = json.loads(webContent)["props"]["initialPayload"]["tree"]["items"]
             wbList = []
             for listItem in tmpList:
-                wbList.append(('https://raw.githubusercontent.com' + listItem[0].replace('blob/',''), listItem[1],listItem[2],listItem[3]))
+                if listItem["name"].endswith('.tv'):
+                    wbList.append(('https://raw.githubusercontent.com/azman26/azmanIPTVsettings/main/' + listItem["path"], listItem["name"]))
             #print(len(wbList))
             if len(wbList) > 0:
                 azmanIPTVsettings['title'] = title
                 azmanIPTVsettings['userbouquets'] = wbList
             else:
-                azmanIPTVsettings['title'] = 'No azmanIPTVsettings found :('
+                azmanIPTVsettings['title'] = 'BŁĄD analizy danych list kolegi azman pobranych z github'
         except Exception as e:
             azmanIPTVsettings['title'] = str(e)
+            print(e)
     return azmanIPTVsettings
     
 if __name__ == '__main__':

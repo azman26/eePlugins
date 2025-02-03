@@ -7,7 +7,7 @@
 # License: GPLv2+
 #
 
-__version__ = "1.3"
+__version__ = "1.5"
 import atexit
 import errno
 import logging
@@ -132,17 +132,26 @@ def sendCachedFile(http, send_headers=True, pid=0, file2send=None, maxWaitTime =
             return
     http.wfile.close()
     if int(pid) > 1000:
-        os.system('kill -s 9 %s 2>/dev/null;killall hlsdl 2>/dev/null' % pid)
+        os.system('kill -s 9 %s 2>/dev/null;killall -q hlsdl;killall -q ffmpeg' % pid)
+        if os.path.exists(file2send):
+            os.remove(file2send)
         if os.path.exists('/proc/%s') % str(pid):
             LOGGER.debug("Error killing pid {0}".format(pid))
         else:
             LOGGER.debug("pid {0} has been killed".format(pid))
 
-def useCLI(http, url, argstr, quality, useAddr):
+def useCLI(http, url, argstr, quality, useAddr, cacheMode = False):
     LOGGER.debug("useCLI(url=%s, argstr=%s, quality=%s, useAddr=%s) >>>" %(url,argstr,quality,useAddr))
-    _cmd = ['/usr/sbin/streamlink'] 
+    _cmd = [] 
+    _cmd.extend(['/usr/sbin/streamlink'])
     #standard SRV for different pythons.
-    _cmd.extend(['-l', LOGLEVEL, '--player-external-http', '--player-external-http-port', str(streamCLIport) , url, quality])
+    if cacheMode:
+        cacheFile = '/hdd/slkCache.mp4'
+        if os.path.exists(cacheFile):
+            os.remove(cacheFile)
+        _cmd.extend(['-l', LOGLEVEL, '-o', cacheFile , url, quality])
+    else:
+        _cmd.extend(['-l', LOGLEVEL, '--player-external-http', '--player-external-http-port', str(streamCLIport) , url, quality])
     LOGGER.debug("run command: %s" % ' '.join(_cmd))
     try:
         processCLI = subprocess.Popen(_cmd, stdout= subprocess.PIPE, stderr= subprocess.DEVNULL )
@@ -161,6 +170,10 @@ def useCLI(http, url, argstr, quality, useAddr):
                     if 'http://127.0.0.1:%s/' % streamCLIport in outLine:
                         serverRunning = True
                         redirectToStreamlinkCLI(http, useAddr)
+                        return
+                    elif '[download] Written' in outLine or 'Writing stream to output' in outLine:
+                        mWaitTime = 10
+                        sendCachedFile(http, send_headers=True, pid=int(processCLI.pid), file2send=cacheFile, maxWaitTime = mWaitTime )
                         return
                     elif 'FileCache:' in outLine:
                         retData = outLine.strip().split(':')
@@ -210,6 +223,11 @@ class StreamHandler(BaseHTTPRequestHandler):
         jtools.cleanCMD()
         url = unquote(s.path[1:])
         quality = "best"
+        if url.startswith('buforuj/'):
+            cacheFile = True
+            url = url[8:]
+        else:
+            cacheFile = False
 
         calledAddr = re.findall(r"laddr=\('([^']+)", str(s.connection))
         if calledAddr is not None and len(calledAddr)>0:
@@ -238,42 +256,7 @@ class StreamHandler(BaseHTTPRequestHandler):
                         url[1] = url[1].replace('quality=%s' % quality,'').strip()
                         break
         LOGGER.debug("Analiza URL: {0}".format(url[0].strip()))
-        if 1:
-            useCLI(s, url[0].strip(), url[1:2], quality, calledAddr)
-        else: #old quite often not working way
-            LOGGER.debug("useSL(%s,%s,%s) >>>" %(url,argstr,quality))
-            session = Streamlink()
-            session.set_option("stream-timeout", timeout)
-            session.set_option("stream-segment-threads", 6)
-            session.set_option("hls-segment-stream-data", True)
-            session.set_option("ringbuffer-size", 1024 * 1024 * 32)
-            session.set_option("hls-audio-select", "*")
-            session.set_option("ffmpeg-no-validation", True)
-            try:
-                streams = session.streams(url)
-                if not streams:
-                    raise Exception('no streams found')
-            except Exception as err:
-                LOGGER.debug("Got streamlink Exception: {err}")
-                sendOfflineMP4(s)
-            finally:
-                self.send_response(200)
-                self.send_header("Content-type", "video/MP2T")
-                self.send_header("Transfer-Encoding", "chunked")
-                self.send_header("Keep-Alive", "timeout=%s, max=100" % timeout)
-                self.send_header("Accept-Ranges", "none")
-                self.end_headers()
-                with streams['best'].open() as fd:
-                    try:
-                        fsrc_read = fd.read
-                        fdst_write = self.wfile.write
-                        COPY_BUFSIZE = 64 * 1024
-                        while chunk := fsrc_read(COPY_BUFSIZE):
-                            fdst_write(b'%X\r\n%s\r\n' % (len(chunk),chunk))
-                    except (BrokenPipeError, ConnectionResetError):
-                        pass
-                    except Exception as err:
-                        raise err
+        useCLI(s, url[0].strip(), url[1:2], quality, calledAddr, cacheFile)
         return
 
     def finish(self, *args, **kw):
@@ -470,7 +453,7 @@ class StreamlinkDaemon(Daemon):
 
 
 if __name__ == "__main__":
-    daemon = StreamlinkDaemon("/var/run/streamlink.pid")
+    daemon = StreamlinkDaemon("/var/run/streamlinkSRV.pid")
     if len(sys.argv) >= 2:
         if "start" == sys.argv[1]:
             daemon.start()

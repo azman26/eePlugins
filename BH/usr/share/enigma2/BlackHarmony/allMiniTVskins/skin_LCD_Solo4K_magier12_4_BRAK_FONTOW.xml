@@ -592,6 +592,9 @@
 <screen name="SimpleSummary" position="0,0" size="480,320" id="1">
   <widget source="parent.Title" render="Label" position="20,24" size="440,262" font="VFD;55" halign="center" valign="center" />
 </screen>
+<screen name="ScreenSummary" position="0,0" size="480,320" id="1">
+  <widget source="parent.Title" render="Label" position="20,24" size="440,262" font="VFD;55" halign="center" valign="center" />
+</screen>
 
 <!-- Standby -->
 <screen name="StandbySummary" position="0,0" size="480,320" id="1">

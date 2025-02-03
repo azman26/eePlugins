@@ -1,7 +1,54 @@
 <!-- ##### PLUGINS DEFINITIONS  ##### -->
 <skin>
+<!-- EmuKodi_Menu -->
+<screen name="EmuKodi_Menu" position="462,128" size="1000,820" title="EmuKodi_Menu" flags="wfNoBorder" backgroundColor="transparent">
+    <ePixmap position="0,0" zPosition="-10" size="1000,820" pixmap="BlackHarmony/bg_design/small.png"/>
+    <widget source="global.CurrentTime" render="Label" position="45,35" size="80,30" font="Roboto_HD; 27" backgroundColor="black" transparent="1">
+      <convert type="ClockToText">Default</convert>
+    </widget>
+    <widget source="global.CurrentTime" render="Label" position="130,35" size="260,30" font="Roboto_HD; 27" foregroundColor="lemon" backgroundColor="black" transparent="1">
+      <convert type="ClockToText">Format:%A %d.%m.%Y</convert>
+    </widget>
+    <widget source="Title" render="Label" position="460,30" size="480,35" font="Roboto_HD; 27" halign="right" backgroundColor="dark_grey" transparent="1"/>
+    <widget source="list" render="Listbox" position="68,140" size="860,560" enableWrapAround="1" scrollbarWidth="10" scrollbarSliderBorderWidth="1" scrollbarSliderForegroundColor="#e6e6e6" scrollbarSliderBorderColor="#3b3e3f" selectionPixmap="BlackHarmony/menu/sel_860_45.png" backgroundColor="background" scrollbarMode="showOnDemand">
+      <convert type="TemplatedMultiContent">
+                {"template": [
+        MultiContentEntryPixmapAlphaTest(pos = (12, 2), size = (120, 40), png = 0),
+        MultiContentEntryText(pos = (138, 2), size = (760, 40), font=0, flags = RT_HALIGN_LEFT|RT_VALIGN_CENTER, text = 1),
+            ],
+        "fonts": [gFont("Regular", 26)],
+        "itemHeight": 45
+                        }
+      </convert>
+    </widget>
+    <ePixmap pixmap="BlackHarmony/buttons/key_red.png" position="47,760" size="35,27" alphatest="blend"/>
+    <ePixmap pixmap="BlackHarmony/buttons/key_green.png" position="273,760" size="35,27" alphatest="blend"/>
+    <ePixmap pixmap="BlackHarmony/buttons/key_yellow.png" position="499,760" size="35,27" alphatest="blend"/>
+    <ePixmap pixmap="BlackHarmony/buttons/key_ok.png" position="723,760" size="60,30" alphatest="blend" zPosition="2"/>
+    <widget source="key_red" render="Label" position="87,759" size="180,27" zPosition="1" font="Roboto_HD; 24" halign="left" foregroundColor="white" backgroundColor="dark_grey" transparent="1"/>
+    <widget source="key_green" render="Label" position="313,759" size="200,27" zPosition="1" font="Roboto_HD; 24" halign="left" foregroundColor="white" backgroundColor="dark_grey" transparent="1"/>
+    <widget source="key_yellow" render="Label" position="538,759" size="200,27" zPosition="1" font="Roboto_HD; 24" halign="left" foregroundColor="white" backgroundColor="dark_grey" transparent="1"/>
+    <widget name="key_ok"  position="753,759" size="350,27" zPosition="1" font="Roboto_HD; 24" halign="left" foregroundColor="white" backgroundColor="dark_grey" transparent="1"/>
+</screen>
+  
+  <!-- EmuKodiConfiguration -->
+  <screen name="EmuKodiConfiguration" position="345,93" size="1232,908" title="EmuKodiConfiguration" flags="wfNoBorder" backgroundColor="transparent">
+    <ePixmap position="0,0" zPosition="-10" size="1232,908" pixmap="BlackHarmony/bg_design/mainbg.png"/>
+    <widget source="global.CurrentTime" render="Label" position="40,25" size="80,30" font="Roboto_HD; 27" backgroundColor="black" transparent="1">
+      <convert type="ClockToText">Default</convert>
+    </widget>
+    <widget source="global.CurrentTime" render="Label" position="125,25" size="460,30" font="Roboto_HD; 27" foregroundColor="lemon" backgroundColor="black" transparent="1">
+      <convert type="ClockToText">Format:%A %d.%m.%Y</convert>
+    </widget>
+    <widget source="Title" render="Label" position="660,25" size="520,30" font="Roboto_HD; 27" halign="right" backgroundColor="dark_grey" transparent="1"/>
+    <widget name="config" itemHeight="35" font="Roboto_HD; 26" position="65,140" size="1102,680" scrollbarMode="showOnDemand" enableWrapAround="1" scrollbarWidth="10" scrollbarSliderBorderWidth="1" scrollbarSliderForegroundColor="#e6e6e6" scrollbarSliderBorderColor="#3b3e3f" selectionPixmap="BlackHarmony/menu/sel_1095_35.png" transparent="1"/>
+    <ePixmap pixmap="BlackHarmony/buttons/key_red.png" position="41,850" size="35,27" alphatest="blend"/>
+    <ePixmap pixmap="BlackHarmony/buttons/key_green.png" position="328,850" size="35,27" alphatest="blend"/>
+    <widget name="key_red" position="91,849" size="200,27" zPosition="1" font="Roboto_HD; 24" halign="left" backgroundColor="dark_grey" transparent="1"/>
+    <widget name="key_green" position="378,849" size="200,27" zPosition="1" font="Roboto_HD; 24" halign="left" backgroundColor="dark_grey" transparent="1"/>
+  </screen>
   <!-- SLK_Menu -->
-<screen name="SLK_Menu" position="462,128" size="1000,820" title="SLK_Menu" flags="wfNoBorder" backgroundColor="transparent">
+  <screen name="SLK_Menu" position="462,128" size="1000,820" title="SLK_Menu" flags="wfNoBorder" backgroundColor="transparent">
     <ePixmap position="0,0" zPosition="-10" size="1000,820" pixmap="BlackHarmony/bg_design/small.png"/>
     <widget source="global.CurrentTime" render="Label" position="45,35" size="80,30" font="Roboto_HD; 27" backgroundColor="black" transparent="1">
       <convert type="ClockToText">Default</convert>
@@ -2424,5 +2471,264 @@
     <widget source="session.VideoPicture" render="Pig" position="1920,1080" zPosition="0" size="192,108" backgroundColor="transparent" />
     <widget name="pic" position="0,0" size="10,10" zPosition="1" alphatest="on" />
     <widget name="picDescr" position="0,0" size="10,10" font="Regular;10" halign="left" valign="center" zPosition="2" noWrap="1" transparent="0"/>
+  </screen>
+  <!--OSCamInfo-->
+  <screen name="OSCamInfo" position="0,0" size="1920,1080" backgroundColor="transparent" title="OSCam Information" flags="wfNoBorder" >
+    <ePixmap position="0,0" zPosition="-10" size="1920,1080" pixmap="BlackHarmony/bg_design/EPGPig.png"/>
+    <widget source="global.CurrentTime" render="Label" position="81,50" size="80,32" font="Roboto_HD; 27" backgroundColor="black" transparent="1">
+      <convert type="ClockToText">Default</convert>
+    </widget>
+    <widget source="global.CurrentTime" render="Label" position="164,50" size="460,32" font="Roboto_HD; 27" foregroundColor="lemon" backgroundColor="black" transparent="1">
+      <convert type="ClockToText">Format:%A %d.%m.%Y</convert>
+    </widget>
+    <widget source="Title" render="Label" position="1020,50" size="840,32" font="Roboto_HD; 27" halign="right" backgroundColor="dark_grey" transparent="1"/>
+        
+    <ePixmap pixmap="icons/OscamLogo.png" position="60,125" size="60,60" scale="1" alphatest="blend" zPosition="1" /> 
+    <widget source="timerinfos" render="Label" position="140,122" size="1700,30" font="Regular;28" halign="center" valign="center" foregroundColor="white" backgroundColor="background" transparent="1" />
+    <widget source="buildinfos" render="Label" position="140,154" size="1700,30" font="Regular;28" halign="center" valign="center"  foregroundColor="#092CBDF" backgroundColor="background" transparent="1" />
+ 
+    <eLabel text="#" position="55,190" size="23,38" font="Regular;26" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="Reader/User" position="80,190" size="173,38" font="Regular;26" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="AU" position="255,190" size="77,38" font="Regular;26" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="Address" position="334,190" size="165,38" font="Regular;26" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="Port" position="501,190" size="80,38" font="Regular;26" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="Protocol" position="583,190" size="155,38" font="Regular;26" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="srvid:caid@provid" position="740,190" size="246,38" font="Regular;26" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="Last Channel" position="988,190" size="360,38" font="Regular;26" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="LB Value/Reader" position="1350,190" size="200,38" font="Regular;26" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="Online Idle" position="1552,190" size="105,38" font="Regular;26" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="Status" position="1659,190" size="197,38" font="Regular;26" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+  
+    <eLabel position="55,235" size="1790,2" backgroundColor="linie" />
+    <widget source="outlist" render="Listbox" position="54,245" size="1808,540" backgroundColor="black" foregroundColor="white" foregroundColorSelected="white" scrollbarMode="showOnDemand" scrollbarWidth="6" scrollbarBorderWidth="1" scrollbarForegroundColor="blue" scrollbarBorderColor="blue" selectionPixmap="BlackHarmony/menu/sel_1808_60.png" enableWrapAround="1" transparent="1" zPosition="1">
+      <convert type="TemplatedMultiContent">
+        {
+        "template": [
+        MultiContentEntryText(pos=(0,0), size=(23,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER,  text=1),  # type
+        MultiContentEntryText(pos=(25,0), size=(174,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_WRAP, text=2),  # Reader/User
+        MultiContentEntryText(pos=(200,0), size=(78,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=3),  # AU
+        MultiContentEntryText(pos=(279,0), size=(166,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=4),  # Adress
+        MultiContentEntryText(pos=(446,0), size=(81,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=5),  # Port
+        MultiContentEntryText(pos=(528,0), size=(156,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_WRAP, text=6),  # Protocol
+        MultiContentEntryText(pos=(685,0), size=(247,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=7),  # srvid:caid@provid
+        MultiContentEntryText(pos=(933,0), size=(361,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_WRAP, text=8),  # Last Channel
+        MultiContentEntryText(pos=(1295,0), size=(201,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_WRAP, text=9),  # LB Value/Reader
+        MultiContentEntryText(pos=(1497,0), size=(106,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_WRAP, text=10),  # Online+Idle
+        MultiContentEntryText(pos=(1604,0), size=(196,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=11) # Status
+           ], "fonts": [gFont("Regular",20)], "itemHeight":60
+                                        }
+      </convert>
+    </widget>
+        
+    <eLabel position="78,245" size="1,540" backgroundColor="linie" /> 
+    <eLabel position="253,245" size="1,540" backgroundColor="linie" />
+    <eLabel position="332,245" size="1,540" backgroundColor="linie" />
+    <eLabel position="499,245" size="1,540" backgroundColor="linie" />
+    <eLabel position="581,245" size="1,540" backgroundColor="linie" />
+    <eLabel position="738,245" size="1,540" backgroundColor="linie" />
+    <eLabel position="986,245" size="1,540" backgroundColor="linie" />
+    <eLabel position="1348,245" size="1,540" backgroundColor="linie" />
+    <eLabel position="1550,245" size="1,540" backgroundColor="linie" />
+    <eLabel position="1657,245" size="1,540" backgroundColor="linie" />
+
+    <eLabel position="60,795" size="1790,2" backgroundColor="linie" />   
+    <widget name="logtext" position="60,807" size="1790,140" font="Regular;24" halign="left" valign="top" backgroundColor="black" noWrap="0" scrollbarMode="showNever" transparent="1"/>
+  
+    <eLabel text="System Ram" position="60,947" size="148,35" font="Regular;23" halign="center" valign="center" foregroundColor="#FFFF30" backgroundColor="#1B3C85" />
+    <widget source="total" render="Label" position="210,947" size="205,35" font="Regular;23" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <widget source="used" render="Label" position="417,947" size="228,35" font="Regular;23" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <widget source="free" render="Label" position="647,947" size="228,35" font="Regular;23" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <widget source="buffer" render="Label" position="877,947" size="200,35" font="Regular;23" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="OSCam" position="1079,947" size="148,35" font="Regular;25" valign="center" halign="center" foregroundColor="#FFFF30" backgroundColor="#1B3C85" />
+    <widget source="virtuell" render="Label" position="1229,947" size="328,35" font="Regular;23" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <widget source="resident" render="Label" position="1559,947" size="291,35" font="Regular;23" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+        
+    <!--przyciski-->
+    <widget source="session.CurrentService" render="j00zekPiconAnimation" position="35,1021" zPosition="10" size="35,27" alphatest="blend"
+                initdelay="150" pixdelay="150" loopdelay="150" loop="True" lockpath="True" dontcache="True" chainid="BTN,0" random="True"
+                pixmaps="BlackHarmony/skin_user_animButtons/key_red"
+                pixalter="BlackHarmony/buttons/key_red.png" />
+    <widget source="session.CurrentService" render="j00zekPiconAnimation" position="365,1021" zPosition="10" size="35,27" alphatest="blend"
+                initdelay="150" pixdelay="150" loopdelay="150" loop="True" lockpath="True" dontcache="True" chainid="BTN,1" random="True"
+                pixmaps="BlackHarmony/skin_user_animButtons/key_green"
+                pixalter="BlackHarmony/buttons/key_green.png" />
+    <widget source="session.CurrentService" render="j00zekPiconAnimation" position="700,1021" zPosition="10" size="35,27" alphatest="blend"
+                initdelay="150" pixdelay="150" loopdelay="150" loop="True" lockpath="True" dontcache="True" chainid="BTN,2" random="True"
+                pixmaps="BlackHarmony/skin_user_animButtons/key_yellow"
+                pixalter="BlackHarmony/buttons/key_yellow.png" />
+    <widget source="session.CurrentService" render="j00zekPiconAnimation" position="1050,1021" zPosition="10" size="35,27" alphatest="blend"
+                initdelay="150" pixdelay="150" loopdelay="150" loop="True" lockpath="True" dontcache="True" chainid="BTN,3" random="True"
+                pixmaps="BlackHarmony/skin_user_animButtons/key_blue"
+                pixalter="BlackHarmony/buttons/key_blue.png" />
+    <widget objectTypes="key_red,Label,Button" name="key_red" position="70,1020" size="290,29" zPosition="1" font="Roboto_HD; 24" halign="left" backgroundColor="dark_grey" transparent="1" />
+    <widget objectTypes="key_red,StaticText" source="key_red" render="Label" position="70,1020" size="290,29" zPosition="2" font="Roboto_HD; 24" halign="left" backgroundColor="dark_grey" transparent="1" />
+    <widget objectTypes="key_green,Label,Button" name="key_green" position="400,1007" size="300,54" zPosition="1" font="Roboto_HD; 24" halign="left" valign="center" backgroundColor="dark_grey" transparent="1"/>
+    <widget objectTypes="key_green,StaticText" source="key_green" render="Label" position="400,1007" size="300,54" zPosition="2" font="Roboto_HD; 24" halign="left" valign="center" backgroundColor="dark_grey" transparent="1"/>
+    <widget objectTypes="key_yellow,Label,Button" name="key_yellow" position="740,1020" size="300,29" zPosition="1" font="Roboto_HD; 24" halign="left" backgroundColor="dark_grey" transparent="1"/>
+    <widget objectTypes="key_yellow,StaticText" source="key_yellow" render="Label" position="740,1020" size="300,29" zPosition="2" font="Roboto_HD; 24" halign="left" backgroundColor="dark_grey" transparent="1"/>
+    <widget objectTypes="key_blue,Label,Button" name="key_blue" position="1090,1020" size="300,29" zPosition="1" font="Roboto_HD; 24" halign="left" backgroundColor="dark_grey" transparent="1"/>
+    <widget objectTypes="key_blue,StaticText" source="key_blue" render="Label" position="1090,1020" size="300,29" zPosition="2" font="Roboto_HD; 24" halign="left" backgroundColor="dark_grey" transparent="1"/>
+        
+    <widget source="key_OK" render="Pixmap" pixmap="BlackHarmony/buttons/key_ok.png" position="1380,1019" size="60,42" transparent="1" alphatest="blend" >
+      <convert type="ConditionalShowHide" />
+    </widget>
+    <widget source="key_entitlements" render="Label" position="1450,1019" size="250,29" font="Roboto_HD; 24" halign="left" backgroundColor="dark_grey" transparent="1">
+      <convert type="ConditionalShowHide" />
+    </widget>
+    <ePixmap position="1740,1019" size="60,50" pixmap="BlackHarmony/buttons/key_menu.png" transparent="1" alphatest="blend" />
+    <ePixmap position="1805,1019" size="60,50" pixmap="BlackHarmony/buttons/key_exit.png" transparent="1" alphatest="blend" />
+  </screen>
+
+  <!--OSCamEntitlements-->
+  <screen name="OSCamEntitlements" position="0,0" size="1920,1080" backgroundColor="transparent" title="OSCam Entitlements" flags="wfNoBorder" >
+    <ePixmap position="0,0" zPosition="-10" size="1920,1080" pixmap="BlackHarmony/bg_design/EPGPig.png"/>
+    <widget source="global.CurrentTime" render="Label" position="81,50" size="80,32" font="Roboto_HD; 27" backgroundColor="black" transparent="1">
+      <convert type="ClockToText">Default</convert>
+    </widget>
+    <widget source="global.CurrentTime" render="Label" position="164,50" size="460,32" font="Roboto_HD; 27" foregroundColor="lemon" backgroundColor="black" transparent="1">
+      <convert type="ClockToText">Format:%A %d.%m.%Y</convert>
+    </widget>
+    <widget source="Title" render="Label" position="1020,50" size="840,32" font="Roboto_HD; 27" halign="right" backgroundColor="dark_grey" transparent="1"/>
+        
+    <!--1-->        
+    <widget source="dheader0" render="Label" position="55,140" size="120,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" transparent="1"/>  # Type
+    <widget source="dheader1" render="Label" position="176,140" size="85,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" transparent="1"/>  # CAID
+    <widget source="dheader2" render="Label" position="262,140" size="115,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" transparent="1"/>  # Provid
+    <widget source="dheader3" render="Label" position="378,140" size="260,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" transparent="1"/>  # ID
+    <widget source="dheader4" render="Label" position="639,140" size="145,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" transparent="1"/>  # Class
+    <widget source="dheader5" render="Label" position="785,140" size="165,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" transparent="1"/>  # Start Date
+    <widget source="dheader6" render="Label" position="951,140" size="165,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" transparent="1"/>  # Expire Date
+    <widget source="dheader7" render="Label" position="1117,140" size="746,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" transparent="1"/>  # Name
+    <!--2-->
+    <widget source="cheader0" render="Label" position="55,140" size="83,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # CAID
+    <widget source="cheader1" render="Label" position="139,140" size="200,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # System
+    <widget source="cheader2" render="Label" />  # Reshare (not used here)
+    <widget source="cheader3" render="Label" />  # Hop (not used here)
+    <widget source="cheader4" render="Label" />  # ShareID (not used here)
+    <widget source="cheader5" render="Label" />  # RemoteID (not used here)
+    <widget source="cheader6" render="Label" position="340,140" size="125,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # ProvIDs
+    <widget source="cheader7" render="Label" position="466,140" size="290,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # Providers
+    <widget source="cheader8" render="Label" position="757,140" size="230,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # Nodes
+    <widget source="cheader9" render="Label" position="988,140" size="86,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # Locals
+    <widget source="cheader10" render="Label" position="1075,140" size="86,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # Count
+    <widget source="cheader11" render="Label" position="1162,140" size="73,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # Hop1
+    <widget source="cheader12" render="Label" position="1236,140" size="73,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # Hop2
+    <widget source="cheader13" render="Label" position="1310,140" size="73,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # Hopx
+    <widget source="cheader14" render="Label" position="1384,140" size="73,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # Curr
+    <widget source="cheader15" render="Label" position="1458,140" size="73,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # Res0
+    <widget source="cheader16" render="Label" position="1532,140" size="73,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # Res1
+    <widget source="cheader17" render="Label" position="1606,140" size="73,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # Res2
+    <widget source="cheader18" render="Label" position="1680,140" size="73,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # Resx
+    <widget source="cheader19" render="Label" position="1754,140" size="107,50" font="Regular;25" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />  # Reshare
+
+    <!--eLabel position="60,190" size="1790,2" backgroundColor="linie" /-->
+    <widget source="entitleslist" render="Listbox" position="55,212" size="1808,770" backgroundColor="black" foregroundColor="white" foregroundColorSelected="white" scrollbarMode="showOnDemand" scrollbarWidth="6" scrollbarBorderWidth="1" scrollbarForegroundColor="blue" scrollbarBorderColor="blue" selectionPixmap="BlackHarmony/menu/sel_1808_60.png" enableWrapAround="1" transparent="1">
+      <convert type="TemplatedMultiContent">
+        {"templates":  # index 11 is backgroundcolor
+        {       "default": (60, [
+        MultiContentEntryText(pos=(0,0), size=(120,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_WRAP, text=1),  # Type
+        MultiContentEntryText(pos=(121,0), size=(85,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_WRAP, text=2),  # CAID
+        MultiContentEntryText(pos=(207,0), size=(115,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_WRAP, text=3),  # Provid
+        MultiContentEntryText(pos=(323,0), size=(260,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_WRAP, text=4),  # ID
+        MultiContentEntryText(pos=(584,0), size=(145,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_WRAP, text=5),  # Class
+        MultiContentEntryText(pos=(730,0), size=(165,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_WRAP, text=6),  # Start Date
+        MultiContentEntryText(pos=(896,0), size=(165,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_WRAP, text=7),  # Expire Date
+        MultiContentEntryText(pos=(1062,0), size=(742,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_WRAP, text=8)  # Name
+                                                        ]),
+        "entitlements": (60, [  # index 3 to 6 (Reshare, Hop, ShareID, RemoteID) are not used here
+        MultiContentEntryText(pos=(0,0), size=(83,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=1),  # Caid
+        MultiContentEntryText(pos=(83,0), size=(201,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=2),  # System
+        MultiContentEntryText(pos=(284,0), size=(126,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_ELLIPSIS, text=7),  # ProvIDs
+        MultiContentEntryText(pos=(410,0), size=(291,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_ELLIPSIS, text=8),  # Providers
+        MultiContentEntryText(pos=(701,0), size=(231,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER|RT_ELLIPSIS, text=9),  # Nodes
+        MultiContentEntryText(pos=(932,0), size=(87,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=10),  # Locals
+        MultiContentEntryText(pos=(1019,0), size=(87,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=11),  # Count
+        MultiContentEntryText(pos=(1106,0), size=(74,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=12),  # Hop1
+        MultiContentEntryText(pos=(1180,0), size=(74,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=13),  # Hop2
+        MultiContentEntryText(pos=(1254,0), size=(74,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=14),  # Hopx
+        MultiContentEntryText(pos=(1328,0), size=(74,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=15),  # Curr
+        MultiContentEntryText(pos=(1402,0), size=(74,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=16),  # Res0
+        MultiContentEntryText(pos=(1476,0), size=(74,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=17),  # Res1
+        MultiContentEntryText(pos=(1550,0), size=(74,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=18),  # Res2
+        MultiContentEntryText(pos=(1624,0), size=(74,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=19),  # Resx
+        MultiContentEntryText(pos=(1698,0), size=(100,60), font=0, flags=RT_HALIGN_CENTER|RT_VALIGN_CENTER, text=20)  # Reshare
+                                                        ])
+                                                },
+        "fonts": [gFont("Regular",20)], "itemHeight":60
+                                        }
+      </convert>
+    </widget>
+  
+    <ePixmap pixmap="icons/OscamLogo.png" position="60,1002" size="60,60" scale="1" alphatest="blend" zPosition="1" />
+    <!--przyciski-->                      
+    <widget source="session.CurrentService" render="j00zekPiconAnimation" position="1050,1021" zPosition="10" size="35,27" alphatest="blend"
+                initdelay="150" pixdelay="150" loopdelay="150" loop="True" lockpath="True" dontcache="True" chainid="BTN,3" random="True"
+                pixmaps="BlackHarmony/skin_user_animButtons/key_blue"
+                pixalter="BlackHarmony/buttons/key_blue.png" />         
+    <widget source="key_blue" render="Label" position="1090,1020" size="300,29" font="Roboto_HD; 24" halign="left" objectTypes="key_blue,StaticText" backgroundColor="dark_grey" transparent="1" zPosition="2">
+      <convert type="ConditionalShowHide" />
+    </widget>
+    <widget source="key_OK" render="Pixmap" pixmap="BlackHarmony/buttons/key_ok.png" position="1380,1019" size="60,42" transparent="1" alphatest="blend" >
+      <convert type="ConditionalShowHide" />
+    </widget>
+    <widget source="key_detailed" render="Label" position="1450,1019" size="250,29" font="Roboto_HD; 24" halign="left" backgroundColor="dark_grey" transparent="1">
+      <convert type="ConditionalShowHide" />
+    </widget>
+    <ePixmap position="1805,1019" size="60,50" pixmap="BlackHarmony/buttons/key_exit.png" transparent="1" alphatest="blend" />           
+  </screen>
+  
+  <!--OSCamEntitleDetails--> 
+  <screen name="OSCamEntitleDetails" position="345,0" size="1232,1080" backgroundColor="transparent" title="OSCam EntitleDetails" flags="wfNoBorder" >
+    <ePixmap position="0,0" zPosition="-10" size="1232,1080" pixmap="BlackHarmony/bg_design/setup.png"/>
+    <widget source="global.CurrentTime" render="Label" position="40,25" size="80,32" font="Roboto_HD; 27" backgroundColor="black" transparent="1">
+      <convert type="ClockToText">Default</convert>
+    </widget>
+    <widget source="global.CurrentTime" render="Label" position="125,25" size="460,32" font="Roboto_HD; 27" foregroundColor="lemon" backgroundColor="black" transparent="1">
+      <convert type="ClockToText">Format:%A %d.%m.%Y</convert>
+    </widget>
+    <widget source="Title" render="Label" position="860,25" size="320,32" font="Roboto_HD; 27" halign="right" backgroundColor="dark_grey" transparent="1"/>
+         
+    <eLabel text="CAID" position="50,120" size="148,40" font="Regular;27" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="System" position="199,120" size="220,40" font="Regular;27" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="Reshare" position="420,120" size="168,40" font="Regular;27" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="Hop" position="589,120" size="123,40" font="Regular;27" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="ShareID" position="713,120" size="235,40" font="Regular;27" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <eLabel text="RemoteID" position="949,120" size="228,40" font="Regular;27" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+  
+    <widget source="label0" render="Label" position="50,161" size="147,40" font="Regular;27" halign="center" valign="center" foregroundColor="green" backgroundColor="black" transparent="1"/>  # CAID
+    <widget source="label1" render="Label" position="179,161" size="240,40" font="Regular;27" halign="center" valign="center" foregroundColor="green" backgroundColor="black" transparent="1"/>  # System
+    <widget source="label2" render="Label" position="420,161" size="168,40" font="Regular;27" halign="center" valign="center" foregroundColor="green" backgroundColor="black" transparent="1"/>  # Reshare
+    <widget source="label3" render="Label" position="589,161" size="123,40" font="Regular;27" halign="center" valign="center" foregroundColor="green" backgroundColor="black" transparent="1"/>  # Hop
+    <widget source="label4" render="Label" position="713,161" size="235,40" font="Regular;27" halign="center" valign="center" foregroundColor="green" backgroundColor="black" transparent="1"/>  # ShareID
+    <widget source="label5" render="Label" position="949,161" size="229,40" font="Regular;27" halign="center" valign="center" foregroundColor="green" backgroundColor="black" transparent="1"/>  # RemoteID
+  
+    <eLabel text="ProvIDs" position="50,202" size="1127,40" font="Regular;27" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <widget source="ProvIDlist" render="Listbox" position="50,243" size="1127,195" font="Regular;27" itemHeight="40" foregroundColor="green" backgroundColor="black" zPosition="1" halign="center" valign="center" scrollbarMode="showOnDemand" selectionPixmap="BlackHarmony/menu/sel_1130_40.png" transparent="1" >
+      <convert type="StringList" />
+    </widget>
+    <eLabel text="Providers" position="50,439" size="1127,40" font="Regular;27" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <widget source="Providerlist" render="Listbox" position="50,480" size="1127,235" font="Regular;27" itemHeight="40" foregroundColor="green" backgroundColor="black" zPosition="1" halign="center" valign="center" scrollbarMode="showOnDemand" selectionPixmap="BlackHarmony/menu/sel_1130_40.png" transparent="1">
+      <convert type="StringList" />
+    </widget>
+    <eLabel text="Nodes" position="50,718" size="1127,40" font="Regular;27" halign="center" valign="center" foregroundColor="white" backgroundColor="#1B3C85" />
+    <widget source="Nodelist" render="Listbox" position="50,760" size="1127,220" font="Regular;27" itemHeight="40" foregroundColor="green" backgroundColor="black" zPosition="1" halign="center" valign="center" scrollbarMode="showOnDemand" selectionPixmap="BlackHarmony/menu/sel_1130_40.png" transparent="1">
+      <convert type="StringList" />
+    </widget>
+    <ePixmap pixmap="icons/OscamLogo.png" position="40,1002" size="60,60" scale="1" alphatest="blend" zPosition="1" />  
+    <widget source="key_exit" render="Pixmap" pixmap="BlackHarmony/buttons/key_exit.png" position="1100,1019" size="60,50" zPosition="10" transparent="1" alphatest="blend" />
+  </screen>
+ 
+<!--OSCamInfoLog--> 
+  <screen name="OSCamInfoLog" position="0,0" size="1920,1080" backgroundColor="transparent" title="OSCamInfo Log" flags="wfNoBorder" >
+    <ePixmap position="0,0" zPosition="-10" size="1920,1080" pixmap="BlackHarmony/bg_design/EPGPig.png"/>
+    <widget source="global.CurrentTime" render="Label" position="81,50" size="80,32" font="Roboto_HD; 27" backgroundColor="black" transparent="1">
+      <convert type="ClockToText">Default</convert>
+    </widget>
+    <widget source="global.CurrentTime" render="Label" position="164,50" size="460,32" font="Roboto_HD; 27" foregroundColor="lemon" backgroundColor="black" transparent="1">
+      <convert type="ClockToText">Format:%A %d.%m.%Y</convert>
+    </widget>
+    <widget source="Title" render="Label" position="1020,50" size="840,32" font="Roboto_HD; 27" halign="right" backgroundColor="dark_grey" transparent="1"/>
+    <ePixmap pixmap="icons/OscamLogo.png" position="60,125" size="60,60" scale="1" alphatest="blend" zPosition="1" />     
+    <widget name="logtext" position="60,190" size="1790,795" font="Regular;32" halign="left" valign="top" backgroundColor="black" scrollbarMode="showOnDemand" enableWrapAround="1" transparent="1" noWrap="0" />
   </screen>
 </skin>

@@ -115,5 +115,41 @@
     <eLabel name="new eLabel" position="98,830" size="1710,2" backgroundColor="linie" zPosition="5" />
     <eLabel text="OpenATV" position="722,43" size="420,88" font="Replacement; 65" halign="center" backgroundColor="dark_grey" transparent="1" foregroundColor="lemon" />
   </screen>
-
+<!-- DeviceManager -->
+   <screen name="DeviceManager" position="345,93" size="1232,908" title="Device Manager" flags="wfNoBorder" backgroundColor="transparent">
+    <ePixmap position="0,0" zPosition="-10" size="1232,908" pixmap="BlackHarmony/bg_design/mainbg.png"/>
+    <widget source="global.CurrentTime" render="Label" position="40,25" size="80,30" font="Roboto_HD; 27" backgroundColor="black" transparent="1">
+      <convert type="ClockToText">Default</convert>
+    </widget>
+    <widget source="global.CurrentTime" render="Label" position="125,25" size="460,30" font="Roboto_HD; 27" foregroundColor="lemon" backgroundColor="black" transparent="1">
+      <convert type="ClockToText">Format:%A %d.%m.%Y</convert>
+    </widget>
+    <widget source="Title" render="Label" position="660,25" size="520,30" font="Roboto_HD; 27" halign="right" backgroundColor="dark_grey" transparent="1"/>
+        
+    <widget source="devicelist" render="Listbox" position="50,140" size="1130,540" scrollbarMode="showOnDemand" enableWrapAround="1" scrollbarWidth="10" scrollbarSliderBorderWidth="1" scrollbarSliderForegroundColor="#e6e6e6" scrollbarSliderBorderColor="#3b3e3f" selectionPixmap="BlackHarmony/menu/sel_1140_45.png" transparent="1">
+      <templates>
+      <template name="Default" fonts="Regular;27,Regular;30" itemHeight="45">
+      <mode name="default">
+      <pixmap index="Image" position="0,3" size="40,40" alpha="blend" scale="centerScaled" />
+        <text index="PartitionSeparator" position="0,3" size="40,40" font="1" verticalAlignment="center" />
+        <text index="Device" position="45,0" size="160,45" font="0" />
+        <text index="DeviceIndent" position="45,0" size="160,45" font="0" />
+        <text index="Description" position="210,0" size="730,45" font="0" verticalAlignment="center" horizontalAlignment="left" />
+        <text index="Size" position="910,0" size="195,45" font="0" verticalAlignment="center" horizontalAlignment="right" />
+        </mode>
+        </template>
+        </templates>
+    </widget>
+    <eLabel position="50,690" size="1130,2" backgroundColor="linie" />      
+    <widget name="description" position="50,702" size="1130,105" font="Regular; 30" halign="center" foregroundColor="#66CCCC" backgroundColor="black" transparent="1" zPosition="2" />      
+      
+    <ePixmap pixmap="BlackHarmony/buttons/key_red.png" position="41,850" size="35,27" alphatest="blend"/>
+    <ePixmap pixmap="BlackHarmony/buttons/key_green.png" position="328,850" size="35,27" alphatest="blend"/>
+    <ePixmap pixmap="BlackHarmony/buttons/key_yellow.png" position="615,850" size="35,27" alphatest="blend"/>
+    <ePixmap pixmap="BlackHarmony/buttons/key_blue.png" position="902,850" size="35,27" alphatest="blend"/>
+    <widget source="key_red" render="Label" position="91,849" size="200,27" zPosition="1" font="Roboto_HD; 24" halign="left" backgroundColor="dark_grey" transparent="1"/>
+    <widget source="key_green" render="Label" position="378,849" size="200,27" zPosition="1" font="Roboto_HD; 24" halign="left" backgroundColor="dark_grey" transparent="1"/>
+    <widget source="key_yellow" render="Label" position="665,849" size="200,27" zPosition="1" font="Roboto_HD; 24" halign="left" backgroundColor="dark_grey" transparent="1"/>
+    <widget source="key_blue" render="Label" position="945,849" size="200,27" zPosition="1" font="Roboto_HD; 24" halign="left" backgroundColor="dark_grey" transparent="1"/>
+  </screen>
 </skin>

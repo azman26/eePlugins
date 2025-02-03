@@ -27,6 +27,7 @@
     
         <ePixmap position="270,270" zPosition="-5" size="25, 25" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/MSNweather/icons/rain_icon.png" transparent="1" alphatest="blend"/>
     <widget source="rainyOrSnowyDays" render="Label" position="300,270" size="90,25" font="HD_Thin; 22" halign="left" valign="center" transparent="1" backgroundColor="black" noWrap="1" />
+    <widget source="alertsDescr" render="Label" position="400,180" size="1450,120" font="HD_Thin; 20" halign="left" valign="center" transparent="1" backgroundColor="black" />
 <!--Daily DATA 1st ROW -->
     <ePixmap pixmap="BlackHarmony/gfx/line.png" position="620,310" size="1200,2" zPosition="3" transparent="1" alphatest="blend"/>
     <ePixmap pixmap="BlackHarmony/gfx/line.png" position="100,330" size="1200,2" zPosition="3" transparent="1" alphatest="blend"/>

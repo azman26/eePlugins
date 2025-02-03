@@ -3,6 +3,5 @@
 if [ $? -gt 0 ];then
   exit 1
 fi
-rm -rf /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/scripts 2 > /dev/null
 rm -f /usr/lib/enigma2/python/Plugins/Extensions/StreamlinkConfig/bin/site-packages/streamlink/plugins/vtvgo.* 2 > /dev/null
 exit 0

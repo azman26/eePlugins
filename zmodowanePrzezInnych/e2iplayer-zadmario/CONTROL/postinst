@@ -4,6 +4,9 @@
 if [ -f /hdd/IPTVCache/UserAddons/opkg-postinst.sh ];then
  chmod 775 /hdd/IPTVCache/UserAddons/opkg-postinst.sh
  /hdd/IPTVCache/UserAddons/opkg-postinst.sh
+ echo '---------------------------------------------------------------------------------------------------------'
+ echo 'Użyj skryptu /hdd/IPTVCache/UserAddons/opkg-postinst.sh aby automaczycnie doinstalować własne dodatki !!!'
+ echo '---------------------------------------------------------------------------------------------------------'
 elif [ -e /hdd/IPTVCache/ ];then
   mkdir -p /hdd/IPTVCache/UserAddons
   echo "#tutaj wpisujemy skrypt uruchamiany PO instalacji/aktualizacji przez opkg

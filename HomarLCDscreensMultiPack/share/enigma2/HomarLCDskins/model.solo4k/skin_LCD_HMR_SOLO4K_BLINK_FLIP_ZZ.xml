@@ -245,6 +245,27 @@ options="movetype=running,startpoint=0,direction=left,steptime=20,repeat=0,start
  </widget>
  </screen> 
 
+ <!-- LCD screen ExtMoviePlayerSummary -->
+ <screen name="ExtMoviePlayerSummary" position="0,0" size="480,320">
+ <ePixmap pixmap="HomarLCDskins/Homar_480x320/Homar_4.png" position="0,0" size="480,320" zPosition="-1" alphatest="blend" />
+ <ePixmap pixmap="HomarLCDskins/Homar_480x320/iptvlogo.png" position="60,270" size="225,90" zPosition="-1" alphatest="blend" />
+ <widget source="global.CurrentTime" render="Label" position="290,85" size="200,55" font="VFD;52" transparent="1" halign="center" valign="center">
+ <convert type="ClockToText">Format:%H:%M</convert>
+ </widget>
+ <widget source="global.CurrentTime" render="Label" position="20,30" size="460,54" font="VFD;48" transparent="1" halign="left" valign="top" foregroundColor="HMRname">
+ <convert type="ClockToText">Format:%a, %d %B %Y</convert>
+ </widget>
+ <widget source="parent.Title" render="j00zekModRunningText" 
+options="movetype=running,startpoint=0,direction=left,steptime=20,repeat=0,startdelay=800,always=0,oneshot=0" noWrap="1" position="16,150" size="460,58" font="VFD;52" transparent="1" halign="left" valign="top" foregroundColor="HMRname" >
+ </widget>
+ <widget source="session.CurrentService" render="Progress" pixmap="HomarLCDskins/Homar_480x320/Homar_3.png" position="18,215" size="460,34" borderWidth="6" backgroundColor="#00CFFF"> 
+ <convert type="j00zekE2iPlayerSSS">Progress</convert>
+ </widget>
+ <widget source="session.CurrentService" render="Label" font="VFD;52" position="190,250" size="260,78" halign="right" valign="center" transparent="1" zPosition="1" noWrap="1" >
+ <convert type="j00zekE2iPlayerSSS">RemindedMinutes</convert>
+ </widget>
+ </screen> 
+
  <!-- MediaPlayer -->
  <screen name="MediaPlayerLCDScreen" position="0,0" size="480,320" id="1">
  <widget source="session.CurrentService" render="j00zekPiconAnimation" pixmaps="HomarLCDskins/common/animated_1" position="0,0" size="480,320" zPosition="5" transparent="1" alphatest="blend" />
@@ -937,6 +958,11 @@ options="movetype=running,startpoint=0,direction=left,steptime=20,repeat=0,start
 <widget source="parent.Title" render="j00zekModRunningText" 
 options="movetype=running,startpoint=0,direction=left,steptime=40,repeat=0,startdelay=200,always=0,oneshot=0" noWrap="1" position="15,20" size="460,46" font="RegularLCD;42" halign="center" valign="top" transparent="1" foregroundColor="HMRname" />
  </screen>
+
+<!-- ScreenSummary -->
+<screen name="ScreenSummary" position="0,0" size="100%,100%" id="1">
+  <panel name="SimpleSummary" />
+</screen>
 
  <!-- Standby -->
  <screen name="StandbySummary" position="0,0" size="480,320" id="1">

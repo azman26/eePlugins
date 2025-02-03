@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import #zmiana strategii ladowanie modulow w py2 z relative na absolute jak w py3
-from Plugins.Extensions.StreamlinkConfig.__init__ import mygettext as _ , readCFG , DBGlog
+from Plugins.Extensions.StreamlinkConfig.__init__ import mygettext as _ , readCFG
 from Plugins.Extensions.StreamlinkConfig.version import Version
 from Plugins.Extensions.StreamlinkConfig.plugins.azmanIPTVsettings import get_azmanIPTVsettings
 import os, time, sys
@@ -51,7 +51,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         #budowanie listy
         for fb in sorted(os.listdir("/etc/enigma2"), key=str.lower):
             if fb.startswith('userbouquet.') and fb.endswith('.tv') and not fb in ['userbouquet.LastScanned.tv']:
-                DBGlog(fb)
+                print(fb)
                 with open('/etc/enigma2/%s' % fb, 'r') as fp:
                     try:
                         fpc = fp.read()
@@ -88,7 +88,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         self.session = session
 
         # Summary
-        self.setup_title = _("Streamlink Configuration" + ' v.' + Version)
+        self.setup_title = _("Streamlink Configuration EOL")
         self.onChangedEntry = []
 
         # Buttons
@@ -143,7 +143,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
             self.close(None)
         
     def refreshBuildList(self, ret = False):
-        DBGlog('refreshBuildList >>>')
+        print('refreshBuildList >>>')
         self["config"].list = self.buildList()
         self.DoBuildList.start(50, True)
         
@@ -166,14 +166,14 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         self.close(None)
         
     def prevConf(self):
-        DBGlog('prevConf >>> VisibleSection = %s' % self.VisibleSection)
+        print('prevConf >>> VisibleSection = %s' % self.VisibleSection)
         self.VisibleSection -= 1
         if self.VisibleSection < 1:
             self.VisibleSection = 5
         self.refreshBuildList()
         
     def nextConf(self):
-        DBGlog('nextConf >>> VisibleSection = %s' % self.VisibleSection)
+        print('nextConf >>> VisibleSection = %s' % self.VisibleSection)
         self.VisibleSection += 1
         if self.VisibleSection > 5:
             self.VisibleSection = 1
@@ -189,16 +189,16 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
             self.choicesList = [(_("Don't change"),"0"),("gstreamer (root 4097)","4097"),("Hardware (root 1) wymagany do PIP","1"),(_("ServiceApp not installed!"), None)]
         
     def changedEntry(self):
-        DBGlog('%s' % 'changedEntry()')
+        print('%s' % 'changedEntry()')
         try:
             for x in self.onChangedEntry:
                 x()
         except Exception as e:
-            DBGlog('%s' % str(e))
+            print('%s' % str(e))
 
     def selectionChanged(self):
         if 0:
-            DBGlog('%s' % 'selectionChanged(%s)' % self["config"].getCurrent()[0])
+            print('%s' % 'selectionChanged(%s)' % self["config"].getCurrent()[0])
 
     def getCurrentEntry(self):
         return self["config"].getCurrent()[0]
@@ -211,7 +211,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         return SetupSummary
 
     def Okbutton(self):
-        DBGlog('%s' % 'Okbutton')
+        print('%s' % 'Okbutton')
         try:
             curIndex = self["config"].getCurrentIndex()
             selectedItem = self["config"].list[curIndex]
@@ -225,7 +225,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
                                               )
             return
         except Exception as e:
-            DBGlog('%s' % str(e))
+            print('%s' % str(e))
 
     def cleanBouquets_tvradio(self): #clean bouquets.tv from non existing files
         for TypBukietu in('/etc/enigma2/bouquets.tv','/etc/enigma2/bouquets.radio'):
@@ -244,7 +244,7 @@ class StreamlinkConfiguration(Screen, ConfigListScreen):
         eDVBDB.getInstance().reloadBouquets()
         
     def retFromCMD(self, ret = False):
-        DBGlog('retFromCMD >>>')
+        print('retFromCMD >>>')
         self.cleanBouquets_tvradio()
         self.reloadBouquets()
         msg = _("Bouquets has been reloaded")

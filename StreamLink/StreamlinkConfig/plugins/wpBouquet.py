@@ -56,6 +56,11 @@ def _generate_E2bouquet():
     #generate bouquet
     from channelsMappings import name2serviceDict, name2service4wpDict, name2nameDict
     from datetime import date
+    try:
+        from azman_channels_mappings import azman_dict
+    except Exception as e:
+        print('WARNING, error loading azman_channels_mappings %s' % str(e))
+        azman_dict = {}
 
     doLog('Generuje bukiet dla %s ...' % frameWork)
     open("/tmp/wpBouquet.log", "a").write('Generuje bukiet dla %s ...\n' % frameWork)
@@ -68,12 +73,16 @@ def _generate_E2bouquet():
             lcaseTitle = title.lower().replace('ś','s').replace('ń','n').replace(' ','')
             standardReference = '%s:0:1:0:0:0:0:0:0:0' % frameWork
             #mapowanie bezpośrednie zdefiniowane dla wp
-            ServiceID = name2service4wpDict.get(title , standardReference)
+            ServiceID = azman_dict.get(title , standardReference)
             if ServiceID.startswith(standardReference):
-                ServiceID = name2serviceDict.get(name2nameDict.get(lcaseTitle, lcaseTitle) , standardReference)
-            #mapowanie po znalezionych kanalach w bukietach
+                ServiceID = azman_dict.get(lcaseTitle , standardReference)
                 if ServiceID.startswith(standardReference):
-                    doLog("\t- Brak mapowania referencji kanału  %s (%s) dla EPG" % (title, lcaseTitle))
+                    ServiceID = name2serviceDict.get(lcaseTitle , standardReference)
+                    if ServiceID.startswith(standardReference):
+                        ServiceID = name2serviceDict.get(name2nameDict.get(lcaseTitle, lcaseTitle) , standardReference)
+            #mapowanie po znalezionych kanalach w bukietach
+            if ServiceID.startswith(standardReference):
+                doLog("\t- Brak mapowania referencji kanału  %s (%s) dla EPG" % (title, lcaseTitle))
             if not ServiceID.startswith(frameWork):
                 ServiceIDlist = ServiceID.split(':')
                 ServiceIDlist[0] = frameWork
@@ -153,10 +162,8 @@ if __name__ == '__main__':
             frameWork = "4097"
         elif str(frameWork) == "4097e":
             frameWork = "4097"
-            streamlinkURL = 'http%3a//slplayer/'
         elif str(frameWork) == "1e":
             frameWork = "1"
-            streamlinkURL = 'http%3a//slplayer/'
         #print frameWork
         _generate_E2bouquet()
     elif len(sys.argv) == 4 and sys.argv[1] == 'checkLogin':
