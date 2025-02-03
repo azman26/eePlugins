@@ -6,7 +6,7 @@ from Plugins.Extensions.EmuKodi.version import Version
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 
-import json, os, sys, subprocess, time, traceback
+import json, os, signal, sys, subprocess, time, traceback
 
 import Screens.Standby
 ####MENU
@@ -29,13 +29,16 @@ DBG = True
 ################################################################################################
 config.plugins.EmuKodi = ConfigSubsection()
 config.plugins.EmuKodi.configItem = NoSave(ConfigNothing())
-config.plugins.EmuKodi.selectedMenuIndex = NoSave(ConfigInteger(default = 0, limits = (0, 20)))
+config.plugins.EmuKodi.MenuInitIndex = NoSave(ConfigInteger(default = 0))
+config.plugins.EmuKodi.ConfigurationInitIndex = NoSave(ConfigInteger(default = 0))
+config.plugins.EmuKodi.PlayerInitIndex = NoSave(ConfigInteger(default = 0))
 config.plugins.EmuKodi.openSelected = NoSave(ConfigText(default = '', fixed_size = False))
 config.plugins.EmuKodi.username  = NoSave(ConfigText(default = '', fixed_size = False))
 config.plugins.EmuKodi.password  = NoSave(ConfigPassword(default = '', fixed_size = False))
 config.plugins.EmuKodi.PBGOklient  = NoSave(ConfigSelection(default = "iCOK", choices = [("iCOK", "iCOK (konto w iPolsat Box)"), 
                                                                                   ("polsatbox", "polsatbox (konto w Polsat Box Go)"), ]))
 config.plugins.EmuKodi.LoginCode  = NoSave(ConfigText(default = '', fixed_size = False))
+
 
 if not os.path.exists('/etc/EmuKodi'):
     os.mkdir('/etc/EmuKodi')
@@ -77,7 +80,7 @@ class EmuKodi_Menu(Screen):
         </widget>
         <widget name="key_red"    position="20,510" zPosition="2" size="150,30" foregroundColor="red" valign="center" halign="left" font="Regular;22" transparent="1" />
         <widget name="key_green"  position="170,510" zPosition="2" size="150,30" foregroundColor="green" valign="center" halign="left" font="Regular;22" transparent="1" />
-        <widget name="key_yellow"  position="340,510" zPosition="2" size="150,30" foregroundColor="green" valign="center" halign="left" font="Regular;22" transparent="1" />
+        <widget name="key_yellow"  position="340,510" zPosition="2" size="150,30" foregroundColor="yellow" valign="center" halign="left" font="Regular;22" transparent="1" />
         <widget name="key_ok"  position="490,510" zPosition="2" size="350,30" foregroundColor="gray" valign="center" halign="left" font="Regular;22" transparent="1" />
 </screen>"""
 
@@ -152,8 +155,8 @@ class EmuKodi_Menu(Screen):
                         Mlist.append(self.buildListEntry(addonKey))
 
         self["list"].list = Mlist
-        self["list"].setCurrentIndex(config.plugins.EmuKodi.selectedMenuIndex.value)
-        print('EmuKodi_Menu setCurrentIndex', config.plugins.EmuKodi.selectedMenuIndex.value)
+        self["list"].setCurrentIndex(config.plugins.EmuKodi.MenuInitIndex.value)
+        print('EmuKodi_Menu setCurrentIndex', config.plugins.EmuKodi.MenuInitIndex.value)
 
     def buildListEntry(self, addonKey, description = '', image='',):
         if addonKey is not None:
@@ -177,10 +180,10 @@ class EmuKodi_Menu(Screen):
 
     def storeselectedMenuIndex(self):
         try:
-            config.plugins.EmuKodi.selectedMenuIndex.value = self["list"].getCurrentIndex()
+            config.plugins.EmuKodi.MenuInitIndex.value = self["list"].getCurrentIndex()
         except Exception:
-            config.plugins.EmuKodi.selectedMenuIndex.value = self["list"].getSelectedIndex() #np. openvix
-        print('getCurrentIndex', config.plugins.EmuKodi.selectedMenuIndex.value)
+            config.plugins.EmuKodi.MenuInitIndex.value = self["list"].getSelectedIndex() #np. openvix
+        print('getCurrentIndex', config.plugins.EmuKodi.MenuInitIndex.value)
 
     def configSelected(self):
         SelectedAddonKey = str(self["list"].getCurrent()[2])
@@ -510,7 +513,7 @@ class EmuKodiPlayer(Screen):
         <widget source="list" render="Listbox" position="5,40" size="1190,500" scrollbarMode="showOnDemand" transparent="1" >
                 <convert type="TemplatedMultiContent">
                         {"template": [
-                                MultiContentEntryPixmapAlphaTest(pos = (2, 2), size = (120, 40), png = 0),
+                                MultiContentEntryPixmapAlphaTest(pos = (10, 10), size = (40, 40), png = 0),
                                 MultiContentEntryText(pos = (138, 2), size = (1050, 40), font=0, flags = RT_HALIGN_LEFT|RT_VALIGN_CENTER, text = 1),
                                 ],
                                 "fonts": [gFont("Regular", 26)],
@@ -661,19 +664,33 @@ class EmuKodiPlayer(Screen):
         title = title.replace('[COLOR khaki]',r'\c00C3B091').replace('[COLOR gold]',r'\c00ffd700').replace('[COLOR lightblue]',r'\c00add8e6')
         title = title.replace('[COLOR yellowgreen]',r'\c00adff2f')
         #ladowanie image
-        image = lineDict.get('thumbnailImage', None)
-        if image is not None and len(image) > 4 and image[-4:] in ('.png','.jpg', '.svg'):
-            image = '/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/pic/%s' % image
-            if os.path.exists(image):
-                pixmap = LoadPixmap(image)
-            else:
-                pixmap = LoadPixmap('/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/pic/config.png')
+        if lineDict.get('isFolder', False):
+            image = 'folder.png'
+        elif lineDict.get('isPlayable', False):
+            image = 'movie.png'
+        elif not lineDict.get('thumbnailImage', None) is None:
+            image = lineDict.get('thumbnailImage')
+        elif not lineDict.get('iconImage', None) is None:
+            image = lineDict.get('iconImage')
         else:
-            pixmap = LoadPixmap('/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/pic/config.png')
+            image = 'noCover.png'
+        if len(image) > 4 and image[-4:] in ('.png','.jpg', '.svg'):
+            image = '/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/pic/%s' % image
+            if not os.path.exists(image):
+                image = '/usr/lib/enigma2/python/Plugins/Extensions/EmuKodi/pic/noCover.png'
+        pixmap = LoadPixmap(image)
         return((pixmap, title, lineDict))
 
     def stopVideo(self):
-        pass
+        print("[EmuKodiPlayer.stopVideo] >>>")
+        if not self.deviceCDM is None:
+            self.deviceCDM.stopPlaying() #wyłącza playera i czyści bufor dvb, bez tego  mamy 5s opóźnienia
+        for pidFile in ['/var/run/cdmDevicePlayer.pid', '/var/run/emukodiCLI.pid', '/var/run/exteplayer3.pid']:
+            if os.path.exists(pidFile):
+                pid = open(pidFile, 'r').readline().strip()
+                if os.path.exists('/proc/%s' % pid):
+                    os.kill(int(pid), signal.SIGTERM) #or signal.SIGKILL
+                os.remove(pidFile)
 
     def playVideo(self, url):
         print("[EmuKodiPlayer.playVideo] url=", url)
@@ -687,11 +704,12 @@ class EmuKodiPlayer(Screen):
             except ImportError:
                 self.deviceCDM = False
                 print("[EmuKodiPlayer.playVideo] EXCEPTION loading deviceCDM")
-            if self.deviceCDM != False:
-                if not self.deviceCDM.doWhatYouMustDo(url):
-                    self.deviceCDM.tryToDoSomething(url)
+        if self.deviceCDM != False:
+            if not self.deviceCDM.doWhatYouMustDo(url):
+                self.deviceCDM.tryToDoSomething(url)
     
     def openSelectedMenuItem(self):
+        self.stopVideo()
         lineDict = self["list"].getCurrent()[2]
         print('EmuKodiPlayer.openSelectedMenuItem',lineDict)
         self["KodiNotificationsAndStatus"].setText(str(lineDict))
@@ -709,21 +727,22 @@ class EmuKodiPlayer(Screen):
                 self["KodiNotificationsAndStatus"].setText(self.AddonCmd)
                 self.playVideo(self.AddonCmd)
                 return
+            elif str(lineDict.get('IsPlayable', '')) in ['true','True']:
+                self["KodiNotificationsAndStatus"].setText('Play')
+                self.playVideo(self.AddonCmd)
+                return
             elif self.AddonCmd.startswith('/usr/') and "?" in self.AddonCmd:
                 self.AddonCmd = "'1' '?" + self.AddonCmd.split('?')[1] + "' 'resume:false'"
             
             self["KodiNotificationsAndStatus"].setText(self.AddonCmd)
             self.headerStatus = ' - ładowanie %s' % lineDict.get('label', "?")
             self.EmuKodiCmdRun()
-        #elif lineDict.get('IsPlayable', False):
-        #    url = lineDict.get('IsPlayable', '')
-        #    if url != '':
-        #        self.playVideo(url)
         
     def doNothing(self, retVal = None):
         return
                 
     def quit(self):
+        self.stopVideo()
         if self.prev_running_service:
             self.session.nav.playService(self.prev_running_service)
         self.close()
